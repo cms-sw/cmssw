@@ -20,7 +20,6 @@ namespace mkfit {
     bool apply_material : 1;
     bool copy_input_state_on_fail : 1;
     bool use_fit_b_field : 1;  // the parametrised field of the final fit (Config::bFieldFromZRFit)
-    // Could add: bool use_trig_approx       -- now Config::useTrigApprox = true
     // Could add: int  n_prop_to_r_iters : 8 -- now Config::Niter = 5
 
     PropagationFlags()

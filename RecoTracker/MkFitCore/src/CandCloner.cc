@@ -241,7 +241,7 @@ namespace mkfit {
           ccand.clear();
 
           while (extra_i != extra_e) {
-            ccand.emplace_back(*extra_i);
+            ccand.push_back(*extra_i);
             ++extra_i;
           }
         }

@@ -368,6 +368,17 @@ namespace mkfit {
     fclose(fp);
   }
 
+  void TrackerInfo::setup_double_layers(const std::function<int(int)>& partner) {
+    for (int l = 0; l < n_layers(); ++l) {
+      const int p = partner(l);
+      if (p != -1 && (p < 0 || p >= n_layers() || p == l || partner(p) != l))
+        throw std::runtime_error("TrackerInfo::setup_double_layers: partner(" + std::to_string(l) +
+                                 ") = " + std::to_string(p) + " does not name a pair");
+      m_layers[l].m_is_double_layer = p != -1;
+      m_layers[l].m_double_layer_partner = p;
+    }
+  }
+
   void TrackerInfo::print_tracker(int level, int precision) const {
     // clang-format off
     if (level > 0) {

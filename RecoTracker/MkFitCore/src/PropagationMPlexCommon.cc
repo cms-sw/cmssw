@@ -165,7 +165,7 @@ namespace mkfit {
       //std::cout << "dEdx=" << dEdx << " delta=" << deltahalf << " wmax=" << wmax << " Xi=" << hitsXi.constAt(n,0,0) << std::endl;
       const float dP = propSign.constAt(n, 0, 0) * dEdx / beta;
       outPar.At(n, 3, 0) = p / (std::max(p - dP, 0.001f) * pt);  //stay above 1MeV
-      //assume 100% uncertainty
+      // Bethe-Bloch straggling variance, the CMS EnergyLossUpdator form.
       const float dEdx2 = (hitsXi.constAt(n, 0, 0) * invCos / beta2) * wmax * (1 - beta2 * 0.5);
       outErr.At(n, 3, 3) += dEdx2 / (beta2 * p2 * pt * pt);
     }

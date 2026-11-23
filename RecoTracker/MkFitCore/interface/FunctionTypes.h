@@ -30,13 +30,25 @@ namespace mkfit {
   using clean_duplicates_cf = void(TrackVec &, const IterationConfig &, const TrackerInfo &, const BeamSpot &);
   using clean_duplicates_func = std::function<clean_duplicates_cf>;
 
-  using track_score_cf = float(const int nfoundhits,
-                               const int ntailholes,
-                               const int noverlaphits,
-                               const int nmisshits,
-                               const float chi2,
-                               const float pt,
-                               const bool inFindCandidates);
+  // What a track scorer sees of a track or candidate. Hole counts are always the
+  // real ones; penalize_tail_holes says whether the caller wants the tail holes
+  // charged. score_in is the score the object carries when the scorer is called
+  // (for MkFinderV2p2 at the final pick, the summed layer-step log-likelihood of
+  // the search), 0 where it carries none.
+  struct TrackScoreInput {
+    int n_found_hits = 0;
+    int n_tail_holes = 0;
+    int n_overlap_hits = 0;
+    int n_inside_holes = 0;
+    int n_seed_hits = 0;
+    float chi2 = 0;
+    float pt = 0;
+    float score_in = 0;
+    bool penalize_tail_holes = false;
+    bool in_find_candidates = false;
+  };
+
+  using track_score_cf = float(const TrackScoreInput &);
   using track_score_func = std::function<track_score_cf>;
 
   using cpe_cf = bool(int orig_hit_idx, float ltp_arr[6], float (&hit_arr)[5]);

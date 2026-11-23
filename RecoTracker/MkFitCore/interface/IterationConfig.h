@@ -3,6 +3,7 @@
 
 #include "RecoTracker/MkFitCore/interface/FunctionTypes.h"
 #include "RecoTracker/MkFitCore/interface/SteeringParams.h"
+#include "RecoTracker/MkFitCore/interface/V2p2Params.h"
 
 #include "nlohmann/json_fwd.hpp"
 
@@ -97,6 +98,8 @@ namespace mkfit {
     int minHitsQF = 4;
 
     //min pT cut
+    // In CMSSW, MkFitIterationConfigESProducer overwrites this and maxClusterSize, in both parameter sets, from its
+    // python parameters (minPt, maxClusterSize); the JSON value is used only in the standalone.
     float minPtCut = 0.0;
 
     //max cluster size cut for SiStrip hits
@@ -123,6 +126,8 @@ namespace mkfit {
 
   class IterationConfig {
   public:
+    // The members saved to and loaded from JSON are those listed in ITCONF_DEFINE_TYPE_NON_INTRUSIVE in
+    // IterationConfig.cc; every listed key is required on load. Members not listed have no JSON save / load.
     int m_iteration_index = -1;
     int m_track_algorithm = -1;
 
@@ -137,8 +142,15 @@ namespace mkfit {
     float m_backward_fit_outlier_min_pt = 0.f;  // ... only on tracks with pT above this
     // If > 0, a backward-search extension is kept only if its new hits lie on this many pixel layers (one layer if
     // |d0| to the beam spot is below m_backward_search_prompt_max_d0); otherwise the pre-search candidate is restored.
+    // No JSON save / load: MkFitIterationConfigESProducer sets both from python (backwardSearchMinPixelLayers,
+    // backwardSearchPromptMaxD0); in the standalone they stay 0.
     int m_backward_search_min_pixel_layers = 0;
     float m_backward_search_prompt_max_d0 = 0.f;
+
+    // MkFinderV2p2 tunings, read through MkJob::v2p2(). No JSON save / load: in CMSSW
+    // MkFitIterationConfigESProducer sets them from its python PSet "v2p2"; in the standalone
+    // they start at the defaults and the mkFit options and shell setters change them.
+    V2p2Params m_v2p2;
 
     // seed cleaning params with good defaults (all configurable)
     float sc_ptthr_hpt = 2.0;
@@ -194,6 +206,10 @@ namespace mkfit {
     clean_duplicates_func m_duplicate_cleaner;
     // - default track scoring function, can be overriden in SteeringParams for each eta region.
     track_score_func m_default_track_scorer;
+    // - track scorers per task. The final-pick and post-backward-fit ones are resolved into
+    //   each SteeringParams and default to its search scorer. The duplicate-cleaner one, when
+    //   named, re-scores the tracks just before m_duplicate_cleaner runs (wrapped into it).
+    track_score_func m_duplicate_cleaner_track_scorer;
 
     // Names for Standard functions that get saved to / loaded from JSON.
     std::string m_seed_cleaner_name;
@@ -201,6 +217,11 @@ namespace mkfit {
     std::string m_pre_bkfit_filter_name, m_post_bkfit_filter_name;
     std::string m_duplicate_cleaner_name;
     std::string m_default_track_scorer_name = "default";
+    // Per-task track scorers; empty means the search scorer (final pick, post-backward-fit)
+    // or no re-scoring (duplicate cleaner).
+    std::string m_final_pick_track_scorer_name;
+    std::string m_post_bkfit_track_scorer_name;
+    std::string m_duplicate_cleaner_track_scorer_name;
 
     //----------------------------------------------------------------------------
 
@@ -235,6 +256,9 @@ namespace mkfit {
       m_post_bkfit_filter_name = o.m_post_bkfit_filter_name;
       m_duplicate_cleaner_name = o.m_duplicate_cleaner_name;
       m_default_track_scorer_name = o.m_default_track_scorer_name;
+      m_final_pick_track_scorer_name = o.m_final_pick_track_scorer_name;
+      m_post_bkfit_track_scorer_name = o.m_post_bkfit_track_scorer_name;
+      m_duplicate_cleaner_track_scorer_name = o.m_duplicate_cleaner_track_scorer_name;
     }
 
     void set_iteration_index_and_track_algorithm(int idx, int trk_alg) {

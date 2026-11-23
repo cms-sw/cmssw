@@ -3,7 +3,9 @@
 
 #include "RecoTracker/MkFitCore/interface/Config.h"
 #include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
+#include "RecoTracker/MkFitCore/interface/MathInlineFunctions.h"
 #include "RecoTracker/MkFitCore/interface/FunctionTypes.h"
+#include "RecoTracker/MkFitCore/interface/TrackState.h"
 #include "RecoTracker/MkFitCore/interface/Hit.h"
 #include "RecoTracker/MkFitCore/interface/IdxChi2List.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
@@ -13,105 +15,6 @@
 #include <limits>
 
 namespace mkfit {
-
-  typedef std::pair<int, int> SimTkIDInfo;
-  typedef std::vector<int> HitIdxVec;
-  typedef std::map<int, std::vector<int> > HitLayerMap;
-
-  inline int calculateCharge(const Hit& hit0, const Hit& hit1, const Hit& hit2) {
-    return ((hit2.y() - hit0.y()) * (hit2.x() - hit1.x()) > (hit2.y() - hit1.y()) * (hit2.x() - hit0.x()) ? 1 : -1);
-  }
-
-  inline int calculateCharge(const float hit0_x,
-                             const float hit0_y,
-                             const float hit1_x,
-                             const float hit1_y,
-                             const float hit2_x,
-                             const float hit2_y) {
-    return ((hit2_y - hit0_y) * (hit2_x - hit1_x) > (hit2_y - hit1_y) * (hit2_x - hit0_x) ? 1 : -1);
-  }
-
-  //==============================================================================
-  // TrackState
-  //==============================================================================
-
-  struct TrackState  //  possible to add same accessors as track?
-  {
-  public:
-    TrackState() : valid(true) {}
-    TrackState(int charge, const SVector3& pos, const SVector3& mom, const SMatrixSym66& err)
-        : parameters(SVector6(pos.At(0), pos.At(1), pos.At(2), mom.At(0), mom.At(1), mom.At(2))),
-          errors(err),
-          charge(charge),
-          valid(true) {}
-    SVector3 position() const { return SVector3(parameters[0], parameters[1], parameters[2]); }
-    SVector6 parameters;
-    SMatrixSym66 errors;
-    short charge;
-    bool valid;
-
-    // track state position
-    float x() const { return parameters.At(0); }
-    float y() const { return parameters.At(1); }
-    float z() const { return parameters.At(2); }
-    float posR() const { return getHypot(x(), y()); }
-    float posRsq() const { return x() * x() + y() * y(); }
-    float posPhi() const { return getPhi(x(), y()); }
-    float posEta() const { return getEta(posR(), z()); }
-
-    // track state position errors
-    float exx() const { return std::sqrt(errors.At(0, 0)); }
-    float eyy() const { return std::sqrt(errors.At(1, 1)); }
-    float ezz() const { return std::sqrt(errors.At(2, 2)); }
-    float exy() const { return std::sqrt(errors.At(0, 1)); }
-    float exz() const { return std::sqrt(errors.At(0, 2)); }
-    float eyz() const { return std::sqrt(errors.At(1, 2)); }
-
-    float eposR() const { return std::sqrt(getRadErr2(x(), y(), errors.At(0, 0), errors.At(1, 1), errors.At(0, 1))); }
-    float eposPhi() const { return std::sqrt(getPhiErr2(x(), y(), errors.At(0, 0), errors.At(1, 1), errors.At(0, 1))); }
-    float eposEta() const {
-      return std::sqrt(getEtaErr2(x(),
-                                  y(),
-                                  z(),
-                                  errors.At(0, 0),
-                                  errors.At(1, 1),
-                                  errors.At(2, 2),
-                                  errors.At(0, 1),
-                                  errors.At(0, 2),
-                                  errors.At(1, 2)));
-    }
-
-    // track state momentum
-    float invpT() const { return parameters.At(3); }
-    float momPhi() const { return parameters.At(4); }
-    float theta() const { return parameters.At(5); }
-    float pT() const { return std::abs(1.f / parameters.At(3)); }
-    float px() const { return pT() * std::cos(parameters.At(4)); }
-    float py() const { return pT() * std::sin(parameters.At(4)); }
-    float pz() const { return pT() / std::tan(parameters.At(5)); }
-    float momEta() const { return getEta(theta()); }
-    float p() const { return pT() / std::sin(parameters.At(5)); }
-
-    float einvpT() const { return std::sqrt(errors.At(3, 3)); }
-    float emomPhi() const { return std::sqrt(errors.At(4, 4)); }
-    float etheta() const { return std::sqrt(errors.At(5, 5)); }
-    float epT() const { return std::sqrt(errors.At(3, 3)) / (parameters.At(3) * parameters.At(3)); }
-    float emomEta() const { return std::sqrt(errors.At(5, 5)) / std::sin(parameters.At(5)); }
-    float epxpx() const { return std::sqrt(getPxPxErr2(invpT(), momPhi(), errors.At(3, 3), errors.At(4, 4))); }
-    float epypy() const { return std::sqrt(getPyPyErr2(invpT(), momPhi(), errors.At(3, 3), errors.At(4, 4))); }
-    float epzpz() const { return std::sqrt(getPyPyErr2(invpT(), theta(), errors.At(3, 3), errors.At(5, 5))); }
-
-    void convertFromCartesianToCCS();
-    void convertFromCCSToCartesian();
-    SMatrix66 jacobianCCSToCartesian(float invpt, float phi, float theta) const;
-    SMatrix66 jacobianCartesianToCCS(float px, float py, float pz) const;
-
-    void convertFromGlbCurvilinearToCCS();
-    void convertFromCCSToGlbCurvilinear();
-    //last row/column are zeros
-    SMatrix66 jacobianCCSToCurvilinear(float invpt, float cosP, float sinP, float cosT, float sinT, short charge) const;
-    SMatrix66 jacobianCurvilinearToCCS(float px, float py, float pz, short charge) const;
-  };
 
   //==============================================================================
   // TrackBase
@@ -132,8 +35,9 @@ namespace mkfit {
     const SVector6& parameters() const { return state_.parameters; }
     const SMatrixSym66& errors() const { return state_.errors; }
 
-    const float* posArray() const { return state_.parameters.Array(); }
-    const float* errArray() const { return state_.errors.Array(); }
+    // Access for packing into Matriplexes
+    const float* parArray() const { return state_.parArray(); }
+    const float* errArray() const { return state_.errArray(); }
 
     // Non-const versions needed for CopyOut of Matriplex.
     SVector6& parameters_nc() { return state_.parameters; }
@@ -177,6 +81,8 @@ namespace mkfit {
     void setChi2(float chi2) { chi2_ = chi2; }
     void setScore(float s) { score_ = s; }
     void setLabel(int lbl) { label_ = lbl; }
+
+    void scaleErrors(float scale) { state_.errors *= scale; }
 
     bool hasSillyValues(bool dump, bool fix, const char* pref = "");
     bool hasNanNSillyValues() const;
@@ -296,8 +202,8 @@ namespace mkfit {
       highPtTripletStep = 22,
       lowPtQuadStep = 23,
       detachedQuadStep = 24,
-      reservedForUpgrades1 = 25,
-      reservedForUpgrades2 = 26,
+      displacedGeneralStep = 25,
+      displacedRegionalStep = 26,
       bTagGhostTracks = 27,
       beamhalo = 28,
       gsf = 29,
@@ -423,6 +329,11 @@ namespace mkfit {
       hitsOnTrk_.clear();
     }
 
+    void swapOutAndResetHits(std::vector<HitOnTrack>& out) {
+      out.swap(hitsOnTrk_);
+      resetHits();
+    }
+
     // For MkFinder::copy_out and TrackCand::ExportTrack
     void resizeHits(int nHits, int nFoundHits) {
       hitsOnTrk_.resize(nHits);
@@ -521,6 +432,16 @@ namespace mkfit {
       }
     }
 
+    template <typename Predicate>
+    void filterHits(Predicate pred) {
+      int n_removed = std::erase_if(hitsOnTrk_, pred);
+      if (n_removed > 0) {
+        lastHitIdx_ -= n_removed;
+        countAndSetNFoundHits();
+        hitsOnTrk_.shrink_to_fit();
+      }
+    }
+
     int nFoundHits() const { return nFoundHits_; }
     int nTotalHits() const { return lastHitIdx_ + 1; }
 
@@ -615,29 +536,33 @@ namespace mkfit {
                             const Track& cand1,
                             bool penalizeTailMissHits = false,
                             bool inFindCandidates = false) {
-    int nfoundhits = cand1.nFoundHits();
-    int noverlaphits = cand1.nOverlapHits();
-    int nmisshits = cand1.nInsideMinusOneHits();
-    float ntailmisshits = penalizeTailMissHits ? cand1.nTailMinusOneHits() : 0;
-    float pt = cand1.pT();
-    float chi2 = cand1.chi2();
+    TrackScoreInput in;
+    in.n_found_hits = cand1.nFoundHits();
+    in.n_tail_holes = cand1.nTailMinusOneHits();
+    in.n_overlap_hits = cand1.nOverlapHits();
+    in.n_inside_holes = cand1.nInsideMinusOneHits();
+    in.n_seed_hits = cand1.getNSeedHits();
     // Do not allow for chi2<0 in score calculation
-    if (chi2 < 0)
-      chi2 = 0.f;
-    return score_func(nfoundhits, ntailmisshits, noverlaphits, nmisshits, chi2, pt, inFindCandidates);
+    in.chi2 = std::max(cand1.chi2(), 0.f);
+    in.pt = cand1.pT();
+    in.score_in = cand1.score();
+    in.penalize_tail_holes = penalizeTailMissHits;
+    in.in_find_candidates = inFindCandidates;
+    return score_func(in);
   }
 
   inline float getScoreStruct(const track_score_func& score_func, const IdxChi2List& cand1) {
-    int nfoundhits = cand1.nhits;
-    int ntailholes = cand1.ntailholes;
-    int noverlaphits = cand1.noverlaps;
-    int nmisshits = cand1.nholes;
-    float pt = cand1.pt;
-    float chi2 = cand1.chi2;
+    TrackScoreInput in;
+    in.n_found_hits = cand1.nhits;
+    in.n_tail_holes = cand1.ntailholes;
+    in.n_overlap_hits = cand1.noverlaps;
+    in.n_inside_holes = cand1.nholes;
     // Do not allow for chi2<0 in score calculation
-    if (chi2 < 0)
-      chi2 = 0.f;
-    return score_func(nfoundhits, ntailholes, noverlaphits, nmisshits, chi2, pt, true /*inFindCandidates*/);
+    in.chi2 = std::max(cand1.chi2, 0.f);
+    in.pt = cand1.pt;
+    in.penalize_tail_holes = true;
+    in.in_find_candidates = true;
+    return score_func(in);
   }
 
   template <typename Vector>

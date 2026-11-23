@@ -1,0 +1,34 @@
+#include <string_view>
+#include <string>
+#include <cstdio>
+// Matriplex expected to be included.
+
+namespace {
+
+  std::string matriplex_print_format("%12.5g ");
+
+  // Print contents of matriplex at matrix-position n.
+  template <typename MPLEX>
+  void matriplex_print_n(const MPLEX& M, int n, std::string_view prefix, std::string_view postfix = "\n") {
+    printf("%.*s\n", (int)prefix.size(), prefix.data());
+    for (int i = 0; i < M.kRows; ++i) {
+      if (M.kCols == 1) {
+        printf(matriplex_print_format.c_str(), M.constAt(n, i, 0));
+      } else {
+        for (int j = 0; j < M.kCols; ++j)
+          printf(matriplex_print_format.c_str(), M.constAt(n, i, j));
+        printf("\n");
+      }
+    }
+    if (M.kCols == 1)
+      printf("\n");
+    printf("%.*s", (int)postfix.size(), postfix.data());
+  }
+
+  // Print contents of matriplex at matrix-position 0 as most debugging is done on N = 0.
+  template <typename MPLEX>
+  void matriplex_print_0(const MPLEX& M, std::string_view prefix, std::string_view postfix = "\n") {
+    matriplex_print_n(M, 0, prefix, postfix);
+  }
+
+}  // namespace

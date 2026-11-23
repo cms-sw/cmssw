@@ -9,6 +9,10 @@
 
 #include "RecoTracker/MkFitCore/interface/cms_common_macros.h"
 
+#ifdef DEBUG
+#include "RecoTracker/MkFitCore/src/Matriplex/MatriplexDebugPrint.icc"
+#endif
+
 namespace {
   using namespace mkfit;
   using idx_t = Matriplex::idx_t;
@@ -946,12 +950,8 @@ namespace mkfit {
       kalmanOperation(
           KFO_Update_Params | KFO_Local_Cov, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     }
-    for (int n = 0; n < NN; ++n) {
-      if (n < N_proc && outPar.At(n, 3, 0) < 0) {
-        Chg.At(n, 0, 0) = -Chg.At(n, 0, 0);
-        outPar.At(n, 3, 0) = -outPar.At(n, 3, 0);
-      }
-    }
+
+    kalmanCheckChargeFlip(outPar, Chg, N_proc);
   }
 
   //------------------------------------------------------------------------------
@@ -1012,32 +1012,10 @@ namespace mkfit {
 #ifdef DEBUG
     {
       dmutex_guard;
-      printf("psPar:\n");
-      for (int i = 0; i < 6; ++i) {
-        printf("%8f ", psPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("psErr:\n");
-      for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j)
-          printf("%8f ", psErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msPar:\n");
-      for (int i = 0; i < 3; ++i) {
-        printf("%8f ", msPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msErr:\n");
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", msErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
+      matriplex_print_0(psPar, "psPar:");
+      matriplex_print_0(psErr, "psErr:");
+      matriplex_print_0(msPar, "msPar:");
+      matriplex_print_0(msErr, "msErr:");
     }
 #endif
 
@@ -1079,37 +1057,11 @@ namespace mkfit {
 #ifdef DEBUG
     {
       dmutex_guard;
-      printf("res_glo:\n");
-      for (int i = 0; i < 3; ++i) {
-        printf("%8f ", res_glo.At(0, i, 0));
-      }
-      printf("\n");
-      printf("resErr_glo:\n");
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", resErr_glo.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("res_loc:\n");
-      for (int i = 0; i < 2; ++i) {
-        printf("%8f ", res_loc.At(0, i, 0));
-      }
-      printf("\n");
-      printf("tempHH:\n");
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", tempHH.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("resErr_loc:\n");
-      for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 2; ++j)
-          printf("%8f ", resErr_loc.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
+      matriplex_print_0(res_glo, "res_glo:");
+      matriplex_print_0(resErr_glo, "resErr_glo:");
+      matriplex_print_0(res_loc, "res_loc:");
+      matriplex_print_0(tempHH, "tempHH:");
+      matriplex_print_0(resErr_loc, "resErr_loc:");
     }
 #endif
 
@@ -1122,14 +1074,8 @@ namespace mkfit {
 #ifdef DEBUG
       {
         dmutex_guard;
-        printf("resErr_loc (Inv):\n");
-        for (int i = 0; i < 2; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", resErr_loc.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("chi2: %8f\n", outChi2.At(0, 0, 0));
+        matriplex_print_0(resErr_loc, "resErr_loc (Inv):");
+        matriplex_print_0(outChi2, "chi2:");
       }
 #endif
     }
@@ -1155,55 +1101,14 @@ namespace mkfit {
 #ifdef DEBUG
       {
         dmutex_guard;
-        if (kfOp & KFO_Local_Cov) {
-          printf("psErrLoc:\n");
-          for (int i = 0; i < 6; ++i) {
-            for (int j = 0; j < 6; ++j)
-              printf("% 8e ", psErrLoc.At(0, i, j));
-            printf("\n");
-          }
-          printf("\n");
-        }
-        printf("resErr_loc (Inv):\n");
-        for (int i = 0; i < 2; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", resErr_loc.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("tempHH:\n");
-        for (int i = 0; i < 3; ++i) {
-          for (int j = 0; j < 3; ++j)
-            printf("%8f ", tempHH.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("K:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 3; ++j)
-            printf("%8f ", K.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("tempLL:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            printf("%8f ", tempLL.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("outPar:\n");
-        for (int i = 0; i < 6; ++i) {
-          printf("%8f  ", outPar.At(0, i, 0));
-        }
-        printf("\n");
-        printf("outErr:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            printf("%8f ", outErr.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
+        if (kfOp & KFO_Local_Cov)
+          matriplex_print_0(psErrLoc, "psErrLoc:");
+        matriplex_print_0(resErr_loc, "resErr_loc (Inv):");
+        matriplex_print_0(tempHH, "tempHH:");
+        matriplex_print_0(K, "K:");
+        matriplex_print_0(tempLL, "tempLL:");
+        matriplex_print_0(outPar, "outPar:");
+        matriplex_print_0(outErr, "outErr:");
       }
 #endif
     }
@@ -1286,12 +1191,8 @@ namespace mkfit {
                                 dummy_chi2,
                                 N_proc);
     }
-    for (int n = 0; n < NN; ++n) {
-      if (outPar.At(n, 3, 0) < 0) {
-        Chg.At(n, 0, 0) = -Chg.At(n, 0, 0);
-        outPar.At(n, 3, 0) = -outPar.At(n, 3, 0);
-      }
-    }
+
+    kalmanCheckChargeFlip(outPar, Chg, N_proc);
   }
 
   //------------------------------------------------------------------------------
@@ -1618,14 +1519,8 @@ namespace mkfit {
 #ifdef DEBUG
         {
           dmutex_guard;
-          printf("resErr_loc (Inv):\n");
-          for (int i = 0; i < 2; ++i) {
-            for (int j = 0; j < 2; ++j)
-              printf("%8f ", resErr_loc.At(0, i, j));
-            printf("\n");
-          }
-          printf("\n");
-          printf("chi2: %8f\n", outChi2.At(0, 0, 0));
+          matriplex_print_0(resErr_loc, "resErr_loc (Inv):");
+          matriplex_print_0(outChi2, "chi2:");
         }
 #endif
       }
@@ -1819,18 +1714,8 @@ namespace mkfit {
 #ifdef DEBUG
       {
         dmutex_guard;
-        printf("outPar:\n");
-        for (int i = 0; i < 6; ++i) {
-          printf("%8f  ", outPar.At(0, i, 0));
-        }
-        printf("\n");
-        printf("outErr:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            printf("%8f ", outErr.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
+        matriplex_print_0(outPar, "outPar:");
+        matriplex_print_0(outErr, "outErr:");
       }
 #endif
     }
@@ -1858,32 +1743,10 @@ namespace mkfit {
 #ifdef DEBUG
     {
       dmutex_guard;
-      printf("psPar:\n");
-      for (int i = 0; i < 6; ++i) {
-        printf("%8f ", psPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("psErr:\n");
-      for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j)
-          printf("%8f ", psErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msPar:\n");
-      for (int i = 0; i < 3; ++i) {
-        printf("%8f ", msPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msErr:\n");
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", msErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
+      matriplex_print_0(psPar, "psPar:");
+      matriplex_print_0(psErr, "psErr:");
+      matriplex_print_0(msPar, "msPar:");
+      matriplex_print_0(msErr, "msErr:");
     }
 #endif
 
@@ -1934,32 +1797,10 @@ namespace mkfit {
 #ifdef DEBUG
     {
       dmutex_guard;
-      printf("psPar:\n");
-      for (int i = 0; i < 6; ++i) {
-        printf("%8f ", psPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("psErr:\n");
-      for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j)
-          printf("%8f ", psErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msPar:\n");
-      for (int i = 0; i < 3; ++i) {
-        printf("%8f ", msPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msErr:\n");
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", msErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
+      matriplex_print_0(psPar, "psPar:");
+      matriplex_print_0(psErr, "psErr:");
+      matriplex_print_0(msPar, "msPar:");
+      matriplex_print_0(msErr, "msErr:");
     }
 #endif
 
@@ -1997,44 +1838,12 @@ namespace mkfit {
 #ifdef DEBUG
     {
       dmutex_guard;
-      printf("prj:\n");
-      for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", prj.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("res_glo:\n");
-      for (int i = 0; i < 3; ++i) {
-        printf("%8f ", res_glo.At(0, i, 0));
-      }
-      printf("\n");
-      printf("resErr_glo:\n");
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", resErr_glo.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("res_loc:\n");
-      for (int i = 0; i < 2; ++i) {
-        printf("%8f ", res_loc.At(0, i, 0));
-      }
-      printf("\n");
-      printf("temp2H:\n");
-      for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", temp2H.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("resErr_loc:\n");
-      for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 2; ++j)
-          printf("%8f ", resErr_loc.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
+      matriplex_print_0(prj, "prj:");
+      matriplex_print_0(res_glo, "res_glo:");
+      matriplex_print_0(resErr_glo, "resErr_glo:");
+      matriplex_print_0(res_loc, "res_loc:");
+      matriplex_print_0(temp2H, "temp2H:");
+      matriplex_print_0(resErr_loc, "resErr_loc:");
     }
 #endif
 
@@ -2047,14 +1856,8 @@ namespace mkfit {
 #ifdef DEBUG
       {
         dmutex_guard;
-        printf("resErr_loc (Inv):\n");
-        for (int i = 0; i < 2; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", resErr_loc.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("chi2: %8f\n", outChi2.At(0, 0, 0));
+        matriplex_print_0(resErr_loc, "resErr_loc (Inv):");
+        matriplex_print_0(outChi2, "chi2:");
       }
 #endif
     }
@@ -2079,55 +1882,14 @@ namespace mkfit {
 #ifdef DEBUG
       {
         dmutex_guard;
-        if (kfOp & KFO_Local_Cov) {
-          printf("psErrLoc:\n");
-          for (int i = 0; i < 6; ++i) {
-            for (int j = 0; j < 6; ++j)
-              printf("% 8e ", psErrLoc.At(0, i, j));
-            printf("\n");
-          }
-          printf("\n");
-        }
-        printf("resErr_loc (Inv):\n");
-        for (int i = 0; i < 2; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", resErr_loc.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("tempH2:\n");
-        for (int i = 0; i < 3; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", tempH2.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("K:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", K.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("tempLL:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            printf("%8f ", tempLL.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("outPar:\n");
-        for (int i = 0; i < 6; ++i) {
-          printf("%8f  ", outPar.At(0, i, 0));
-        }
-        printf("\n");
-        printf("outErr:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            printf("%8f ", outErr.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
+        if (kfOp & KFO_Local_Cov)
+          matriplex_print_0(psErrLoc, "psErrLoc:");
+        matriplex_print_0(resErr_loc, "resErr_loc (Inv):");
+        matriplex_print_0(tempH2, "tempH2:");
+        matriplex_print_0(K, "K:");
+        matriplex_print_0(tempLL, "tempLL:");
+        matriplex_print_0(outPar, "outPar:");
+        matriplex_print_0(outErr, "outErr:");
       }
 #endif
     }
@@ -2173,12 +1935,8 @@ namespace mkfit {
     } else {
       kalmanOperationEndcap(KFO_Update_Params, psErr, psPar, msErr, msPar, outErr, outPar, dummy_chi2, N_proc);
     }
-    for (int n = 0; n < NN; ++n) {
-      if (n < N_proc && outPar.At(n, 3, 0) < 0) {
-        Chg.At(n, 0, 0) = -Chg.At(n, 0, 0);
-        outPar.At(n, 3, 0) = -outPar.At(n, 3, 0);
-      }
-    }
+
+    kalmanCheckChargeFlip(outPar, Chg, N_proc);
   }
 
   //------------------------------------------------------------------------------
@@ -2236,32 +1994,10 @@ namespace mkfit {
     {
       dmutex_guard;
       printf("updateParametersEndcapMPlex\n");
-      printf("psPar:\n");
-      for (int i = 0; i < 6; ++i) {
-        printf("%8f ", psPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msPar:\n");
-      for (int i = 0; i < 3; ++i) {
-        printf("%8f ", msPar.constAt(0, 0, i));
-        printf("\n");
-      }
-      printf("\n");
-      printf("psErr:\n");
-      for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j)
-          printf("%8f ", psErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
-      printf("msErr:\n");
-      for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j)
-          printf("%8f ", msErr.constAt(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
+      matriplex_print_0(psPar, "psPar:");
+      matriplex_print_0(msPar, "msPar:");
+      matriplex_print_0(psErr, "psErr:");
+      matriplex_print_0(msErr, "msErr:");
     }
 #endif
 
@@ -2274,13 +2010,7 @@ namespace mkfit {
 #ifdef DEBUG
     {
       dmutex_guard;
-      printf("resErr:\n");
-      for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 2; ++j)
-          printf("%8f ", resErr.At(0, i, j));
-        printf("\n");
-      }
-      printf("\n");
+      matriplex_print_0(resErr, "resErr:");
     }
 #endif
 
@@ -2293,14 +2023,8 @@ namespace mkfit {
 #ifdef DEBUG
       {
         dmutex_guard;
-        printf("resErr_loc (Inv):\n");
-        for (int i = 0; i < 2; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", resErr.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("chi2: %8f\n", outChi2.At(0, 0, 0));
+        matriplex_print_0(resErr, "resErr_loc (Inv):");
+        matriplex_print_0(outChi2, "chi2:");
       }
 #endif
     }
@@ -2318,13 +2042,7 @@ namespace mkfit {
 #ifdef DEBUG
       {
         dmutex_guard;
-        printf("outErr before subtract:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            printf("%8f ", outErr.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
+        matriplex_print_0(outErr, "outErr before subtract:");
       }
 #endif
 
@@ -2333,37 +2051,11 @@ namespace mkfit {
 #ifdef DEBUG
       {
         dmutex_guard;
-        printf("res:\n");
-        for (int i = 0; i < 2; ++i) {
-          printf("%8f ", res.At(0, i, 0));
-        }
-        printf("\n");
-        printf("resErr (Inv):\n");
-        for (int i = 0; i < 2; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", resErr.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("K:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 2; ++j)
-            printf("%8f ", K.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
-        printf("outPar:\n");
-        for (int i = 0; i < 6; ++i) {
-          printf("%8f  ", outPar.At(0, i, 0));
-        }
-        printf("\n");
-        printf("outErr:\n");
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            printf("%8f ", outErr.At(0, i, j));
-          printf("\n");
-        }
-        printf("\n");
+        matriplex_print_0(res, "res:");
+        matriplex_print_0(resErr, "resErr (Inv):");
+        matriplex_print_0(K, "K:");
+        matriplex_print_0(outPar, "outPar:");
+        matriplex_print_0(outErr, "outErr:");
       }
 #endif
     }

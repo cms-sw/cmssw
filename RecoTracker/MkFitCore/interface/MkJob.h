@@ -30,9 +30,11 @@ namespace mkfit {
     const auto &params_bks() const { return m_iter_config.m_backward_params; }
     const auto &params_cur() const { return m_in_fwd ? params() : params_bks(); }
 
+    const V2p2Params &v2p2() const { return m_iter_config.m_v2p2; }
+
     int max_max_cands() const { return std::max(params().maxCandsPerSeed, params_bks().maxCandsPerSeed); }
 
-    const std::vector<bool> *get_mask_for_layer(int layer) {
+    const std::vector<bool> *get_mask_for_layer(int layer) const {
       return m_iter_mask_ifc ? m_iter_mask_ifc->get_mask_for_layer(layer) : nullptr;
     }
   };

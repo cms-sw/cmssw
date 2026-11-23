@@ -62,6 +62,7 @@ private:
   const bool removeDuplicates_;
   const bool mkFitSilent_;
   const bool limitConcurrency_;
+  bool useV2p2_ = false;
 };
 
 MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
@@ -96,9 +97,11 @@ MkFitProducer::MkFitProducer(edm::ParameterSet const& iConfig)
     throw cms::Exception("Configuration") << "standard is temporarily disabled";
   } else if (build == "cloneEngine") {
     //buildFunction_ = mkfit::runBuildingTestPlexCloneEngine;
+  } else if (build == "v2p2") {
+    useV2p2_ = true;
   } else {
-    throw cms::Exception("Configuration")
-        << "Invalid value for parameter 'buildingRoutine' " << build << ", allowed are bestHit, standard, cloneEngine";
+    throw cms::Exception("Configuration") << "Invalid value for parameter 'buildingRoutine' " << build
+                                          << ", allowed are bestHit, standard, cloneEngine, v2p2";
   }
 
   // TODO: what to do when we have multiple instances of MkFitProducer in a job?
@@ -116,7 +119,7 @@ void MkFitProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add("seeds", edm::InputTag("mkFitSeedConverter"));
   desc.add("clustersToSkip", edm::InputTag());
   desc.add<std::string>("buildingRoutine", "cloneEngine")
-      ->setComment("Valid values are: 'bestHit', 'standard', 'cloneEngine'");
+      ->setComment("Valid values are: 'bestHit', 'standard', 'cloneEngine', 'v2p2'");
   desc.add<edm::ESInputTag>("config", edm::ESInputTag(""))
       ->setComment("ESProduct that has the mkFit configuration parameters for this iteration");
   desc.add("seedCleaning", true)->setComment("Clean seeds within mkFit");
@@ -206,7 +209,8 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
                             tracks,
                             seedCleaning_,
                             not backwardFitInCMSSW_,
-                            removeDuplicates_);
+                            removeDuplicates_,
+                            useV2p2_);
   };
 
   if (limitConcurrency_) {

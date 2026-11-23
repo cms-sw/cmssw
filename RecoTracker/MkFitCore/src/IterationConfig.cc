@@ -76,6 +76,9 @@ namespace mkfit {
                                    /* std::string */ m_post_bkfit_filter_name,
                                    /* std::string */ m_duplicate_cleaner_name,
                                    /* std::string */ m_default_track_scorer_name,
+                                   /* std::string */ m_final_pick_track_scorer_name,
+                                   /* std::string */ m_post_bkfit_track_scorer_name,
+                                   /* std::string */ m_duplicate_cleaner_track_scorer_name,
                                    /* bool */ m_requires_seed_hit_sorting,
                                    /* bool */ m_backward_search,
                                    /* bool */ m_backward_drop_seed_hits,
@@ -216,10 +219,32 @@ namespace mkfit {
             m_duplicate_cleaner ? "SET" : "NOT SET");
 
     m_default_track_scorer = get_track_scorer(m_default_track_scorer_name);
+    const track_score_func final_pick_scorer = get_track_scorer(m_final_pick_track_scorer_name);
+    const track_score_func post_bkfit_scorer = get_track_scorer(m_post_bkfit_track_scorer_name);
     for (auto &sp : m_steering_params) {
       sp.m_track_scorer =
           sp.m_track_scorer_name.empty() ? m_default_track_scorer : get_track_scorer(sp.m_track_scorer_name);
+      sp.m_final_pick_track_scorer = final_pick_scorer ? final_pick_scorer : sp.m_track_scorer;
+      sp.m_post_bkfit_track_scorer = post_bkfit_scorer ? post_bkfit_scorer : sp.m_track_scorer;
     }
+
+    // The duplicate cleaners compare Track::score(); a named scorer re-scores the
+    // tracks first, so the re-scoring is part of m_duplicate_cleaner wherever it is called.
+    m_duplicate_cleaner_track_scorer = get_track_scorer(m_duplicate_cleaner_track_scorer_name);
+    if (m_duplicate_cleaner && m_duplicate_cleaner_track_scorer) {
+      m_duplicate_cleaner =
+          [cleaner = m_duplicate_cleaner, scorer = m_duplicate_cleaner_track_scorer](
+              TrackVec &tracks, const IterationConfig &itconf, const TrackerInfo &trk_inf, const BeamSpot &bspot) {
+            for (auto &t : tracks)
+              t.setScore(getScoreCand(scorer, t));
+            cleaner(tracks, itconf, trk_inf, bspot);
+          };
+    }
+    dprintf(" Set track scorers: default '%s', final pick '%s', post bkfit '%s', duplicate cleaner '%s'\n",
+            m_default_track_scorer_name.c_str(),
+            m_final_pick_track_scorer_name.c_str(),
+            m_post_bkfit_track_scorer_name.c_str(),
+            m_duplicate_cleaner_track_scorer_name.c_str());
   }
 
   // ============================================================================

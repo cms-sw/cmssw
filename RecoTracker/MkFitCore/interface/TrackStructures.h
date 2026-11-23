@@ -188,6 +188,18 @@ namespace mkfit {
 
     int nInsideMinusOneHits() const { return nInsideMinusOneHits_; }
     int nTailMinusOneHits() const { return nTailMinusOneHits_; }
+    int nAllMinusOneHits() const { return nInsideMinusOneHits_ + nTailMinusOneHits_; }
+
+    // Why a candidate was stopped, i.e. why its last HoT is Hit::kHitStopIdx.
+    // The HoT itself cannot carry this: kHitStopIdx is tested by identity
+    // (getLastHitIdx() == -2) in several places, so a second stop index would
+    // have to be found and updated everywhere. Loopers in particular are wanted
+    // afterwards -- the phase-2 timing detectors and HGCal are past the point
+    // where the tracker stops following them -- so "stopped" alone is not enough
+    // information to keep.
+    enum StopReason_e { SR_NotStopped = 0, SR_MinPt, SR_Looper, SR_TooManyHoles };
+    int stopReason() const { return m_stop_reason; }
+    void setStopReason(StopReason_e sr) { m_stop_reason = sr; }
 
     void setNInsideMinusOneHits(int n) { nInsideMinusOneHits_ = n; }
     void setNTailMinusOneHits(int n) { nTailMinusOneHits_ = n; }
@@ -249,7 +261,30 @@ namespace mkfit {
     short int nInsideMinusOneHits_ = 0;
     short int nTailMinusOneHits_ = 0;
 
+    // Uses padding after the other short ints; sizeof(TrackCand) is unchanged.
+    short int m_stop_reason = SR_NotStopped;
+
     short int m_origin_index = -1;  // index of origin candidate (used for overlaps in Standard)
+
+#ifdef MKFIT_TRACE
+  public:
+    int m_trace_state_id = -1;
+    // Rank in the end-of-layer selections along this candidate's ancestry
+    // (MkFinderV2p2, forward search): the worst rank, the layer of it, and the
+    // first layer where the rank exceeded Config::V2p2::Diag::rank_over.
+    short int m_rank_max = 0;
+    short int m_rank_max_layer = -1;
+    short int m_rank_over_layer = -1;
+
+    void note_rank(short int rank, short int layer, short int rank_over) {
+      if (rank > m_rank_max) {
+        m_rank_max = rank;
+        m_rank_max_layer = layer;
+      }
+      if (rank > rank_over && m_rank_over_layer < 0)
+        m_rank_over_layer = layer;
+    }
+#endif
   };
 
   inline bool sortByScoreTrackCand(const TrackCand& cand1, const TrackCand& cand2) {
@@ -260,16 +295,19 @@ namespace mkfit {
                             const TrackCand& cand1,
                             bool penalizeTailMissHits = false,
                             bool inFindCandidates = false) {
-    int nfoundhits = cand1.nFoundHits();
-    int noverlaphits = cand1.nOverlapHits();
-    int nmisshits = cand1.nInsideMinusOneHits();
-    int ntailmisshits = penalizeTailMissHits ? cand1.nTailMinusOneHits() : 0;
-    float pt = cand1.pT();
-    float chi2 = cand1.chi2();
+    TrackScoreInput in;
+    in.n_found_hits = cand1.nFoundHits();
+    in.n_tail_holes = cand1.nTailMinusOneHits();
+    in.n_overlap_hits = cand1.nOverlapHits();
+    in.n_inside_holes = cand1.nInsideMinusOneHits();
+    in.n_seed_hits = cand1.getNSeedHits();
     // Do not allow for chi2<0 in score calculation
-    if (chi2 < 0)
-      chi2 = 0.f;
-    return score_func(nfoundhits, ntailmisshits, noverlaphits, nmisshits, chi2, pt, inFindCandidates);
+    in.chi2 = std::max(cand1.chi2(), 0.f);
+    in.pt = cand1.pT();
+    in.score_in = cand1.score();
+    in.penalize_tail_holes = penalizeTailMissHits;
+    in.in_find_candidates = inFindCandidates;
+    return score_func(in);
   }
 
   // CombCandidate -- a set of candidates from a given seed.
@@ -293,7 +331,12 @@ namespace mkfit {
           m_nTailMinusOneHits_before_bkwsearch(o.m_nTailMinusOneHits_before_bkwsearch),
           m_seed_origin_index(o.m_seed_origin_index),
           m_hots_size(o.m_hots_size),
-          m_hots(o.m_hots) {}
+          m_hots(o.m_hots) {
+#ifdef MKFIT_TRACE
+      m_trace_meta_id = o.m_trace_meta_id;
+      m_trace_stage_id = o.m_trace_stage_id;
+#endif
+    }
 
     // Required for std::swap().
     CombCandidate(CombCandidate&& o)
@@ -312,6 +355,10 @@ namespace mkfit {
       // However, if at some point we start using this for other purposes this needs
       // to be called as well.
       // for (auto &tc : *this) tc.setCombCandidate(this);
+#ifdef MKFIT_TRACE
+      m_trace_meta_id = o.m_trace_meta_id;
+      m_trace_stage_id = o.m_trace_stage_id;
+#endif
     }
 
     // Required for std::swap when filtering EventOfCombinedCandidates::m_candidates.
@@ -333,6 +380,11 @@ namespace mkfit {
       for (auto& tc : m_trk_cands)
         tc.setCombCandidate(this);
 
+#ifdef MKFIT_TRACE
+      m_trace_meta_id = o.m_trace_meta_id;
+      m_trace_stage_id = o.m_trace_stage_id;
+#endif
+
       return *this;
     }
 
@@ -344,8 +396,13 @@ namespace mkfit {
     const TrackCand& operator[](int i) const { return m_trk_cands[i]; }
     TrackCand& front() { return m_trk_cands.front(); }
     const TrackCand& front() const { return m_trk_cands.front(); }
-    trk_cand_vec_type::reference emplace_back(TrackCand& tc) { return m_trk_cands.emplace_back(tc); }
+    trk_cand_vec_type::reference push_back(const TrackCand& tc) {
+      m_trk_cands.push_back(tc);
+      return m_trk_cands.back();
+    }
     void clear() { m_trk_cands.clear(); }
+
+    int capacity() const { return m_trk_cands.capacity(); }
 
     void reset(int max_cands_per_seed, int expected_num_hots) {
       std::vector<TrackCand, CcAlloc<TrackCand>> tmp(m_trk_cands.get_allocator());
@@ -359,7 +416,7 @@ namespace mkfit {
       // expected_num_hots is different for CloneEngine and Std, especially as long as we
       // instantiate all candidates before purging them.
       // ce:  N_layer * N_cands ~~ 20 * 6 = 120
-      // std: i don't know, maybe double?
+      // std: copies back only a limited subset, so no more.
       m_hots.reserve(expected_num_hots);
       m_hots_size = 0;
       m_hots.clear();
@@ -367,6 +424,11 @@ namespace mkfit {
       m_lastHitIdx_before_bkwsearch = -1;
       m_nInsideMinusOneHits_before_bkwsearch = -1;
       m_nTailMinusOneHits_before_bkwsearch = -1;
+
+#ifdef MKFIT_TRACE
+      m_trace_meta_id = -1;
+      m_trace_stage_id = -1;
+#endif
     }
 
     void importSeed(const Track& seed, int seed_idx, const track_score_func& score_func, int region);
@@ -383,6 +445,7 @@ namespace mkfit {
 
     void compactifyHitStorageForBestCand(bool remove_seed_hits, int backward_fit_min_hits);
     void beginBkwSearch();
+    void addPreBkwSearchHoles();
     void repackCandPostBkwSearch(int i);
     // not needed for CombCand::endBkwSearch(), reinit performed in reset() for a new event.
 
@@ -403,6 +466,9 @@ namespace mkfit {
 
     int pickupLayer() const { return m_pickup_layer; }
 
+    // Hit nodes above this index were added by the backward search, in either representation.
+    int lastHitIdxBeforeBkwSearch() const { return m_lastHitIdx_before_bkwsearch; }
+
     int seed_origin_index() const { return m_seed_origin_index; }
 
   private:
@@ -416,6 +482,12 @@ namespace mkfit {
     int m_seed_origin_index = -1;  // seed index in the passed-in seed vector
     int m_hots_size = 0;
     std::vector<HoTNode> m_hots;
+
+#ifdef MKFIT_TRACE
+  public:
+    int m_trace_meta_id = -1;   // global meta (persists across stages)
+    int m_trace_stage_id = -1;  // current stage (changes between stages)
+#endif
   };
 
   //==============================================================================
@@ -430,7 +502,10 @@ namespace mkfit {
     int nh = nTotalHits();
     int ch = lastHitIdx_;
     int ll = -1;
-    while (--nh >= 0) {
+    // The chain can end before nTotalHits() nodes: in the backward-search
+    // representation it ends at node 0, which can be a hit made missing by the
+    // backward fit's outlier rejection.
+    while (--nh >= 0 && ch >= 0) {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       if (hot_node.m_hot.index < 0) {
         ch = hot_node.m_prev_idx;
@@ -446,7 +521,10 @@ namespace mkfit {
     int nh = nTotalHits();
     int ch = lastHitIdx_;
     int ll = -1;
-    while (--nh >= 0) {
+    // The chain can end before nTotalHits() nodes: in the backward-search
+    // representation it ends at node 0, which can be a hit made missing by the
+    // backward fit's outlier rejection.
+    while (--nh >= 0 && ch >= 0) {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       int tl = hot_node.m_hot.layer;
       if (hot_node.m_hot.index < 0 || !((0 <= tl && tl <= 3) || (18 <= tl && tl <= 20) || (45 <= tl && tl <= 47))) {
@@ -640,11 +718,22 @@ namespace mkfit {
     }
 
     void beginBkwSearch(int min_pixel_layers, float prompt_max_d0, float bs_x, float bs_y);
-    // Restores the pre-search candidate where the backward search added hits on too few pixel layers.
-    void gateBkwSearch(const TrackerInfo& trk_info);
+
+    // The backward-search gate, on only with min_pixel_layers > 0 in beginBkwSearch(), which only the phase-2 HLT
+    // sets (hltESPMkFit). MkBuilder::filter_comb_cands() applies it before the post-search filter: the best
+    // candidate must add found hits on enough pixel layers, else the candidate from before the search replaces it.
+    bool hasBkwSearchGate() const { return !m_bkw_min_pixel_layers.empty(); }
+    bool passesBkwSearchGate(int i, const TrackCand& tc, const TrackerInfo& trk_info) const;
+    void restorePreBkwSearchCand(int i);
+
     void endBkwSearch() {
       // There is no CombCand::endBkwSearch(), setup correctly in CombCand::reset().
       m_cands_in_backward_rep = false;
+    }
+
+    void scaleErrors(float scale) {
+      for (int i = 0; i < m_size; ++i)
+        m_candidates[i][0].scaleErrors(scale);
     }
 
     // Accessors
@@ -656,7 +745,9 @@ namespace mkfit {
 
     bool cands_in_backward_rep() const { return m_cands_in_backward_rep; }
 
-    // Direct access for vectorized functions in MkBuilder / MkFinder
+    // Direct access for vectorized functions in MkBuilder / MkFinder.
+    // DO NOT USE FOR ITERATIONS! Size of m_candidates is managed by this
+    // class to avoid memory churn and ctor/dtor calls.
     const std::vector<CombCandidate>& refCandidates() const { return m_candidates; }
     std::vector<CombCandidate>& refCandidates_nc() { return m_candidates; }
 
@@ -669,7 +760,7 @@ namespace mkfit {
     int m_size = 0;
     int m_n_seeds_inserted = 0;
     bool m_cands_in_backward_rep = false;
-    std::vector<TrackCand> m_pre_bkw_cands;   // best candidates before the backward search, for gateBkwSearch()
+    std::vector<TrackCand> m_pre_bkw_cands;   // best candidates before the backward search, forward representation
     std::vector<int> m_bkw_min_pixel_layers;  // pixel layers the backward search must add (empty: no gate)
   };
 
