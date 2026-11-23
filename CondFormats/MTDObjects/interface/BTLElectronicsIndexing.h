@@ -17,11 +17,10 @@ namespace BTLElectronicsIndexing {
       BTLElectronicsSpecs::nChannelsPerELink / 2;  // plus/minus channel pairs (crystals) per chip
 
   // total number of electronics channels and of chips (e-links) in BTL
-  static constexpr int32_t kNumberOfChannels =
+  static constexpr int32_t kNumberOfChips =
       (BTLElectronicsSpecs::kNumberOfFEDs / BTLElectronicsSpecs::nFEDsPerSerenity) *
-      BTLElectronicsSpecs::nHSLinksPerSerenity * BTLElectronicsSpecs::nELinksPerHSLink *
-      BTLElectronicsSpecs::nChannelsPerELink;                                                            // 331776
-  static constexpr int32_t kNumberOfChips = kNumberOfChannels / BTLElectronicsSpecs::nChannelsPerELink;  // 10368
+      BTLElectronicsSpecs::nHSLinksPerSerenity * BTLElectronicsSpecs::nELinksPerHSLink;                  // 10368
+  static constexpr int32_t kNumberOfChannels = kNumberOfChips * BTLElectronicsSpecs::nChannelsPerELink;  // 331776
 
   // Dense index of the electronics channel (fedId, hs, el, channel), in [0, kNumberOfChannels).
   // The chip (e-link) index is denseChannelIndex / BTLElectronicsSpecs::nChannelsPerELink.

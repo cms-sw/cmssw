@@ -145,7 +145,7 @@ int BTLElectronicsMapping::hslink(uint32_t rawID) const {
 }
 
 int BTLElectronicsMapping::slinkFromRUandTray(uint32_t runit, uint32_t tray, uint32_t zside) const {
-  if (int(runit) < 0 || runit > BTLDetId::kRUPerRod) {
+  if (int(runit) < 0 || runit >= BTLDetId::kRUPerRod) {
     edm::LogWarning("BTLElectronicsMapping") << "BTLElectronicsMapping::SlinkFromRUandTray "
                                              << "****************** runit = " << runit << "  not valid!";
     return -1;
