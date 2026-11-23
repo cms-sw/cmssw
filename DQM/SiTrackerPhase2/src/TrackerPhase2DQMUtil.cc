@@ -37,10 +37,10 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
 
     } else {
       int side = tTopo->tidSide(det_id);
-      Side = (pretty ? ((side == 1) ? "side minus " : "side plus ") : ((side == 1) ? "MINUS/" : "PLUS/"));
+      Side = (pretty ? ((side == 1) ? "Z- side " : "Z+ side ") : ((side == 1) ? "MINUS/" : "PLUS/"));
       wheel = tTopo->tidWheel(det_id);
       TEDD = (pretty ? (wheel < 3 ? "TEDD_1 " : "TEDD_2 ") : ((wheel < 3) ? "TEDD_1/" : "TEDD_2/"));
-      ring = tTopo->tidRing(det_id);
+      ring = getOTTEDDRing(det_id, tTopo);
     }
   } else {  //unknown subdetector - should probably throw
     return "ERROR";
@@ -63,18 +63,14 @@ std::string phase2tkutil::getHistoId(uint32_t det_id, const TrackerTopology* tTo
       foldername << Side;
   }
 
-  if (LEVEL == 4) {
-    if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
-      foldername << TEDD << "Ring" << ring << (pretty ? " " : "/");
-    else if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
-      foldername << "Ring" << ring << (pretty ? " " : "/");
-  }
+  if (LEVEL == 4)
+    foldername << "Ring" << ring << (pretty ? " " : "/");
 
   if (LEVEL > 4) {
     if (DetId(det_id).subdetId() == PixelSubdetector::PixelEndcap)
       foldername << "Wheel" << wheel << (pretty ? " " : "/");
     else if (DetId(det_id).subdetId() == SiStripSubdetector::TID)
-      foldername << TEDD << "Wheel" << wheel << (pretty ? " " : "/");
+      foldername << "DoubleDisk" << wheel << (pretty ? " " : "/");
   }
 
   if (LEVEL > 5) {
@@ -133,7 +129,7 @@ int phase2tkutil::getNumericHistoId(uint32_t det_id, const TrackerTopology* tTop
       structure = 0b11;
       side = tTopo->tidSide(det_id);
       wheel = tTopo->tidWheel(det_id);
-      ring = tTopo->tidRing(det_id);
+      ring = getOTTEDDRing(det_id, tTopo);
     }
   }  // end of outer tracker
 
@@ -143,17 +139,8 @@ int phase2tkutil::getNumericHistoId(uint32_t det_id, const TrackerTopology* tTop
     numericID = (inout << 17) | (structure << 15);
   if (LEVEL == 3)
     numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11);
-  if (LEVEL == 4) {
-    // Outer Tracker must contain split between TEDD1 & TEDD2
-    // Wheels 1-5 are real OT wheels, so 6 and 7 are used
-    // This way numeric ID can tell TEDD1 & 2 apart without
-    // clashing with Level 5 & 6 numeric IDs
-    if (inner)
-      numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (0b00 << 7) | (ring << 3);
-    else
-      numericID =
-          (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | ((wheel > 2 ? 6 : 7) << 7) | (ring << 3);
-  }
+  if (LEVEL == 4)
+    numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (0b00 << 7) | (ring << 3);
   if (LEVEL == 5)
     numericID = (inout << 17) | (structure << 15) | (side << 13) | (shellIO << 11) | (wheel << 7);
   if (LEVEL == 6)
@@ -221,6 +208,12 @@ int phase2tkutil::getITSignedLadder(uint32_t det_id, const TrackerTopology* tTop
 
 int phase2tkutil::getITSignedWheel(uint32_t det_id, const TrackerTopology* tTopo) {
   return (tTopo->tidSide(det_id) == 1 ? -tTopo->pxfDisk(det_id) : tTopo->pxfDisk(det_id));
+}
+
+int phase2tkutil::getOTTEDDRing(uint32_t det_id, const TrackerTopology* tTopo) {
+  int disk = tTopo->tidWheel(det_id);
+  int ring = tTopo->tidRing(det_id);
+  return (disk > 2 ? ring + 3 : ring);
 }
 
 typedef dqm::reco::MonitorElement MonitorElement;

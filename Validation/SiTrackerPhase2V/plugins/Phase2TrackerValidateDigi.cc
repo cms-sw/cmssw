@@ -642,6 +642,7 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsi
     return;
 
   const GeomDet* geomDet = tkGeom_->idToDet(det_id);
+  TrackerGeometry::ModuleType moduleType = tkGeom_->getDetectorType(DetId(det_id));
   GlobalPoint detPos = geomDet->surface().toGlobal(Local2DPoint(0, 0));
   int key = phase2tkutil::getNumericHistoId(det_id, tTopo_, detPos.phi(), 6);
   std::map<int, DigiMEs>::iterator pos = layerMEs.find(key);
@@ -650,14 +651,8 @@ void Phase2TrackerValidateDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsi
     std::string top_folder = config_.getParameter<std::string>("TopFolderName");
     std::stringstream folder_name;
 
-    //For endCap: P-type sensors are present only upto ring 10 for discs 1&2 (TEDD-1) and upto ring 7 for discs 3,4&5 (TEDD-2)
-    bool isPStypeModForTEDD_1 =
-        (!pixelFlag_ && layer > 100 && tTopo_->tidWheel(det_id) < 3 && tTopo_->tidRing(det_id) <= 10) ? true : false;
-    bool isPStypeModForTEDD_2 =
-        (!pixelFlag_ && layer > 100 && tTopo_->tidWheel(det_id) >= 3 && tTopo_->tidRing(det_id) <= 7) ? true : false;
-
-    bool isPtypeSensor =
-        (flag || (layer < 4 || (layer > 6 && (isPStypeModForTEDD_1 || isPStypeModForTEDD_2)))) ? true : false;
+    //For endCap: P-type sensors are present only upto ring 10
+    bool isPtypeSensor = (flag || moduleType == TrackerGeometry::ModuleType::Ph2PSP);
 
     ibooker.cd();
     ibooker.setCurrentFolder(top_folder + "/DigiMonitor/" + foldername);
