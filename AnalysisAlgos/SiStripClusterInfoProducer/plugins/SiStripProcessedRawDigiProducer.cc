@@ -29,7 +29,7 @@ public:
 private:
   void produce(edm::Event& e, const edm::EventSetup& es) override;
   template <class T>
-  std::string findInput(edm::Handle<T>& handle, const std::vector<edm::EDGetTokenT<T> >& tokens, const edm::Event& e);
+  std::string findInput(edm::Handle<T>& handle, const std::vector<edm::EDGetTokenT<T>>& tokens, const edm::Event& e);
 
   void vr_process(const edm::DetSetVector<SiStripRawDigi>&,
                   edm::DetSetVector<SiStripProcessedRawDigi>&,
@@ -46,8 +46,8 @@ private:
                       const SiStripGain&);
 
   const std::vector<edm::InputTag> inputTags_;
-  const std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > inputTokensDigi_;
-  const std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > > inputTokensRawDigi_;
+  const std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>>> inputTokensDigi_;
+  const std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>>> inputTokensRawDigi_;
   const edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
 
   std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed_;
@@ -55,21 +55,22 @@ private:
 };
 
 SiStripProcessedRawDigiProducer::SiStripProcessedRawDigiProducer(edm::ParameterSet const& conf)
-    : inputTags_(conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList")),
+    : inputTags_(conf.getParameter<std::vector<edm::InputTag>>("DigiProducersList")),
       inputTokensDigi_(edm::vector_transform(
-          inputTags_, [this](edm::InputTag const& tag) { return consumes<edm::DetSetVector<SiStripDigi> >(tag); })),
+          inputTags_, [this](edm::InputTag const& tag) { return consumes<edm::DetSetVector<SiStripDigi>>(tag); })),
       inputTokensRawDigi_(edm::vector_transform(
-          inputTags_, [this](edm::InputTag const& tag) { return consumes<edm::DetSetVector<SiStripRawDigi> >(tag); })),
+          inputTags_, [this](edm::InputTag const& tag) { return consumes<edm::DetSetVector<SiStripRawDigi>>(tag); })),
       gainToken_(esConsumes()),
       subtractorPed_(SiStripRawProcessingFactory::create_SubtractorPed(conf, consumesCollector())),
       subtractorCMN_(SiStripRawProcessingFactory::create_SubtractorCMN(conf, consumesCollector())) {
-  produces<edm::DetSetVector<SiStripProcessedRawDigi> >("");
+  produces<edm::DetSetVector<SiStripProcessedRawDigi>>("");
 }
 
 void SiStripProcessedRawDigiProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-  std::unique_ptr<edm::DetSetVector<SiStripProcessedRawDigi> > output(new edm::DetSetVector<SiStripProcessedRawDigi>());
-  edm::Handle<edm::DetSetVector<SiStripDigi> > inputDigis;
-  edm::Handle<edm::DetSetVector<SiStripRawDigi> > inputRawdigis;
+  std::unique_ptr<edm::DetSetVector<SiStripProcessedRawDigi>> output =
+      std::make_unique<edm::DetSetVector<SiStripProcessedRawDigi>>();
+  edm::Handle<edm::DetSetVector<SiStripDigi>> inputDigis;
+  edm::Handle<edm::DetSetVector<SiStripRawDigi>> inputRawdigis;
 
   const auto& gain = es.getData(gainToken_);
   subtractorPed_->init(es);
@@ -90,9 +91,9 @@ void SiStripProcessedRawDigiProducer::produce(edm::Event& e, const edm::EventSet
 
 template <class T>
 inline std::string SiStripProcessedRawDigiProducer::findInput(edm::Handle<T>& handle,
-                                                              const std::vector<edm::EDGetTokenT<T> >& tokens,
+                                                              const std::vector<edm::EDGetTokenT<T>>& tokens,
                                                               const edm::Event& e) {
-  for (typename std::vector<edm::EDGetTokenT<T> >::const_iterator token = tokens.begin(); token != tokens.end();
+  for (typename std::vector<edm::EDGetTokenT<T>>::const_iterator token = tokens.begin(); token != tokens.end();
        ++token) {
     unsigned index(token - tokens.begin());
     e.getByToken(*token, handle);

@@ -68,11 +68,11 @@ FromClusterSummaryMultiplicityProducer::FromClusterSummaryMultiplicityProducer(c
       m_subdetenums(),
       m_subdetsel(),
       m_subdetvar(ClusterSummary::NCLUSTERS) {
-  produces<std::map<unsigned int, int> >();
+  produces<std::map<unsigned int, int>>();
 
   //now do what ever other initialization is needed
 
-  std::vector<edm::ParameterSet> wantedsubds(iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
+  std::vector<edm::ParameterSet> wantedsubds(iConfig.getParameter<std::vector<edm::ParameterSet>>("wantedSubDets"));
   m_subdetenums.reserve(wantedsubds.size());
   m_subdetsel.reserve(wantedsubds.size());
 
@@ -95,7 +95,7 @@ void FromClusterSummaryMultiplicityProducer::produce(edm::StreamID,
 
   using namespace edm;
 
-  std::unique_ptr<std::map<unsigned int, int> > mults(new std::map<unsigned int, int>);
+  std::unique_ptr<std::map<unsigned int, int>> mults = std::make_unique<std::map<unsigned int, int>>();
 
   Handle<ClusterSummary> clustsumm;
   iEvent.getByToken(m_collectionToken, clustsumm);

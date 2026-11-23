@@ -15,6 +15,7 @@
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include <TMath.h>
+#include <memory>
 #include <vector>
 
 // to order from high to low ProbChi2
@@ -81,8 +82,9 @@ OniaPhotonConversionProducer::OniaPhotonConversionProducer(const edm::ParameterS
 }
 
 void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSetup& esetup) {
-  std::unique_ptr<reco::ConversionCollection> outCollection(new reco::ConversionCollection);
-  std::unique_ptr<pat::CompositeCandidateCollection> patoutCollection(new pat::CompositeCandidateCollection);
+  std::unique_ptr<reco::ConversionCollection> outCollection = std::make_unique<reco::ConversionCollection>();
+  std::unique_ptr<pat::CompositeCandidateCollection> patoutCollection =
+      std::make_unique<pat::CompositeCandidateCollection>();
 
   edm::Handle<reco::VertexCollection> priVtxs;
   event.getByToken(thePVsToken_, priVtxs);

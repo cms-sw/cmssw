@@ -70,13 +70,13 @@ ElectronIdMVAProducer::ElectronIdMVAProducer(const edm::ParameterSet& iConfig)
   reducedEERecHitCollectionToken_ =
       consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEERecHitCollection"));
   method_ = iConfig.getParameter<std::string>("method");
-  std::vector<std::string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
+  std::vector<std::string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string>>("mvaWeightFile");
   Trig_ = iConfig.getParameter<bool>("Trig");
   NoIP_ = iConfig.getParameter<bool>("NoIP");
 
   ttrackbuilderToken_ = esConsumes(edm::ESInputTag("", "TransientTrackBuilder"));
 
-  produces<edm::ValueMap<float> >("");
+  produces<edm::ValueMap<float>>("");
 
   mvaID_ = new EGammaMvaEleEstimator();
 
@@ -115,7 +115,7 @@ ElectronIdMVAProducer::~ElectronIdMVAProducer() {
 
 // ------------ method called on each new Event  ------------
 bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> out = std::make_unique<edm::ValueMap<float>>();
 
   edm::Handle<reco::VertexCollection> vertexCollection;
   iEvent.getByToken(vertexToken_, vertexCollection);

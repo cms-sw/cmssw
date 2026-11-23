@@ -217,7 +217,7 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   iEvent.put(std::move(fsrPhotons));
 
   {
-    std::unique_ptr<edm::ValueMap<int>> bareIdx(new edm::ValueMap<int>());
+    std::unique_ptr<edm::ValueMap<int>> bareIdx = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler fillerBareIdx(*bareIdx);
     fillerBareIdx.insert(muons, muPhotonIdxs.begin(), muPhotonIdxs.end());
     fillerBareIdx.fill();
@@ -225,7 +225,7 @@ void LeptonFSRProducer::produce(edm::StreamID streamID, edm::Event& iEvent, cons
   }
 
   {
-    std::unique_ptr<edm::ValueMap<int>> bareIdx(new edm::ValueMap<int>());
+    std::unique_ptr<edm::ValueMap<int>> bareIdx = std::make_unique<edm::ValueMap<int>>();
     edm::ValueMap<int>::Filler fillerBareIdx(*bareIdx);
     fillerBareIdx.insert(electrons, elePhotonIdxs.begin(), elePhotonIdxs.end());
     fillerBareIdx.fill();

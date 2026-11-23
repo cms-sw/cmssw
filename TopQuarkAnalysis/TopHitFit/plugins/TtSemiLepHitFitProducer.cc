@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -23,9 +25,9 @@ private:
   // produce
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<std::vector<pat::Jet>> jetsToken_;
   edm::EDGetTokenT<LeptonCollection> lepsToken_;
-  edm::EDGetTokenT<std::vector<pat::MET> > metsToken_;
+  edm::EDGetTokenT<std::vector<pat::MET>> metsToken_;
 
   /// maximal number of jets (-1 possible to indicate 'all')
   int maxNJets_;
@@ -94,9 +96,9 @@ private:
 
 template <typename LeptonCollection>
 TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::ParameterSet& cfg)
-    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+    : jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
       lepsToken_(consumes<LeptonCollection>(cfg.getParameter<edm::InputTag>("leps"))),
-      metsToken_(consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
+      metsToken_(consumes<std::vector<pat::MET>>(cfg.getParameter<edm::InputTag>("mets"))),
       maxNJets_(cfg.getParameter<int>("maxNJets")),
       maxNComb_(cfg.getParameter<int>("maxNComb")),
       bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
@@ -159,43 +161,43 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
                                 << " |eta(jets     )| <= " << maxEtaJet_ << " \n"
                                 << "++++++++++++++++++++++++++++++++++++++++++++++++ \n";
 
-  produces<std::vector<pat::Particle> >("PartonsHadP");
-  produces<std::vector<pat::Particle> >("PartonsHadQ");
-  produces<std::vector<pat::Particle> >("PartonsHadB");
-  produces<std::vector<pat::Particle> >("PartonsLepB");
-  produces<std::vector<pat::Particle> >("Leptons");
-  produces<std::vector<pat::Particle> >("Neutrinos");
+  produces<std::vector<pat::Particle>>("PartonsHadP");
+  produces<std::vector<pat::Particle>>("PartonsHadQ");
+  produces<std::vector<pat::Particle>>("PartonsHadB");
+  produces<std::vector<pat::Particle>>("PartonsLepB");
+  produces<std::vector<pat::Particle>>("Leptons");
+  produces<std::vector<pat::Particle>>("Neutrinos");
 
-  produces<std::vector<std::vector<int> > >();
-  produces<std::vector<double> >("Chi2");
-  produces<std::vector<double> >("Prob");
-  produces<std::vector<double> >("MT");
-  produces<std::vector<double> >("SigMT");
-  produces<std::vector<int> >("Status");
+  produces<std::vector<std::vector<int>>>();
+  produces<std::vector<double>>("Chi2");
+  produces<std::vector<double>>("Prob");
+  produces<std::vector<double>>("MT");
+  produces<std::vector<double>>("SigMT");
+  produces<std::vector<int>>("Status");
   produces<int>("NumberOfConsideredJets");
 }
 
 template <typename LeptonCollection>
 void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsHadP(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsHadQ(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsHadB(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pPartonsLepB(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pLeptons(new std::vector<pat::Particle>);
-  std::unique_ptr<std::vector<pat::Particle> > pNeutrinos(new std::vector<pat::Particle>);
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadP = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadQ = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsHadB = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pPartonsLepB = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pLeptons = std::make_unique<std::vector<pat::Particle>>();
+  std::unique_ptr<std::vector<pat::Particle>> pNeutrinos = std::make_unique<std::vector<pat::Particle>>();
 
-  std::unique_ptr<std::vector<std::vector<int> > > pCombi(new std::vector<std::vector<int> >);
-  std::unique_ptr<std::vector<double> > pChi2(new std::vector<double>);
-  std::unique_ptr<std::vector<double> > pProb(new std::vector<double>);
-  std::unique_ptr<std::vector<double> > pMT(new std::vector<double>);
-  std::unique_ptr<std::vector<double> > pSigMT(new std::vector<double>);
-  std::unique_ptr<std::vector<int> > pStatus(new std::vector<int>);
+  std::unique_ptr<std::vector<std::vector<int>>> pCombi = std::make_unique<std::vector<std::vector<int>>>();
+  std::unique_ptr<std::vector<double>> pChi2 = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::vector<double>> pProb = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::vector<double>> pMT = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::vector<double>> pSigMT = std::make_unique<std::vector<double>>();
+  std::unique_ptr<std::vector<int>> pStatus = std::make_unique<std::vector<int>>();
   std::unique_ptr<int> pJetsConsidered(new int);
 
-  edm::Handle<std::vector<pat::Jet> > jets;
+  edm::Handle<std::vector<pat::Jet>> jets;
   evt.getByToken(jetsToken_, jets);
 
-  edm::Handle<std::vector<pat::MET> > mets;
+  edm::Handle<std::vector<pat::MET>> mets;
   evt.getByToken(metsToken_, mets);
 
   edm::Handle<LeptonCollection> leps;
@@ -480,8 +482,8 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
-typedef TtSemiLepHitFitProducer<std::vector<pat::Muon> > TtSemiLepHitFitProducerMuon;
-typedef TtSemiLepHitFitProducer<std::vector<pat::Electron> > TtSemiLepHitFitProducerElectron;
+typedef TtSemiLepHitFitProducer<std::vector<pat::Muon>> TtSemiLepHitFitProducerMuon;
+typedef TtSemiLepHitFitProducer<std::vector<pat::Electron>> TtSemiLepHitFitProducerElectron;
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(TtSemiLepHitFitProducerMuon);

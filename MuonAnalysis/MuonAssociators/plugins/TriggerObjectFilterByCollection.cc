@@ -16,6 +16,7 @@
 */
 
 #include <cstring>
+#include <memory>
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -59,7 +60,8 @@ void TriggerObjectFilterByCollection::produce(edm::StreamID, edm::Event &iEvent,
   Handle<std::vector<pat::TriggerObjectStandAlone>> src;
   iEvent.getByToken(src_, src);
 
-  std::unique_ptr<std::vector<pat::TriggerObjectStandAlone>> out(new std::vector<pat::TriggerObjectStandAlone>());
+  std::unique_ptr<std::vector<pat::TriggerObjectStandAlone>> out =
+      std::make_unique<std::vector<pat::TriggerObjectStandAlone>>();
   out->reserve(src->size());
   for (std::vector<pat::TriggerObjectStandAlone>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
     const std::string &coll = it->collection();

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -55,7 +57,7 @@ ElectronIsolatorFromEffectiveArea::ElectronIsolatorFromEffectiveArea(const edm::
 }
 
 bool ElectronIsolatorFromEffectiveArea::filter(edm::Event& event, const edm::EventSetup&) {
-  std::unique_ptr<CandDoubleMap> product(new CandDoubleMap());
+  std::unique_ptr<CandDoubleMap> product = std::make_unique<CandDoubleMap>();
   CandDoubleMap::Filler filler(*product);
 
   edm::Handle<double> rho;

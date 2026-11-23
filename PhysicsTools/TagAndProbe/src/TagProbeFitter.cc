@@ -260,14 +260,14 @@ string TagProbeFitter::calculateEfficiency(string dirName,
       string multiState = "{";
       for (size_t i = 0; i < effCats.size(); ++i) {
         if (i) {
-          multiState += ";";
+          multiState += ';';
           effName += " && ";
         }
         rooEffCats.add((RooCategory&)dataVars[effCats[i].c_str()]);
         multiState += effStates[i];
         effName = effCats[i] + "::" + effStates[i];
       }
-      multiState += "}";
+      multiState += '}';
       RooMultiCategory efficiencyMultiCategory("_efficiencyMultiCategory_", "_efficiencyMultiCategory_", rooEffCats);
       RooMappedCategory efficiencyCategory(
           "_efficiencyCategory_", "_efficiencyCategory_", efficiencyMultiCategory, "Failed");
@@ -401,14 +401,14 @@ string TagProbeFitter::calculateEfficiency(string dirName,
         string multiState = "{";
         for (size_t i = 0; i < effCats.size(); ++i) {
           if (i) {
-            multiState += ";";
+            multiState += ';';
             effName += " && ";
           }
           rooEffCats.add((RooCategory&)dataVars[effCats[i].c_str()]);
           multiState += effStates[i];
           effName = effCats[i] + "::" + effStates[i];
         }
-        multiState += "}";
+        multiState += '}';
         RooMultiCategory efficiencyMultiCategory("_efficiencyMultiCategory_", "_efficiencyMultiCategory_", rooEffCats);
         RooMappedCategory efficiencyCategory(
             "_efficiencyCategory_", "_efficiencyCategory_", efficiencyMultiCategory, "Failed");

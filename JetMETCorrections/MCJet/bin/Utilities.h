@@ -249,7 +249,7 @@ inline void CommandLine::print() {
   for (StrVec_t::const_iterator itvec = _ordered_options.begin(); itvec != _ordered_options.end(); ++itvec) {
     OptionMap_t::const_iterator it = _options.find(*itvec);
     assert(it != _options.end());
-    if (it->second.first.find(",") < std::string::npos) {
+    if (it->second.first.find(',') < std::string::npos) {
       std::string tmp = it->second.first;
       std::string::size_type length = tmp.length();
       std::string::size_type pos;

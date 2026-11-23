@@ -55,10 +55,10 @@ ElectronPATIdMVAProducer::ElectronPATIdMVAProducer(const edm::ParameterSet& iCon
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
   electronToken_ = consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
   method_ = iConfig.getParameter<std::string>("method");
-  std::vector<std::string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string> >("mvaWeightFile");
+  std::vector<std::string> fpMvaWeightFiles = iConfig.getParameter<std::vector<std::string>>("mvaWeightFile");
   eventrhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("Rho"));
 
-  produces<edm::ValueMap<float> >();
+  produces<edm::ValueMap<float>>();
 
   mvaID_ = new EGammaMvaEleEstimator();
 
@@ -88,7 +88,7 @@ ElectronPATIdMVAProducer::~ElectronPATIdMVAProducer() {
 
 // ------------ method called on each new Event  ------------
 void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  std::unique_ptr<edm::ValueMap<float> > out(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> out = std::make_unique<edm::ValueMap<float>>();
 
   edm::Handle<pat::ElectronCollection> egCollection;
   iEvent.getByToken(electronToken_, egCollection);
