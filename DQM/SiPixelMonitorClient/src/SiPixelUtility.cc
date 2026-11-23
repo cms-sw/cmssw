@@ -10,7 +10,7 @@ using namespace std;
 int SiPixelUtility::getMEList(string name, vector<string> &values) {
   values.clear();
   string prefix_str = name.substr(0, (name.find(':')));
-  prefix_str += "/";
+  prefix_str += '/';
   string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   for (vector<string>::iterator it = values.begin(); it != values.end(); it++)
@@ -23,7 +23,7 @@ int SiPixelUtility::getMEList(string name, vector<string> &values) {
 int SiPixelUtility::getMEList(string name, string &dir_path, vector<string> &values) {
   values.clear();
   dir_path = name.substr(0, (name.find(':')));
-  dir_path += "/";
+  dir_path += '/';
   string temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   return values.size();
@@ -34,7 +34,7 @@ bool SiPixelUtility::checkME(string name, string me_name, string &full_path) {
   if (name.find(name) == string::npos)
     return false;
   string prefix_str = name.substr(0, (name.find(':')));
-  prefix_str += "/";
+  prefix_str += '/';
   string temp_str = name.substr(name.find(':') + 1);
   vector<string> values;
   split(temp_str, values, ",");
@@ -196,7 +196,7 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
       continue;
 
     if ((*it).find("Module") != string::npos) {
-      module = atoi((*it).substr((*it).find("_") + 1).c_str());
+      module = atoi((*it).substr((*it).find('_') + 1).c_str());
     }
 
     if ((*it).find("Shell") != string::npos) {
@@ -210,7 +210,7 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
         shell = 4;
     }
     if ((*it).find("Layer") != string::npos) {
-      layer = atoi((*it).substr((*it).find("_") + 1).c_str());
+      layer = atoi((*it).substr((*it).find('_') + 1).c_str());
       if (layer == 1) {
         nbinLayer = 0;
       }
@@ -222,7 +222,7 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
       }
     }
     if ((*it).find("Ladder") != string::npos) {
-      ladder = atoi((*it).substr((*it).find("_") + 1, 2).c_str());
+      ladder = atoi((*it).substr((*it).find('_') + 1, 2).c_str());
     }
     if ((*it).find("HalfCylinder") != string::npos) {
       if ((*it).find("mI") != string::npos)
@@ -235,13 +235,13 @@ int SiPixelUtility::computeHistoBin(string &module_path) {
         halfcylinder = 4;
     }
     if ((*it).find("Disk") != string::npos) {
-      disk = atoi((*it).substr((*it).find("_") + 1).c_str());
+      disk = atoi((*it).substr((*it).find('_') + 1).c_str());
     }
     if ((*it).find("Blade") != string::npos) {
-      blade = atoi((*it).substr((*it).find("_") + 1, 2).c_str());
+      blade = atoi((*it).substr((*it).find('_') + 1, 2).c_str());
     }
     if ((*it).find("Panel") != string::npos) {
-      panel = atoi((*it).substr((*it).find("_") + 1).c_str());
+      panel = atoi((*it).substr((*it).find('_') + 1).c_str());
       if (panel == 1)
         nbinPanel = 0;
       if (panel == 2)

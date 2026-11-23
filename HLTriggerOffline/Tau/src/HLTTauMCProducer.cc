@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "HLTriggerOffline/Tau/interface/HLTTauMCProducer.h"
 
 using namespace edm;
@@ -32,16 +34,16 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet &mc)
 void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iES) const {
   // All the code from HLTTauMCInfo is here :-)
 
-  unique_ptr<LorentzVectorCollection> product_Electrons(new LorentzVectorCollection);
-  unique_ptr<LorentzVectorCollection> product_Muons(new LorentzVectorCollection);
-  unique_ptr<LorentzVectorCollection> product_Leptons(new LorentzVectorCollection);
-  unique_ptr<LorentzVectorCollection> product_OneProng(new LorentzVectorCollection);
-  unique_ptr<LorentzVectorCollection> product_ThreeProng(new LorentzVectorCollection);
-  unique_ptr<LorentzVectorCollection> product_OneAndThreeProng(new LorentzVectorCollection);
-  unique_ptr<LorentzVectorCollection> product_Other(new LorentzVectorCollection);
-  unique_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
-  unique_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
-  unique_ptr<std::vector<int>> product_Mothers(new std::vector<int>);
+  unique_ptr<LorentzVectorCollection> product_Electrons = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<LorentzVectorCollection> product_Muons = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<LorentzVectorCollection> product_Leptons = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<LorentzVectorCollection> product_OneProng = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<LorentzVectorCollection> product_ThreeProng = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<LorentzVectorCollection> product_OneAndThreeProng = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<LorentzVectorCollection> product_Other = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<LorentzVectorCollection> product_Neutrina = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<LorentzVectorCollection> product_MET = std::make_unique<LorentzVectorCollection>();
+  unique_ptr<std::vector<int>> product_Mothers = std::make_unique<std::vector<int>>();
 
   edm::Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(MC_, genParticles);

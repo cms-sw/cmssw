@@ -101,9 +101,9 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet &iConfig,
     sprintf(sladder, "Ladder_%02i", DBladder);
     hisID = src.label() + "_" + sladder;
     if (isHalfModule)
-      hisID += "H";
+      hisID += 'H';
     else
-      hisID += "F";
+      hisID += 'F';
 
     if (updateEfficiencies) {
       // EFFICIENCY

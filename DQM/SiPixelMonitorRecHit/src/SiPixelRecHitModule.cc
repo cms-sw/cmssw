@@ -103,9 +103,9 @@ void SiPixelRecHitModule::book(const edm::ParameterSet &iConfig,
     sprintf(sladder, "Ladder_%02i", DBladder);
     hid = src.label() + "_" + sladder;
     if (isHalfModule)
-      hid += "H";
+      hid += 'H';
     else
-      hid += "F";
+      hid += 'F';
     if (!reducedSet) {
       if (twoD) {
         meXYPosLad_ = iBooker.book2D("xypos_" + hid, "XY Position", 100, -1., 1, 100, -4, 4);

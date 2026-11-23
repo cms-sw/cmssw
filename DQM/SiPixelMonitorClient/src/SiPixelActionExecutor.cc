@@ -788,7 +788,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
         continue;
       iBooker.cd(*it);
       iGetter.cd(*it);
-      string fedid = (*it).substr((*it).find("_") + 1);
+      string fedid = (*it).substr((*it).find('_') + 1);
       std::istringstream isst;
       isst.str(fedid);
       isst >> ndet;

@@ -194,7 +194,7 @@ void TrackerHitProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     edm::LogInfo("TrackerHitProducer::produce") << "Done gathering data from event.";
 
   // produce object to put into event
-  std::unique_ptr<PTrackerSimHit> pOut(new PTrackerSimHit);
+  std::unique_ptr<PTrackerSimHit> pOut = std::make_unique<PTrackerSimHit>();
 
   if (verbosity > 2)
     edm::LogInfo("TrackerHitProducer::produce") << "Saving event contents:";

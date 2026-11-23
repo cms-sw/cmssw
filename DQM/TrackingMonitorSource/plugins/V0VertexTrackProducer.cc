@@ -32,7 +32,7 @@ void V0VertexTrackProducer::produce(edm::StreamID streamID, edm::Event& iEvent, 
   edm::Handle<reco::VertexCompositeCandidateCollection> vccHandle;
   iEvent.getByToken(vccToken_, vccHandle);
 
-  std::unique_ptr<std::vector<reco::Track>> outputTracks(new std::vector<reco::Track>());
+  std::unique_ptr<std::vector<reco::Track>> outputTracks = std::make_unique<std::vector<reco::Track>>();
 
   if (vccHandle.isValid()) {
     // Loop over VertexCompositeCandidates and associate tracks
