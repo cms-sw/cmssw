@@ -92,10 +92,8 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   }
   // The GPU transport of FTFP_BERT_EMA must apply the kills of the stepping action and track filter itself,
   // so its physics constructor needs their final configuration.
-  m_pPhysics.addUntrackedParameter<edm::ParameterSet>("SteppingAction",
-                                                      p.getParameter<edm::ParameterSet>("SteppingAction"));
-  m_pPhysics.addUntrackedParameter<edm::ParameterSet>("StackingAction",
-                                                      p.getParameter<edm::ParameterSet>("StackingAction"));
+  m_pPhysics.addParameter<edm::ParameterSet>("SteppingAction", p.getParameter<edm::ParameterSet>("SteppingAction"));
+  m_pPhysics.addParameter<edm::ParameterSet>("StackingAction", p.getParameter<edm::ParameterSet>("StackingAction"));
   m_UIsession = new CustomUIsession();
   G4UImanager::GetUIpointer()->SetCoutDestination(m_UIsession);
   G4UImanager::GetUIpointer()->SetMasterUIManager(true);

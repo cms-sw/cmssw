@@ -53,6 +53,7 @@
 #include "G4HepEmConfig.hh"
 
 #include <cstdlib>
+#include <initializer_list>
 #include <utility>
 
 namespace {
@@ -70,15 +71,15 @@ namespace {
   // GPU steps and erases the GPU-born secondaries that the filter kills, so the GPU must apply the same kills. Their
   // final configuration is forwarded by RunManagerMT; settings that AdePT cannot mirror are rejected.
   CMSSteppingActionConfig makeAdePTSteppingActionConfig(const edm::ParameterSet& physics) {
-    const auto stepConfig = physics.getUntrackedParameter<edm::ParameterSet>("SteppingAction");
+    const auto& stepConfig = physics.getParameter<edm::ParameterSet>("SteppingAction");
     // The Phase-2 secondary filter takes its settings from the "StackingAction" PSet.
-    const auto secondaryFilterConfig = physics.getUntrackedParameter<edm::ParameterSet>("StackingAction");
+    const auto& secondaryFilterConfig = physics.getParameter<edm::ParameterSet>("StackingAction");
     auto reject = [](std::string const& what) {
       throw cms::Exception("Configuration") << "CMSEmStandardPhysicsA: AdePT does not support " << what;
     };
     // AdePT applies the same cuts to tracks (Phase2SteppingAction) and to new secondaries (Phase2TrackFilter)
-    for (std::string const name :
-         {"MaxTrackTime", "MaxTrackTimeForward", "MaxZCentralCMS", "CriticalEnergyForVacuum"}) {
+    for (std::string const& name : std::initializer_list<std::string>{
+             "MaxTrackTime", "MaxTrackTimeForward", "MaxZCentralCMS", "CriticalEnergyForVacuum"}) {
       if (stepConfig.getParameter<double>(name) != secondaryFilterConfig.getParameter<double>(name))
         reject("different values of " + name + " in the SteppingAction and StackingAction");
     }
@@ -95,7 +96,7 @@ namespace {
         !secondaryFilterConfig.getParameter<bool>("KillHeavy"))
       reject("KillDeltaRay");
     if (secondaryFilterConfig.exists("TestKillingOptions")) {
-      const auto testKilling = secondaryFilterConfig.getParameter<edm::ParameterSet>("TestKillingOptions");
+      const auto& testKilling = secondaryFilterConfig.getParameter<edm::ParameterSet>("TestKillingOptions");
       if (testKilling.getParameter<bool>("KillInCalo") || testKilling.getParameter<bool>("KillInCaloEfH"))
         reject("TestKillingOptions");
     }
@@ -112,22 +113,22 @@ namespace {
     // low-density regions as hardcoded in Phase2TrackFilter
     config.lowDensityRegions = {"BeamPipeOutside", "BeamPipeVacuum"};
 
-    // Gamma Russian roulette in the regions of Phase2TrackFilter, which enables it only if the probability is below
-    // one in the ECAL, HCAL, MuonIron or World region
+    // Match gamma Russian roulette in Phase2TrackFilter.
     const double energyLimit = secondaryFilterConfig.getParameter<double>("RusRoGammaEnergyLimit") * CLHEP::MeV;
     const double ecal = secondaryFilterConfig.getParameter<double>("RusRoEcalGamma");
     const double hcal = secondaryFilterConfig.getParameter<double>("RusRoHcalGamma");
     const double muonIron = secondaryFilterConfig.getParameter<double>("RusRoMuonIronGamma");
     const double world = secondaryFilterConfig.getParameter<double>("RusRoWorldGamma");
-    if (energyLimit > 0.0 && (ecal < 1.0 || hcal < 1.0 || muonIron < 1.0 || world < 1.0)) {
+    const double hgcal = secondaryFilterConfig.getParameter<double>("RusRoHGcalGamma");
+    const double zdc = secondaryFilterConfig.getParameter<double>("RusRoZDCGamma");
+    if (energyLimit > 0.0 && (ecal < 1.0 || hcal < 1.0 || muonIron < 1.0 || world < 1.0 || hgcal < 1.0 || zdc < 1.0)) {
       config.params.gammaRussianRouletteEnergyLimit = energyLimit;
-      const std::pair<std::string, double> probabilities[] = {
-          {"EcalRegion", ecal},
-          {"HcalRegion", hcal},
-          {"MuonIron", muonIron},
-          {"DefaultRegionForTheWorld", world},
-          {"HGCalRegion", secondaryFilterConfig.getParameter<double>("RusRoHGcalGamma")},
-          {"ZDCRegion", secondaryFilterConfig.getParameter<double>("RusRoZDCGamma")}};
+      const std::pair<std::string, double> probabilities[] = {{"EcalRegion", ecal},
+                                                              {"HcalRegion", hcal},
+                                                              {"MuonIron", muonIron},
+                                                              {"DefaultRegionForTheWorld", world},
+                                                              {"HGCalRegion", hgcal},
+                                                              {"ZDCRegion", zdc}};
       for (auto const& [region, probability] : probabilities) {
         if (probability < 1.0)
           config.gammaRussianRoulette.emplace_back(region, probability);
