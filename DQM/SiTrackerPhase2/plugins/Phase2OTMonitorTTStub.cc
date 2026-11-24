@@ -245,15 +245,10 @@ void Phase2OTMonitorTTStub::bookHistograms(DQMStore::IBooker &iBooker, edm::Run 
                                        Parameters.getParameter<double>("ymin"),
                                        Parameters.getParameter<double>("ymax"));
     if (CrackOverview->getTH2Poly()->GetNumberOfBins() == 0) {
-      double yOffset = 0;
-      for (int layer = 1; layer < 7; layer++) {
-        for (int module = 1; module < 13; module++) {
-          if (module % 2 == 1)
-            yOffset = -0.1;
-          else
-            yOffset = 0;
-          CrackOverview->addBin(module - 0.7, layer + yOffset, module + 0.7, layer + yOffset + 0.1);
-        }
+      std::vector<double> crack_overview_bins = conf_.getParameter<std::vector<double>>("CrackOverview_Bins");
+      for (int i = 0; i < int(crack_overview_bins.size()); i = i + 4) {
+        CrackOverview->addBin(
+            crack_overview_bins[i], crack_overview_bins[i + 1], crack_overview_bins[i + 2], crack_overview_bins[i + 3]);
       }
     }
     CrackOverview->getTH2Poly()->SetStats(false);
@@ -351,18 +346,7 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
   edm::ParameterSetDescription desc;
 
   // CRACK
-  phase2tkutil::add2DDesc(desc,
-                          "CrackOverview",
-                          "Crack_Overview_L1Stubs",
-                          "Crack_Overview_stubs",
-                          "Module",
-                          "Layer",
-                          13.0,
-                          0.0,
-                          13,
-                          0.0,
-                          7.5,
-                          13);
+  phase2tkutil::getTemplatePSets(desc);
 
   // Position
   phase2tkutil::add2DDesc(desc,
