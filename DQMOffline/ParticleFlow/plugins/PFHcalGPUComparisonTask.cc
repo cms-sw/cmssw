@@ -71,11 +71,11 @@ void PFHcalGPUComparisonTask::bookHistograms(DQMStore::IBooker& ibooker, edm::Ru
   const char* histo;
   histo = "pfCluster_Multiplicity_HostvsDevice";
   const char* histoAxis = "pfCluster_Multiplicity_HostvsDevice;Multiplicity Host;Multiplicity Device";
-  pfCluster_Multiplicity_HostvsDevice_ = ibooker.book2I(histo, histoAxis, 1000, 0, 1000, 1000, 0, 1000);
+  pfCluster_Multiplicity_HostvsDevice_ = ibooker.book2I(histo, histoAxis, 100, 0, 1000, 1000, 0, 1000);
 
   histo = "pfCluster_Energy_HostvsDevice";
   histoAxis = "pfCluster_Energy_HostvsDevice;Energy Host [GeV];Energy Device [GeV]";
-  pfCluster_Energy_HostvsDevice_ = ibooker.book2D(histo, histoAxis, 500, 0, 500, 500, 0, 500);
+  pfCluster_Energy_HostvsDevice_ = ibooker.book2D(histo, histoAxis, 100, 0, 500, 500, 0, 500);
 
   histo = "pfCluster_RecHitMultiplicity_HostvsDevice";
   histoAxis = "pfCluster_RecHitMultiplicity_HostvsDevice;RecHit Multiplicity Host;RecHit Multiplicity Device";
