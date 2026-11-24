@@ -151,7 +151,7 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // output data
-  std::unique_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+  std::unique_ptr<TrajectorySeedCollection> output = std::make_unique<TrajectorySeedCollection>();
 
   // read the regions;
   auto const& regions = e.get(trackingRegionToken);
