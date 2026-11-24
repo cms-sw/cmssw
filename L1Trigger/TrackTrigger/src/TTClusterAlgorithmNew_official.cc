@@ -1,6 +1,8 @@
 
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithmNew_official.h"
 
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <vector>
 
 //--- Top-level of clustering algo
@@ -35,7 +37,9 @@ void TTClusterAlgorithmNew_official::algo(const edm::DetSet<Phase2TrackerDigi>& 
 
 #ifdef VERIFY_PH2_TK_CLUS
     if (!(previous < digi))
-      std::cout << "not ordered " << previous << ' ' << digi << std::endl;
+      throw cms::Exception("TTClusterAlgorithmNew_official")
+          << "Phase2TrackerDigis are not ordered, as the clustering algorithm requires: previous digi = "
+          << previous << ", current digi = " << digi;
 #endif
 
     constexpr unsigned int rowsPerMPA = 120;
@@ -204,7 +208,9 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(const edm::DetSet<Phase2Trac
 
 #ifdef VERIFY_PH2_TK_CLUS
     if (!(previous < digi))
-      std::cout << "not ordered " << previous << ' ' << digi << std::endl;
+      throw cms::Exception("TTClusterAlgorithmNew_official")
+          << "Phase2TrackerDigis are not ordered, as the clustering algorithm requires: previous digi = "
+          << previous << ", current digi = " << digi;
 #endif
 
     constexpr unsigned int rowsPerMPA = 120;

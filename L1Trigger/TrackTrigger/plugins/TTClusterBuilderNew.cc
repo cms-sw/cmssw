@@ -20,9 +20,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-//#include "L1Trigger/TrackTrigger/interface/Phase2TrackerClusterizerSequentialAlgorithm.h"
 #include "L1Trigger/TrackTrigger/interface/TTClusterAlgorithmNew_official.h"
 
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
@@ -50,6 +50,7 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken;
   edm::EDGetTokenT<edm::DetSetVector<Phase2TrackerDigi> > token_;
+  edm::EDPutTokenT<TTClusterDetSetVec> putToken_;
 
   unsigned int maxClusterWidth_;
   bool enableClusterVetoes_;
@@ -64,7 +65,7 @@ TTClusterBuilderNew::TTClusterBuilderNew(edm::ParameterSet const& conf) {
   tGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   token_ = consumes<edm::DetSetVector<Phase2TrackerDigi> >(conf.getParameter<edm::InputTag>("src"));
   // IRT CHECK: TrackerDTC uses a Token here. Why doesn't this?
-  produces<TTClusterDetSetVec>("ClusterInclusive");
+  putToken_ = produces<TTClusterDetSetVec>("ClusterInclusive");
   maxClusterWidth_ = conf.getParameter<unsigned int>("maxClusterWidth");
   enableClusterVetoes_ = conf.getParameter<bool>("enableClusterVetoes");
 }
@@ -82,7 +83,7 @@ void TTClusterBuilderNew::produce(edm::Event& event, const edm::EventSetup& iSet
   edm::Handle<edm::DetSetVector<Phase2TrackerDigi> > digis;
   event.getByToken(token_, digis);
 
-  auto outputClusters = std::make_unique<TTClusterDetSetVec>();
+  TTClusterDetSetVec outputClusters;
 
   // Loop over the tracker modules
   for (const auto& DSViter : *digis) {
@@ -91,10 +92,9 @@ void TTClusterBuilderNew::produce(edm::Event& event, const edm::EventSetup& iSet
     const bool isPSp = (tGeom->getDetectorType(detId) == TrackerGeometry::ModuleType::Ph2PSP);
 
     // Define utility for adding clusters to output collection.
-    TTClusterDetSetVec::FastFiller clusters(*outputClusters, DSViter.detId());
+    TTClusterDetSetVec::FastFiller clusters(outputClusters, DSViter.detId());
 
     // Create & run clustering algorithm
-    //const Phase2TrackerClusterizerSequentialAlgorithm algo(maxClusterWidth_, detId, upperSensor, isPSp);
     TTClusterAlgorithmNew_official algo(maxClusterWidth_, enableClusterVetoes_, detId, upperSensor, isPSp);
 
     algo.clusterizeDetUnit(DSViter, clusters);
@@ -103,8 +103,8 @@ void TTClusterBuilderNew::produce(edm::Event& event, const edm::EventSetup& iSet
   }
 
   // Add the data to the output
-  outputClusters->shrink_to_fit();
-  event.put(std::move(outputClusters), "ClusterInclusive");
+  outputClusters.shrink_to_fit();
+  event.emplace(putToken_, std::move(outputClusters));
 }
 
 DEFINE_FWK_MODULE(TTClusterBuilderNew);
