@@ -115,34 +115,7 @@ CRACKDigiMon = digiMon.clone(
     PixelPlotFillingFlag = False,
     StandAloneClusteriserFlag = False,
     TopFolderName = "OuterTracker",
-    CrackOverview = digiMon.CrackOverview.clone(
-        xmin = 0,
-        xmax = 13.5,
-        ymin = 0,
-        ymax = 7.5,
-        switch = True
-    ),
-    XYPositionMapH = digiMon.XYPositionMapH.clone(
-        NxBins = 250,
-        xmin = -7,
-        xmax = 7,
-        NyBins = 250,
-        ymin = -10,
-        ymax = 50,
-        switch = True
-    ),
-    RZPositionMapH = digiMon.RZPositionMapH.clone(
-        NxBins = 600,
-        xmin = -70.,
-        xmax = 70.,
-        NyBins = 250,
-        ymin = 0.,
-        ymax = 60.,
-        switch = True
-    ),
-    TotalNumberOfDigisPerLayerH = digiMon.TotalNumberOfDigisPerLayerH.clone(
-        xmax = 100
-    ),
+    # Normal OT setup
     DigiChargeVsWidthH = digiMon.DigiChargeH.clone(
         name = "Digi_Charge_vs_Width",
         title = "Digi Charge vs Width in {};Digi charge [ADC];Digi Width",
@@ -174,6 +147,41 @@ CRACKDigiMon = digiMon.clone(
         ymin = (digiMon.NumberOfDigisPerDetH.xmin),
         ymax = (digiMon.NumberOfDigisPerDetH.xmax),
         switch = (digiMon.NumberOfDigisPerDetH.switch and digiMon.EtaH.switch)
+    ),
+    # Enable CRACK histograms
+    CrackOverview = digiMon.CrackOverview.clone(
+        switch = True
+    ),
+    #Change ranges for CRACK
+    XYPositionMapH = digiMon.XYPositionMapH.clone(
+        NxBins = 960,
+        xmin = -7,
+        xmax = 7,
+        NyBins = 960,
+        ymin = -10,
+        ymax = 50,
+    ),
+    RZPositionMapH = digiMon.RZPositionMapH.clone(
+        NxBins = 70,
+        xmin = -10.,
+        xmax = 130.,
+        NyBins = 55,
+        ymin = -5.,
+        ymax = 50.,
+    ),
+    TotalNumberOfDigisPerLayerH = digiMon.TotalNumberOfDigisPerLayerH.clone(
+        NxBins = 51,
+        xmin = -0.5,
+        xmax = 50.5
+    ),
+    NumberOfDigisPerDetH = digiMon.NumberOfDigisPerDetH.clone(
+        NxBins = 21,
+        xmin = -0.5,
+        xmax = 20.5
+    ),
+    NumberOfHitDetsPerLayerH = digiMon.NumberOfHitDetsPerLayerH.clone(
+        NxBins = 50,
+        xmax = 100
     )
 )
 

@@ -55,5 +55,8 @@ namespace phase2tkutil {
                  int nby,
                  double ymin,
                  double ymax);
+
+  void getTemplatePSets(edm::ParameterSetDescription& desc);
+
 }  // namespace phase2tkutil
 #endif

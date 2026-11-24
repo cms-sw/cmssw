@@ -17,6 +17,9 @@ from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
 
 process = cms.Process('RERECO',Phase2C11M9)
 
+# set this to true if you're using real Cosmic Rack data (not MC)
+REAL_DATA = False
+
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
@@ -39,36 +42,32 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/eos/user/h/hrejebsf/CRACK/CRACK_MC_260126.root'),
-    secondaryFileNames = cms.untracked.vstring()
-)
+if (REAL_DATA):
+    process.source = cms.Source("PoolSource",
+        fileNames = cms.untracked.vstring('file:/eos/project-c/cms-tracker-integration/www/results/CosmicRackData/2026/9/Run_16_09_2026/RECO/DTH_Decoded_CRACK_Physics_Run_16th_September_2026_5_Ladders_Source_4_RECO.root',
+'file:/eos/project-c/cms-tracker-integration/www/results/CosmicRackData/2026/9/Run_16_09_2026/RECO/DTH_Decoded_CRACK_Physics_Run_16th_September_2026_5_Ladders_Source_5_RECO.root',
+'file:/eos/project-c/cms-tracker-integration/www/results/CosmicRackData/2026/9/Run_16_09_2026/RECO/DTH_Decoded_CRACK_Physics_Run_16th_September_2026_5_Ladders_Source_6_RECO.root',
+'file:/eos/project-c/cms-tracker-integration/www/results/CosmicRackData/2026/9/Run_16_09_2026/RECO/DTH_Decoded_CRACK_Physics_Run_16th_September_2026_5_Ladders_Source_7_RECO.root'),
+        secondaryFileNames = cms.untracked.vstring(),
+        duplicateCheckMode = cms.untracked.string("noDuplicateCheck")
+    )
+else:
+    process.source = cms.Source("PoolSource",
+        fileNames = cms.untracked.vstring('file:/eos/user/a/alaperto/CRACK/CRACK_MC_20M_45theta_14phi_r45_Zcenter.root'),
+        secondaryFileNames = cms.untracked.vstring()
+    )
 
 process.options = cms.untracked.PSet(
-    IgnoreCompletely = cms.untracked.vstring(),
-    Rethrow = cms.untracked.vstring(),
-    TryToContinue = cms.untracked.vstring(),
-    allowUnscheduled = cms.obsolete.untracked.bool,
-    canDeleteEarly = cms.untracked.vstring(),
     deleteNonConsumedUnscheduledModules = cms.untracked.bool(True),
-    emptyRunLumiMode = cms.obsolete.untracked.string,
-    eventSetup = cms.untracked.PSet(
-        forceNumberOfConcurrentIOVs = cms.untracked.PSet(
-            allowAnyLabel_=cms.required.untracked.uint32
-        ),
-        numberOfConcurrentIOVs = cms.untracked.uint32(1)
-    ),
     fileMode = cms.untracked.string('FULLMERGE'),
-    forceEventSetupCacheClearOnNewRun = cms.untracked.bool(False),
-    makeTriggerResults = cms.obsolete.untracked.bool,
     numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1),
     numberOfConcurrentRuns = cms.untracked.uint32(1),
     numberOfStreams = cms.untracked.uint32(0),
-    numberOfThreads = cms.untracked.uint32(4),
+    numberOfThreads = cms.untracked.uint32(1),
     printDependencies = cms.untracked.bool(False),
-    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
     throwIfIllegalParameter = cms.untracked.bool(True),
-    wantSummary = cms.untracked.bool(False)
+    wantSummary = cms.untracked.bool(False),
+    TryToContinue = cms.untracked.vstring('ProductNotFound')
 )
 
 # Production Info
@@ -95,9 +94,11 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 # Other statements
 process.trackerGeometry.applyAlignment = False
 process.mix.playback = True
-process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
-process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
+if (REAL_DATA):
+    process.RandomNumberGeneratorService.restoreStateLabel = cms.untracked.string("")
+else:
+    process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T35', '')
 
@@ -108,22 +109,21 @@ process.reconstruction_step = cms.Path(process.reconstruction)
 process.recosim_step = cms.Path(process.recosim)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
-##phase2 OT rechit step
-#process.load('RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi')
-#process.load('RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi')
-#process.rechits_step = cms.Path(process.siPhase2RecHits * process.siPixelRecHits)
-
 #DQM modules
-#process.load('DQM.SiTrackerPhase2.Phase2OTMonitorRecHit_cfi')
 process.load('DQM.SiTrackerPhase2.Phase2CRackDQMFirstStep_cff')
-#process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy()*process.Phase2OTMonitorRecHit)
 process.otdqm_seq = cms.Sequence(process.trackerphase2DQMSource.copy())
 process.dqm_step=cms.Path(process.otdqm_seq)
 
+if (REAL_DATA):
+    process.clusterMonitorCRACK.clusterSrc = cms.InputTag("Unpacker", "", "UNPACK")
+    process.dqm_step.remove(process.CRACKDigiMon)
+    process.dqm_step.remove(process.TTClusterMonitorCRACK)
+    process.dqm_step.remove(process.TTStubMonitorCRACK)
+    process.dqm_step.remove(process.Phase2OTMonitorTTTrack)
+
 
 # Schedule definition
-process.schedule = cms.Schedule(#process.rechits_step,
-                                process.dqm_step,
+process.schedule = cms.Schedule(process.dqm_step,
                                 process.DQMoutput_step
 )
 # customisation of the process.
