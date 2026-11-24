@@ -171,20 +171,15 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   unsigned int nPVall = vertexHandle->size();
-  bool isGoodPV[nPVall];
-  for (size_t i = 0; i < nPVall; ++i)
-    isGoodPV[i] = false;
-
-  int npv = 0;
+  std::vector<unsigned int> goodPVs;
+  goodPVs.reserve(nPVall);
   for (unsigned int i = 0; i < nPVall; i++) {
-    const auto& pv = vertexHandle->at(i);
-    th1dPlots["pv_z"].fill(pv.z());
-
-    if (!pv.isFake() && pv.ndof() >= 4 && fabs(pv.z()) <= 24.0 && fabs(pv.position().rho()) <= 2.0) {
-      npv++;
-      isGoodPV[i] = true;
-    }
+	const auto& pv = (*vertexHandle)[i];
+	th1dPlots["pv_z"].fill(pv.z());
+	if (!pv.isFake() && pv.ndof() >= 4 && std::abs(pv.z()) <= 24.0 && std::abs(pv.position().rho()) <= 2.0)
+	  goodPVs.push_back(i);
   }
+  int npv = goodPVs.size();  
   th1dPlots["npv"].fill(npv);
   int npv_in_range = npv;
   if (npv_in_range < 0)
@@ -199,7 +194,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     const auto& summary = *muHandle;
     auto it = std::find_if(summary.begin(), summary.end(), [](const auto& s) { return s.getBunchCrossing() == 0; });
 
-    if (it->getBunchCrossing() != 0) {
+    if (it == summary.end()) {
       edm::LogError("OffsetAnalyzerDQM") << "Cannot find the in-time pileup info " << it->getBunchCrossing();
     } else {
       float mu = it->getTrueNumInteractions();
@@ -223,7 +218,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (etaIndex == -1 || pftype.empty())
       return;
     if (pftype == "chm" && !isAttachedToPV())
-      pftype = "chu";  //unmatched charged hadron
+      pftype = "chu";  // unmatched charged hadron
     m_pftype_pfEt[pftype][etaIndex] += et;
   };
 
@@ -237,9 +232,7 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // Collect the tracks fitted to any good PV once per event, so the per-candidate
   // attachment test below is a binary search rather than a scan over every PV track.
   std::vector<reco::TrackRef> goodPVTracks;
-  for (unsigned int ipv = 0; ipv < nPVall; ++ipv) {
-    if (!isGoodPV[ipv])
-      continue;
+  for (unsigned int ipv : goodPVs) {
     const auto& pv = vertexHandle->at(ipv);
     for (auto it = pv.tracks_begin(); it != pv.tracks_end(); ++it)
       goodPVTracks.push_back(it->castTo<reco::TrackRef>());
@@ -251,8 +244,8 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
       // MiniAOD: PV attachment is precomputed in fromPV(), 3 == used in the fit.
       if (const pat::PackedCandidate* packed = dynamic_cast<const pat::PackedCandidate*>(&cand)) {
-        for (unsigned int ipv = 0; ipv < nPVall; ipv++) {
-          if (isGoodPV[ipv] && packed->fromPV(ipv) == 3)
+		for (unsigned int ipv : goodPVs) {
+          if (packed->fromPV(ipv) == 3)
             return true;
         }
         return false;
