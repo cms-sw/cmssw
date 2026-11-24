@@ -234,6 +234,18 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     return;
   }
 
+  // Collect the tracks fitted to any good PV once per event, so the per-candidate
+  // attachment test below is a binary search rather than a scan over every PV track.
+  std::vector<reco::TrackRef> goodPVTracks;
+  for (unsigned int ipv = 0; ipv < nPVall; ++ipv) {
+    if (!isGoodPV[ipv])
+      continue;
+    const auto& pv = vertexHandle->at(ipv);
+    for (auto it = pv.tracks_begin(); it != pv.tracks_end(); ++it)
+      goodPVTracks.push_back(it->castTo<reco::TrackRef>());
+  }
+  std::sort(goodPVTracks.begin(), goodPVTracks.end()); // needed for std::binary_search
+  
   for (unsigned int i = 0, n = pfHandle->size(); i < n; i++) {
     const reco::Candidate& cand = pfHandle->at(i);
     fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
@@ -246,20 +258,12 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
         return false;
       }
       // AOD/HLT: reco::PFCandidate has no such flag, so attachment is decided
-      // by matching the candidate track against the tracks fitted to a good PV.
+      // by checking whether the candidate track was fitted to a good PV.
       if (const reco::PFCandidate* pf = dynamic_cast<const reco::PFCandidate*>(&cand)) {
         reco::TrackRef candTrkRef(pf->trackRef());
         if (candTrkRef.isNull())
           return false;
-        for (unsigned int ipv = 0; ipv < nPVall; ++ipv) {
-          if (!isGoodPV[ipv])
-            continue;
-          const auto& pv = vertexHandle->at(ipv);
-          for (auto ivtrk = pv.tracks_begin(), endvtrk = pv.tracks_end(); ivtrk != endvtrk; ++ivtrk) {
-            if (ivtrk->castTo<reco::TrackRef>() == candTrkRef)
-              return true;
-          }
-        }
+        return std::binary_search(goodPVTracks.begin(), goodPVTracks.end(), candTrkRef);
       }
       return false;
     });
