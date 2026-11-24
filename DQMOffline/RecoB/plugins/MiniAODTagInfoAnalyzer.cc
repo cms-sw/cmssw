@@ -21,6 +21,7 @@
 #include "TH1F.h"
 
 #include <cmath>
+#include <memory>
 #include <vector>
 
 namespace {
@@ -38,7 +39,9 @@ namespace {
       for (long i = 1; i <= n; ++i)
         edges.push_back(seg.lo + i * (seg.hi - seg.lo) / n);
     }
-    return ibook.book1D(name, new TH1F(name.c_str(), "", edges.size() - 1, edges.data()));
+    // book1D clones the histogram and does not take ownership
+    auto h = std::make_unique<TH1F>(name.c_str(), "", edges.size() - 1, edges.data());
+    return ibook.book1D(name, h.get());
   }
 }  // namespace
 
