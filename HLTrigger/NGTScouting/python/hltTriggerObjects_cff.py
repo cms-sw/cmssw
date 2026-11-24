@@ -26,7 +26,6 @@ hltTriggerObjP4Table = cms.EDProducer(
         "HLT_AK4PFPuppiJet520",
         "HLT_PFPuppiHT1070",
         "HLT_PFPuppiMETTypeOne140_PFPuppiMHT140",
-        "HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4",
         "HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4",
         "HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4",
         "HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4",
