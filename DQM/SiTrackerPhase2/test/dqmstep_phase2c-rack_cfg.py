@@ -117,7 +117,7 @@ process.dqm_step=cms.Path(process.otdqm_seq)
 if (REAL_DATA):
     process.clusterMonitorCRACK.clusterSrc = cms.InputTag("Unpacker", "", "UNPACK")
     process.dqm_step.remove(process.CRACKDigiMon)
-    process.dqm_step.remove(process.Phase2OTMonitorTTCluster)
+    process.dqm_step.remove(process.TTClusterMonitorCRACK)
     process.dqm_step.remove(process.TTStubMonitorCRACK)
     process.dqm_step.remove(process.Phase2OTMonitorTTTrack)
 

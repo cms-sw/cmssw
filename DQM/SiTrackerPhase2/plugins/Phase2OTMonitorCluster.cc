@@ -127,6 +127,9 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
 
     TrackerGeometry::ModuleType mType = tkGeom_->getDetectorType(detId);
     unsigned int module = tTopo_->module(rawid);
+    // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
+    if (crackOverview_)
+      module = std::abs(int(module - 13));
     unsigned int ladder = tTopo_->tobRod(rawid);
     int layer = tTopo_->layer(rawid);
     int isLowerSensor = tTopo_->isLower(rawid);
@@ -157,9 +160,6 @@ void Phase2OTMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventS
       double gr = globalPosCluster.perp();
       int topOrBottomColumn = 0;
 
-      // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
-      if (crackOverview_)
-        module = std::abs(int(module - 13));
       if (mType == TrackerGeometry::ModuleType::Ph2PSP) {
         globalXY_P_->Fill(gx, gy);
         globalRZ_P_->Fill(gz, gr);
@@ -410,26 +410,29 @@ void Phase2OTMonitorCluster::bookLayerHistos(DQMStore::IBooker& ibooker, uint32_
           local_mes.PositionOfClusters_2SLadder[ladderNum - 1] =
               phase2tkutil::book2DFromPSet(pos2SLadderPSet, ibooker, prettyName);
 
-          if (pos2SModulePSet.getParameter<bool>("switch")) {
+          if (pos2SModulePSet.getParameter<bool>("switch") || xCorrelationModulePSet.getParameter<bool>("switch")) {
             for (unsigned int moduleNum = 1; moduleNum <= nModules; moduleNum++) {
-              pos2SModulePSet.addParameter<std::string>(
-                  "name",
-                  "Position_Of_Clusters_2S_Lad_" + std::to_string(ladderNum) + "_Mod_" + std::to_string(moduleNum));
-              pos2SModulePSet.addParameter<std::string>("title",
-                                                        "Position Of Clusters in 2S modules in {} ladder " +
-                                                            std::to_string(ladderNum) + " module " +
-                                                            std::to_string(moduleNum) + ";Strip;Half-module;");
-              local_mes.PositionOfClusters_2S[moduleNum - 1] =
-                  phase2tkutil::book2DFromPSet(pos2SModulePSet, ibooker, prettyName);
-
-              xCorrelationModulePSet.addParameter<std::string>(
-                  "name", "X_Correlation_Clusters_Module_" + std::to_string(moduleNum));
-              xCorrelationModulePSet.addParameter<std::string>(
-                  "title",
-                  "Local X of clusters in {} present in top and bottom sensor of module " + std::to_string(moduleNum) +
-                      ";top sensor X [cm];lower sensor X [cm]");
-              local_mes.ModuleXCorrelation_2S[moduleNum - 1] =
-                  phase2tkutil::book2DFromPSet(xCorrelationModulePSet, ibooker, prettyName);
+              if (pos2SModulePSet.getParameter<bool>("switch")) {
+                pos2SModulePSet.addParameter<std::string>(
+                    "name",
+                    "Position_Of_Clusters_2S_Lad_" + std::to_string(ladderNum) + "_Mod_" + std::to_string(moduleNum));
+                pos2SModulePSet.addParameter<std::string>("title",
+                                                          "Position Of Clusters in 2S modules in {} ladder " +
+                                                              std::to_string(ladderNum) + " module " +
+                                                              std::to_string(moduleNum) + ";Strip;Half-module;");
+                local_mes.PositionOfClusters_2S[moduleNum - 1] =
+                    phase2tkutil::book2DFromPSet(pos2SModulePSet, ibooker, prettyName);
+              }
+              if (xCorrelationModulePSet.getParameter<bool>("switch")) {
+                xCorrelationModulePSet.addParameter<std::string>(
+                    "name", "X_Correlation_Clusters_Module_" + std::to_string(moduleNum));
+                xCorrelationModulePSet.addParameter<std::string>(
+                    "title",
+                    "Local X of clusters in {} present in top and bottom sensor of module " +
+                        std::to_string(moduleNum) + ";top sensor X [cm];lower sensor X [cm]");
+                local_mes.ModuleXCorrelation_2S[moduleNum - 1] =
+                    phase2tkutil::book2DFromPSet(xCorrelationModulePSet, ibooker, prettyName);
+              }
             }
           }
         }
