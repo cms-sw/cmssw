@@ -208,6 +208,10 @@ rawSecond.toModify(RAWEventContent,
                               outputCommands = [x for x in RAWEventContent.outputCommands if '_hltSiStripClusters2ApproxClusters_' not in x]+[
                                   'keep *_hltSiStripClusters2ApproxClustersv1_*_*'
                               ])
+# BTL raw data from the BTL packer (propagated to all the event contents built from RAWEventContent)
+from Configuration.ProcessModifiers.mtdRawData_cff import mtdRawData
+mtdRawData.toModify(RAWEventContent,
+                    outputCommands = RAWEventContent.outputCommands + ['keep RawDataBuffer_btlDigiToRaw_*_*'])
 #
 # HLTSCOUT Data Tier definition
 #

@@ -1,5 +1,8 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/Utilities"/>
+
 <library name="TestBTLReadoutMap" file="TestBTLReadoutMap.cc">
-  <use name="FWCore/Framework"/>
   <use name="Geometry/Records"/>
   <use name="Geometry/MTDCommonData"/>
   <use name="DataFormats/ForwardDetId"/>
@@ -7,5 +10,29 @@
   <use name="CondFormats/MTDObjects"/>
   <use name="CondFormats/DataRecord"/>
   <use name="EventFilter/MTDRawToDigi"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="DumpBTLRawDataBuffer" file="DumpBTLRawDataBuffer.cc">
+  <use name="DataFormats/FEDRawData"/>
+  <use name="alpaka"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="BTLRawToDigiValidator" file="BTLRawToDigiValidator.cc">
+  <use name="FWCore/MessageLogger"/>
+  <use name="DataFormats/FTLDigi"/>
+  <use name="DataFormats/FTLDigiSoA"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library name="BTLRawOccupancyAnalyzer" file="BTLRawOccupancyAnalyzer.cc">
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="DataFormats/FEDRawData"/>
+  <use name="CondFormats/MTDObjects"/>
+  <use name="alpaka"/>
+  <use name="root"/>
   <flags EDM_PLUGIN="1"/>
 </library>

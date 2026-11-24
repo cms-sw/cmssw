@@ -17,3 +17,9 @@ fastTimingLocalReco = cms.Sequence(fastTimingLocalRecoTask)
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 premix_stage2.toModify(btlDigiSoAProducer, btlDigiCollection = "mixData:MTDBarrel")
 premix_stage2.toModify(etlDigiSoAProducer, etlDigiCollection = "mixData:MTDEndcap")
+
+# with the mtdRawData process modifier the BTL SoA local reconstruction reads the digis of the BTL unpacker,
+# which replaces the conversion of the simulated digis to SoA
+from Configuration.ProcessModifiers.mtdRawData_cff import mtdRawData
+mtdRawData.toModify(btlBaseRecHitsSoA, digi = "btlRawToDigi")
+mtdRawData.toReplaceWith(fastTimingLocalRecoTask, fastTimingLocalRecoTask.copyAndExclude([btlDigiSoAProducer]))

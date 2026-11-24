@@ -1,0 +1,9 @@
+#ifndef CondFormats_MTDObjects_interface_BTLElectronicsToDetIdMappingHost_h
+#define CondFormats_MTDObjects_interface_BTLElectronicsToDetIdMappingHost_h
+
+#include "CondFormats/MTDObjects/interface/BTLElectronicsToDetIdMappingSoA.h"
+#include "DataFormats/Portable/interface/PortableHostCollection.h"
+
+using BTLElectronicsToDetIdMappingHost = PortableHostCollection<BTLElectronicsToDetIdMappingSoA>;
+
+#endif

@@ -49,3 +49,7 @@ from Validation.MtdValidation.mtdMergedClusterValid_cfi import mtdMergedClusterV
 mtdSimValid  = cms.Sequence(btlSimHitsValid  + etlSimHitsValid )
 mtdDigiValid = cms.Sequence(btlDigiHitsValid + btlDigiSoAHitsValid + etlDigiHitsValid + etlDigiSoAHitsValid)
 mtdRecoValid = cms.Sequence(mtdAssociationProducers + btlLocalRecoValid + btlLocalRecoSoAValid + etlLocalRecoValid + etlLocalRecoSoAValid + mtdTracksValid + vertices4DValid + mtdMergedClusterValid)
+
+# with the mtdRawData process modifier the BTL digis SoA come from the BTL unpacker
+from Configuration.ProcessModifiers.mtdRawData_cff import mtdRawData
+mtdRawData.toModify(btlDigiSoAHitsValid, inputTag = "btlRawToDigi")
