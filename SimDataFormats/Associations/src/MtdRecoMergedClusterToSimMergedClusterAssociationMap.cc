@@ -1,0 +1,5 @@
+#include "SimDataFormats/Associations/interface/MtdRecoMergedClusterToSimMergedClusterAssociationMap.h"
+
+MtdRecoMergedClusterToSimMergedClusterAssociationMap::MtdRecoMergedClusterToSimMergedClusterAssociationMap() {}
+
+MtdRecoMergedClusterToSimMergedClusterAssociationMap::~MtdRecoMergedClusterToSimMergedClusterAssociationMap() {}

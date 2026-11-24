@@ -10,6 +10,8 @@ RecoLocalFastTimeRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_mtdRecHits_*_*',
         'keep *_mtdClusters_*_*',
+        'keep *_mtdMergedClusters_*_*',
+
     )
 )
 RecoLocalFastTimeRECO.outputCommands.extend(RecoLocalFastTimeAOD.outputCommands)
