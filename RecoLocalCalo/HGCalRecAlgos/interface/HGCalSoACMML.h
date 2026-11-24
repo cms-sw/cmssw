@@ -1,0 +1,65 @@
+#ifndef RecoLocalCalo_HGCalRecAlgos_interface_HGCalSoACMML_h
+#define RecoLocalCalo_HGCalRecAlgos_interface_HGCalSoACMML_h
+
+#include <cstdint>
+
+#include <Eigen/Core>
+
+#include "DataFormats/SoATemplate/interface/SoACommon.h"
+#include "DataFormats/SoATemplate/interface/SoALayout.h"
+
+namespace hgcalcmml {
+
+  // Inputs of the multi-module CM DNN for one digi, in training order (all_channels_multimodule_v1)
+  namespace Feature {
+    constexpr uint32_t CM0 = 0,  // [0-11]    cm_erx00..11_pedsub: 2*(0.5*cm - CM_ped), 0 if eRx off/invalid
+        NCM = 12,
+                       NCHTOA = 12,  // [12]      nchtoa: module channels with toa > 0
+        NCHTOT = 13,                 // [13]      nchtot: module channels in TOT mode with tot > 0
+        NCHADCGT0 = 14,              // [14-17]   nchadcgt10/50/200/500: module channels with pedsub ADC > X
+        NNCHADCGT = 4,
+                       ONEHOT0 = 18,  // [18-28]   module_onehot_000..010 (last = UNKNOWN, never set)
+        NONEHOT = 11,
+                       ADC0 = 29,  // [29-250]  adc_allch_000..221: pedsub ADC, target channel's own slot 0
+        NCH = 222,
+                       NMODULE = 251,  // features 0..250 are identical for every digi of a module
+        CHIDX = 251,                   // [251]     channel_indices: chIdx - (nch-1)/2
+        ERXIDX = 252,                  // [252]     erx_indices: erxIdx - (nErx-1)/2
+        CELLFRAC = 253,                // [253]     cell_area_fraction (cellareas.json SF)
+        Size = 254;
+  }  // namespace Feature
+
+  constexpr float kNchAdcGtThresholds[Feature::NNCHADCGT] = {10.f, 50.f, 200.f, 500.f};
+
+  using CMFeatureVector = Eigen::Matrix<float, Feature::Size, 1>;
+
+  // one Eigen column: TensorCollection wraps it as a [N, 254] tensor without copying
+  GENERATE_SOA_LAYOUT(HGCalCMMLSoALayout, SOA_EIGEN_COLUMN(CMFeatureVector, features))
+
+  using HGCalCMMLSoA = HGCalCMMLSoALayout<>;
+
+  // Conditions of the CM DNN, built once per IOV by HGCalCMMLParamESProducer
+
+  using CMChannelVector = Eigen::Matrix<float, Feature::NCH, 1>;
+
+  // one row per module (HGCalMappingModuleIndexer dense module index)
+  GENERATE_SOA_LAYOUT(HGCalCMMLModuleParamSoALayout,
+                      SOA_COLUMN(uint32_t, chDataOffset),           // first digi of the module
+                      SOA_COLUMN(uint32_t, enabledErx),             // eRx bitmask
+                      SOA_COLUMN(int, onehotIdx),                   // -1: not in the module vocabulary
+                      SOA_COLUMN(uint8_t, inScope),                 // NCH channels and a known shape
+                      SOA_EIGEN_COLUMN(CMChannelVector, cellFrac))  // cellareas.json SF, by within-module channel
+
+  // z-score normalisation: Feature::Size rows; tgt* by within-module channel, filled for rows < NCH
+  GENERATE_SOA_LAYOUT(HGCalCMMLNormParamSoALayout,
+                      SOA_COLUMN(float, inMean),
+                      SOA_COLUMN(float, inInvStd),
+                      SOA_COLUMN(float, tgtMean),
+                      SOA_COLUMN(float, tgtStd))
+
+  using HGCalCMMLModuleParamSoA = HGCalCMMLModuleParamSoALayout<>;
+  using HGCalCMMLNormParamSoA = HGCalCMMLNormParamSoALayout<>;
+
+}  // namespace hgcalcmml
+
+#endif

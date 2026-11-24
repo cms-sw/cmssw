@@ -1191,6 +1191,12 @@ steps['BeamHalo_UP21']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','-n':'500','--condi
 hgcalTB=upgradeProperties['Run4']['Run4D104'] # so if the default changes, change wf only here
 steps['HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.runRecoForSep2024TB','-s':'NONE','--datatier':'RECO','--eventcontent':'FEVTDEBUG','--data':'','--process':'RECO','-n':'10','--filein':'/store/group/dpg_hgcal/comm_hgcal/relval/RAW2DIGI.root'}
 steps['HARVEST_HGCal_TestBeam']={'--conditions':hgcalTB['GT'],'--era':hgcalTB['Era'],'--customise':'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.setupConditionsForSep2024TB','-s':'HARVESTING:DQM/HGCAL/hgcalDQM_cff.hgcalDQMHarvesting','--data':'','--filetype':'DQM','--scenario':'pp','--geometry':hgcalTB['Geom']}
+# 2025 and 2026 test beams: digis from the test-beam files, rechits with the CM DNN, CM_ALT DQM
+hgcalTBFiles={'2025':'/store/group/dpg_hgcal/tb_hgcal/2025/SepTestBeam2025/Run112049/8bd9f88c-a32f-11f0-8f95-04d9f5f94829/v1/RAW2DIGI_112049_1.root',
+              '2026':'/store/group/dpg_hgcal/tb_hgcal/2026/TestBeam/Run118713/f0724b5f-69ee-11f1-b653-fa163eaf2bb8/RAW2RECO_118713_1.root'}
+for _year,_file in hgcalTBFiles.items():
+    steps[f'HGCal_TestBeam{_year}']=merge([{'--customise':f'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.runRecoForTB{_year}','-n':'20','--filein':_file},steps['HGCal_TestBeam']])
+    steps[f'HARVEST_HGCal_TestBeam{_year}']=merge([{'--customise':f'RecoLocalCalo/Configuration/hgcalTestBeamLocalReco_cff.setupConditionsForTB{_year}','--geometry':'ExtendedRun4D122'},steps['HARVEST_HGCal_TestBeam']])
 
 steps['QCD_Pt_50_80']=genS('QCD_Pt_50_80_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
 steps['QCD_Pt_15_20']=genS('QCD_Pt_15_20_8TeV_TuneCUETP8M1_cfi',Kby(25,100))
