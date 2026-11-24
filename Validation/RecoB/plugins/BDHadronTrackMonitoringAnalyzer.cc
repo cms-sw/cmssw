@@ -55,53 +55,75 @@ void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker &ibook,
   RecoBTag::setTDRStyle();
 
   nTrkAll_bjet = ibook.book1D(
-      "nTrkAll_bjet", "Number of selected tracks in b jets;number of selected tracks;jets", 16, -0.5, 15.5);
+      "nTrkAll_bjet", "Number of selected tracks in b jets;number of selected tracks;jets", 41, -0.5, 40.5);
 
   nTrkAll_cjet = ibook.book1D(
-      "nTrkAll_cjet", "Number of selected tracks in c jets;number of selected tracks;jets", 16, -0.5, 15.5);
+      "nTrkAll_cjet", "Number of selected tracks in c jets;number of selected tracks;jets", 41, -0.5, 40.5);
 
   nTrkAll_dusgjet = ibook.book1D(
-      "nTrkAll_dusgjet", "Number of selected tracks in dusg jets;number of selected tracks;jets", 16, -0.5, 15.5);
+      "nTrkAll_dusgjet", "Number of selected tracks in dusg jets;number of selected tracks;jets", 41, -0.5, 40.5);
 
   // Loop over different Track History Categories
   for (unsigned int i = 0; i < TrkHistCat.size(); i++) {
+    // wider ranges only for the categories with > 2 % outside the original range (17_0_0_pre3 RelVals)
+    const std::string &cat = TrkHistCat[i];
+    // "Other" tracks: 14-22 % of the jets above 15 tracks
+    const bool wideNTrk = cat == "Other";
+    const int nTrkBins = wideNTrk ? 41 : 16;
+    const double nTrkMax = wideNTrk ? 40.5 : 15.5;
+    // dz: PU tracks come from other vertices, several cm away in z; B/BC/C decay and fake tracks 3-7 % beyond 0.1 cm
+    const bool wideDz = cat == "BCWeakDecay" || cat == "BWeakDecay" || cat == "CWeakDecay" || cat == "Fake";
+    const int dzBins = cat == "PU" || wideDz ? 100 : 30;
+    const double dzMax = cat == "PU" ? 25. : (wideDz ? 0.5 : 0.1);
+    // dxy: B/BC decay tracks 3-4 % beyond 0.1 cm (20_1_0_pre2 RelVals); same bin width
+    const bool wideDxy = cat == "BCWeakDecay" || cat == "BWeakDecay";
+    const int dxyBins = wideDxy ? 60 : 30;
+    const double dxyMax = wideDxy ? 0.2 : 0.1;
+    // eta: PU tracks 3 % beyond 2.5; same bin width
+    const bool wideEta = cat == "PU";
+    const int etaBins = wideEta ? 36 : 30;
+    const double etaMax = wideEta ? 3.0 : 2.5;
+    // pT: 2-5 % above 100 GeV for all categories except PU; fake tracks 2.4 % above 200 GeV (QCD)
+    const bool widePt = cat != "PU";
+    const int ptBins = cat == "Fake" ? 120 : (widePt ? 40 : 30);
+    const double ptMax = cat == "Fake" ? 600. : (widePt ? 200. : 100.);
     ibook.setCurrentFolder("BDHadronTracks/JetContent");
     // b jets
     nTrk_bjet[i] = ibook.book1D("nTrk_bjet_" + TrkHistCat[i],
                                 "Number of selected tracks in b jets (" + TrkHistCat[i] +
                                     ");number of selected tracks (" + TrkHistCat[i] + ");jets",
-                                16,
+                                nTrkBins,
                                 -0.5,
-                                15.5);
+                                nTrkMax);
 
     // c jets
     nTrk_cjet[i] = ibook.book1D("nTrk_cjet_" + TrkHistCat[i],
                                 "Number of selected tracks in c jets (" + TrkHistCat[i] +
                                     ");number of selected tracks (" + TrkHistCat[i] + ");jets",
-                                16,
+                                nTrkBins,
                                 -0.5,
-                                15.5);
+                                nTrkMax);
 
     // dusg jets
     nTrk_dusgjet[i] = ibook.book1D("nTrk_dusgjet_" + TrkHistCat[i],
                                    "Number of selected tracks in dusg jets (" + TrkHistCat[i] +
                                        ");number of selected tracks (" + TrkHistCat[i] + ");jets",
-                                   16,
+                                   nTrkBins,
                                    -0.5,
-                                   15.5);
+                                   nTrkMax);
 
     ibook.setCurrentFolder("BDHadronTracks/TrackInfo");
     // track properties for all flavours combined
     TrkPt_alljets[i] = ibook.book1D("TrkPt_" + TrkHistCat[i],
                                     "Track pT (" + TrkHistCat[i] + ");track p_{T} (" + TrkHistCat[i] + ");tracks",
-                                    30,
+                                    ptBins,
                                     0,
-                                    100);
+                                    ptMax);
     TrkEta_alljets[i] = ibook.book1D("TrkEta_" + TrkHistCat[i],
                                      "Track #eta (" + TrkHistCat[i] + ");track #eta (" + TrkHistCat[i] + ");tracks",
-                                     30,
-                                     -2.5,
-                                     2.5);
+                                     etaBins,
+                                     -etaMax,
+                                     etaMax);
     TrkPhi_alljets[i] = ibook.book1D("TrkPhi_" + TrkHistCat[i],
                                      "Track #phi (" + TrkHistCat[i] + ");track #phi (" + TrkHistCat[i] + ");tracks",
                                      30,
@@ -109,14 +131,14 @@ void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker &ibook,
                                      3.15);
     TrkDxy_alljets[i] = ibook.book1D("TrkDxy_" + TrkHistCat[i],
                                      "Track dxy (" + TrkHistCat[i] + ");track dxy (" + TrkHistCat[i] + ");tracks",
-                                     30,
-                                     -0.1,
-                                     0.1);
+                                     dxyBins,
+                                     -dxyMax,
+                                     dxyMax);
     TrkDz_alljets[i] = ibook.book1D("TrkDz_" + TrkHistCat[i],
                                     "Track dz (" + TrkHistCat[i] + ");track dz (" + TrkHistCat[i] + ");tracks",
-                                    30,
-                                    -0.1,
-                                    0.1);
+                                    dzBins,
+                                    -dzMax,
+                                    dzMax);
     TrkHitAll_alljets[i] = ibook.book1D(
         "TrkHitAll_" + TrkHistCat[i],
         "Number of tracker hits (" + TrkHistCat[i] + ");track number of all hits (" + TrkHistCat[i] + ");tracks",
@@ -141,15 +163,15 @@ void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker &ibook,
       TrkTruthPt_alljets[i] =
           ibook.book1D("TrkTruthPt_" + TrkHistCat[i],
                        "Track pT (" + TrkHistCat[i] + " Truth);track p_{T} (" + TrkHistCat[i] + " Truth);tracks",
-                       30,
+                       ptBins,
                        0,
-                       100);
+                       ptMax);
       TrkTruthEta_alljets[i] =
           ibook.book1D("TrkTruthEta_" + TrkHistCat[i],
                        "Track #eta (" + TrkHistCat[i] + " Truth);track #eta (" + TrkHistCat[i] + " Truth);tracks",
-                       30,
-                       -2.5,
-                       2.5);
+                       etaBins,
+                       -etaMax,
+                       etaMax);
       TrkTruthPhi_alljets[i] =
           ibook.book1D("TrkTruthPhi_" + TrkHistCat[i],
                        "Track #phi (" + TrkHistCat[i] + " Truth);track #phi (" + TrkHistCat[i] + " Truth);tracks",
@@ -159,36 +181,36 @@ void BDHadronTrackMonitoringAnalyzer::bookHistograms(DQMStore::IBooker &ibook,
       TrkTruthDxy_alljets[i] =
           ibook.book1D("TrkTruthDxy_" + TrkHistCat[i],
                        "Track dxy (" + TrkHistCat[i] + " Truth);track dxy (" + TrkHistCat[i] + " Truth);tracks",
-                       30,
-                       -0.1,
-                       0.1);
+                       dxyBins,
+                       -dxyMax,
+                       dxyMax);
       TrkTruthDz_alljets[i] =
           ibook.book1D("TrkTruthDz_" + TrkHistCat[i],
                        "Track dz (" + TrkHistCat[i] + " Truth);track dz (" + TrkHistCat[i] + " Truth);tracks",
-                       30,
-                       -0.1,
-                       0.1);
+                       dzBins,
+                       -dzMax,
+                       dzMax);
       TrkTruthHitAll_alljets[i] =
           ibook.book1D("TrkTruthHitAll_" + TrkHistCat[i],
                        "Number of tracker hits (" + TrkHistCat[i] + " Truth);track number of all hits (" +
                            TrkHistCat[i] + " Truth);tracks",
-                       31,
+                       41,
                        -0.5,
-                       30.5);
+                       40.5);
       TrkTruthHitStrip_alljets[i] =
           ibook.book1D("TrkTruthHitStrip_" + TrkHistCat[i],
                        "Number of strip hits (" + TrkHistCat[i] + " Truth);track number of strip hits (" +
                            TrkHistCat[i] + " Truth);tracks",
-                       31,
+                       41,
                        -0.5,
-                       30.5);
+                       40.5);
       TrkTruthHitPixel_alljets[i] =
           ibook.book1D("TrkTruthHitPixel_" + TrkHistCat[i],
                        "Number of pixel hits (" + TrkHistCat[i] + " Truth);track number of pixel hits (" +
                            TrkHistCat[i] + " Truth);tracks",
-                       9,
+                       15,
                        -0.5,
-                       8.5);
+                       14.5);
     }
   }
 }
