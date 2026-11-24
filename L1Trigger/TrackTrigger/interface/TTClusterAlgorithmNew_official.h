@@ -19,10 +19,10 @@
  *                vetoed.
  *     
  *           (The code is based on that of the offline cluster producer
- *           Phase2TrackerCluserizer).
+ *           Phase2TrackerClusterizer).
  *
  *  \author Ian Tomalin
- *  \date Aug. 2026
+ *  \date Nov. 2026
  */
 
 #include "DataFormats/Common/interface/DetSetVector.h"

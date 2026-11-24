@@ -1,4 +1,3 @@
-
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
 
 /// Cluster width
@@ -68,7 +67,7 @@ MeasurementPoint TTCluster<
   return mp_shift;
 }
 
-/// Store coordinates locally -- Old code
+/// Store coordinates locally -- used by TTClusterBuilder, but not by TTClusterBuilderNew
 template <>
 void TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::setRowsCols(
     const std::vector<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>& aHits) {

@@ -28,9 +28,11 @@
 template <typename T>
 class TTCluster {
 public:
-  /// Constructors
+  /// Null constructor
   TTCluster();
+  // Old constructor used by TTClusterBuilder
   TTCluster(const std::vector<T>& aHits, const DetId& aDetId, unsigned int aStackMember);
+  // New constructor used by TTClusterBuilderNew
   TTCluster(const DetId& aDetId, unsigned int aStackMember, const Phase2TrackerDigi& firstDigi, unsigned int width);
 
   /// Destructor
@@ -65,8 +67,8 @@ public:
 
   /// Individual hit (i.e. digi) coordinates (in units of pitch)
   MeasurementPoint findHitLocalCoordinates(unsigned int hitIdx) const;
-  /// Twice inweighted centroid (in r-phi units of pitch)
-  unsigned int twiceCentroid() { return (2 * findFirstRow() + findWidth() - 1); }
+  /// Twice weighted centroid (in r-phi units of pitch)
+  unsigned int twiceCentroid() const { return (2 * findFirstRow() + findWidth() - 1); }
   /// Average cluster coordinates (in units of pitch)
   MeasurementPoint findAverageLocalCoordinates() const;
   MeasurementPoint findAverageLocalCoordinatesCentered() const;
@@ -132,6 +134,10 @@ TTCluster<T>::~TTCluster() {}
 template <>
 unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::findWidth() const;
 
+/// First row (i.e. in r-phi) in cluster.
+template <>
+unsigned int TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::findFirstRow() const;
+
 /// Single hit coordinates
 /// Average cluster coordinates
 template <>
@@ -141,6 +147,10 @@ MeasurementPoint TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2
 template <>
 MeasurementPoint
 TTCluster<edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::findAverageLocalCoordinates() const;
+
+template <>
+MeasurementPoint TTCluster<
+    edm::Ref<edm::DetSetVector<Phase2TrackerDigi>, Phase2TrackerDigi>>::findAverageLocalCoordinatesCentered() const;
 
 template <typename T>
 void TTCluster<T>::setRowsCols(const std::vector<T>& aHits) {}

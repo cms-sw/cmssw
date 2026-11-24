@@ -4,22 +4,19 @@
  *         This replaces the old TTClusterBuilder class. The algo it uses
  *         corresponds to that in the FE chips.
  *         (It is based on the code of the offline cluster producer
- *          Phase2TrackerCluserizer).
+ *          Phase2TrackerClusterizer).
  *
  *  \author Ian Tomalin
- *  \date Aug. 2026
+ *  \date Nov. 2026
  */
 
-#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Utilities/interface/EDPutToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -28,10 +25,10 @@
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
@@ -64,7 +61,6 @@ TTClusterBuilderNew::TTClusterBuilderNew(edm::ParameterSet const& conf) {
   tTopoToken = esConsumes<TrackerTopology, TrackerTopologyRcd>();
   tGeomToken = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>();
   token_ = consumes<edm::DetSetVector<Phase2TrackerDigi> >(conf.getParameter<edm::InputTag>("src"));
-  // IRT CHECK: TrackerDTC uses a Token here. Why doesn't this?
   putToken_ = produces<TTClusterDetSetVec>("ClusterInclusive");
   maxClusterWidth_ = conf.getParameter<unsigned int>("maxClusterWidth");
   enableClusterVetoes_ = conf.getParameter<bool>("enableClusterVetoes");
