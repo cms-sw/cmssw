@@ -3,7 +3,7 @@
 #   cmsRun testHGCalCornerCheck_cfg.py geometry=D121 debugFlag=0
 #
 #   Options for geometry D104, D110, D111, D112, D113, D114, D115, D120, D121
-#                        D122, D123, D124, D125, D126, D127, D128
+#                        D122, D123, D124, D125, D126, D127, D128, D129, D130
 #   Options for debugFlg 0, 1
 #
 ###############################################################################
@@ -18,7 +18,7 @@ options.register('geometry',
                  "D126",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D104, D110, D111, D112, D113, D114, D123, D124, D125, D126, D127, D128")
+                  "geometry of operations: D104, D110, D111, D112, D113, D114, D123, D124, D125, D126, D127, D128, D129, D130")
 options.register('debugFlag',
                  1,
                  VarParsing.VarParsing.multiplicity.singleton,
