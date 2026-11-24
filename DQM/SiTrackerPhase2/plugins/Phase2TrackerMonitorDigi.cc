@@ -466,14 +466,17 @@ void Phase2TrackerMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker,
                                        Parameters.getParameter<double>("ymin"),
                                        Parameters.getParameter<double>("ymax"));
     if (CrackOverview->getTH2Poly()->GetNumberOfBins() == 0) {
-      double yOffset = 0;
+      double y1, y2;
       for (int layer = 1; layer < 7; layer++) {
         for (int module = 1; module < 13; module++) {
-          if (module % 2 == 1)
-            yOffset = -0.1;
-          else
-            yOffset = 0;
-          CrackOverview->addBin(module - 0.7, layer + yOffset, module + 0.7, layer + yOffset + 0.1);
+          if (module % 2 == 1) {
+            y1 = layer - 0.2;
+            y2 = layer;
+          } else {
+            y1 = layer;
+            y2 = layer + 0.2;
+          }
+          CrackOverview->addBin(module - 0.75, y1, module + 0.75, y2);
         }
       }
     }

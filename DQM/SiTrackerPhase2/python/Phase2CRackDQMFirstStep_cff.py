@@ -5,11 +5,11 @@ from DQM.SiTrackerPhase2.Phase2OTMonitorVectorHits_cff import *
 #L1 
 from DQM.SiTrackerPhase2.Phase2OTMonitorTTTrack_cfi import *
 from DQM.SiTrackerPhase2.Phase2OTMonitorTTStub_cff import *
-from DQM.SiTrackerPhase2.Phase2OTMonitorTTCluster_cfi import *
+from DQM.SiTrackerPhase2.Phase2OTMonitorTTCluster_cff import *
 
 trackerphase2DQMSource = cms.Sequence(  CRACKDigiMon
                                        + clusterMonitorCRACK
-                                       + Phase2OTMonitorTTCluster
+                                       + TTClusterMonitorCRACK
                                        + TTStubMonitorCRACK
                                        + Phase2OTMonitorTTTrack
 )
