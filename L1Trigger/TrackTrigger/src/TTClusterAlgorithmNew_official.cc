@@ -38,8 +38,8 @@ void TTClusterAlgorithmNew_official::algo(const edm::DetSet<Phase2TrackerDigi>& 
 #ifdef VERIFY_PH2_TK_CLUS
     if (!(previous < digi))
       throw cms::Exception("TTClusterAlgorithmNew_official")
-          << "Phase2TrackerDigis are not ordered, as the clustering algorithm requires: previous digi = "
-          << previous << ", current digi = " << digi;
+          << "Phase2TrackerDigis are not ordered, as the clustering algorithm requires: previous digi = " << previous
+          << ", current digi = " << digi;
 #endif
 
     constexpr unsigned int rowsPerMPA = 120;
@@ -209,8 +209,8 @@ void TTClusterAlgorithmNew_official::algoWithVetoes(const edm::DetSet<Phase2Trac
 #ifdef VERIFY_PH2_TK_CLUS
     if (!(previous < digi))
       throw cms::Exception("TTClusterAlgorithmNew_official")
-          << "Phase2TrackerDigis are not ordered, as the clustering algorithm requires: previous digi = "
-          << previous << ", current digi = " << digi;
+          << "Phase2TrackerDigis are not ordered, as the clustering algorithm requires: previous digi = " << previous
+          << ", current digi = " << digi;
 #endif
 
     constexpr unsigned int rowsPerMPA = 120;
