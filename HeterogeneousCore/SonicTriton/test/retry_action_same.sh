@@ -1,12 +1,27 @@
 #!/bin/bash
 
 LOCALTOP=$1
+shift
+# any further arguments are passed to cmsRun (e.g. --threads 4 --streams 4)
+
+# Sleep durations in seconds, can be overridden from the environment
+SERVER_WAIT=${SERVER_WAIT:-60}  # allow the server to initialize
+CLIENT_WAIT=${CLIENT_WAIT:-45}  # allow the client to run before killing the server
+
+# Stop the server container instance(s) on exit, including early exits.
+# cmsTriton runs tritonserver inside an apptainer instance: the "kill" below only stops the tritonserver
+# process (which is what makes the client retry), while the instance itself keeps running until
+# "cmsTriton stop" is called, even when the test works as intended.
+cleanup() {
+	cmsTriton -n server1 stop
+}
+trap cleanup EXIT
 
 # Start the server
 cmsTriton -v -P 8010 -n server1 -f -L -m $(edmFileInPath HeterogeneousCore/SonicTriton/data/models/gat_test/config.pbtxt) start &
 
 # Sleep to allow the server to initialize
-sleep 60
+sleep ${SERVER_WAIT}
 
 # Get the true PID of the server
 SERVER_PID=$(ps -e -o pid,cmd | grep "tritonserver" | grep -v "grep" | awk '{print $1}')
@@ -22,10 +37,10 @@ fi
 
 
 # Start the client
-cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py --maxEvents 100 --modules TritonIdentityProducer --models ragged_io --address server1 0.0.0.0 8011 --tries 10 --verbose &  
+cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py --maxEvents 100 --modules TritonIdentityProducer --models ragged_io --address server1 0.0.0.0 8011 --tries 10 --verbose "$@" &  
 
 # Allow the client some time to run
-sleep 30
+sleep ${CLIENT_WAIT}
 
 # Kill the server
 echo "Killing server with PID $SERVER_PID"
