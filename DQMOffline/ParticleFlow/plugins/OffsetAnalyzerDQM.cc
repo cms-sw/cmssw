@@ -174,12 +174,12 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
   std::vector<unsigned int> goodPVs;
   goodPVs.reserve(nPVall);
   for (unsigned int i = 0; i < nPVall; i++) {
-	const auto& pv = (*vertexHandle)[i];
-	th1dPlots["pv_z"].fill(pv.z());
-	if (!pv.isFake() && pv.ndof() >= 4 && std::abs(pv.z()) <= 24.0 && std::abs(pv.position().rho()) <= 2.0)
-	  goodPVs.push_back(i);
+    const auto& pv = (*vertexHandle)[i];
+    th1dPlots["pv_z"].fill(pv.z());
+    if (!pv.isFake() && pv.ndof() >= 4 && std::abs(pv.z()) <= 24.0 && std::abs(pv.position().rho()) <= 2.0)
+      goodPVs.push_back(i);
   }
-  int npv = goodPVs.size();  
+  int npv = goodPVs.size();
   th1dPlots["npv"].fill(npv);
   int npv_in_range = npv;
   if (npv_in_range < 0)
@@ -237,14 +237,14 @@ void OffsetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&
     for (auto it = pv.tracks_begin(); it != pv.tracks_end(); ++it)
       goodPVTracks.push_back(it->castTo<reco::TrackRef>());
   }
-  std::sort(goodPVTracks.begin(), goodPVTracks.end()); // needed for std::binary_search
-  
+  std::sort(goodPVTracks.begin(), goodPVTracks.end());  // needed for std::binary_search
+
   for (unsigned int i = 0, n = pfHandle->size(); i < n; i++) {
     const reco::Candidate& cand = pfHandle->at(i);
     fillCandidate(cand.eta(), cand.pdgId(), cand.et(), [&]() {
       // MiniAOD: PV attachment is precomputed in fromPV(), 3 == used in the fit.
       if (const pat::PackedCandidate* packed = dynamic_cast<const pat::PackedCandidate*>(&cand)) {
-		for (unsigned int ipv : goodPVs) {
+        for (unsigned int ipv : goodPVs) {
           if (packed->fromPV(ipv) == 3)
             return true;
         }
