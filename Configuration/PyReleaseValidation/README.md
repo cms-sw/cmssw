@@ -47,6 +47,7 @@ The offsets currently in use are:
 * 0.5: Legacy pixel tracking only (CPU)
 * 0.511: Legacy ECAL reco only (CPU)
 * 0.521: Legacy HCAL reco only (CPU)
+* 0.532: HGCAL reco only with the ticl_v6 process modifier (TICLv6)
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
@@ -126,6 +127,7 @@ The offsets currently in use are:
 * 0.103: Phase-2 aging, 3000fb-1
 * 0.204: HGCAL superclustering : using Mustache in TICL
 * 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICL
+* 0.207: TICLv6 : HLT and offline reconstruction with the ticl_v6 process modifier
 * 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
 * 0.212: Enables offline HGCAL/TICL NanoAOD: NANO:@HGCAL
 * 0.213: Enables offline HGCAL/TICL NanoAOD with Sim objects for validation purposes: NANO:@HGCALVal

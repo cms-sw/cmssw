@@ -192,6 +192,8 @@ unsigned fastsim::ParticleManager::addSimTrack(const fastsim::Particle* particle
   simTracks_->emplace_back(
       particle->pdgId(), particle->momentum(), particle->simVertexIndex(), particle->genParticleIndex());
   simTracks_->back().setTrackId(simTrackIndex);
+  if (particle->genParticleIndex() >= 0)
+    simTracks_->back().setIsPrimary();
   return simTrackIndex;
 }
 
