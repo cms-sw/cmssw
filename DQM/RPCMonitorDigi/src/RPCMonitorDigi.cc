@@ -144,8 +144,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event, const edm::EventSetup& set
         int muSubDetId = (*it)->geographicalId().subdetId();
         if (muSubDetId == MuonSubdetId::RPC) {
           numRPCRecHit++;
-          TrackingRecHit* tkRecHit = (*it)->clone();
-          RPCRecHit* rpcRecHit = dynamic_cast<RPCRecHit*>(tkRecHit);
+          const RPCRecHit* rpcRecHit = dynamic_cast<const RPCRecHit*>(&**it);
           int detId = (int)rpcRecHit->rpcId();
           if (rechitMuon.find(detId) == rechitMuon.end() || rechitMuon[detId].empty()) {
             std::vector<RPCRecHit> myVect(1, *rpcRecHit);
