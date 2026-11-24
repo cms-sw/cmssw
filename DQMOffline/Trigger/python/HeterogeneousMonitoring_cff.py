@@ -20,7 +20,7 @@ from DQMOffline.ParticleFlow.pfHcalGPUComparisonTask_cfi import pfHcalGPUCompari
 hltPfHcalGPUComparisonTask = pfHcalGPUComparisonTask.clone(
     compDir = cms.untracked.string('HLT/HeterogeneousComparisons/ParticleFlow/HCAL'),
     #pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCALSerialSync'),
-    pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),
+    pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCAL'), # ToDo: Use a GPU collection for a meaningul comparison
     pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),
 )
 
