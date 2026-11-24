@@ -31,7 +31,7 @@
 void MuonDetIdAssociator::check_setup() const {
   if (geometry_ == nullptr)
     throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
-  if (cscbadchambers_ == nullptr)
+  if (!includeBadChambers_ && cscbadchambers_ == nullptr)
     throw cms::Exception("ConfigurationProblem") << "CSCBadChambers is not set\n";
   DetIdAssociator::check_setup();
 }
