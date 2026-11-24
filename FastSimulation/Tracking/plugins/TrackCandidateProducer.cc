@@ -112,7 +112,7 @@ void TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
 
   // output collection
-  std::unique_ptr<TrackCandidateCollection> output(new TrackCandidateCollection);
+  std::unique_ptr<TrackCandidateCollection> output = std::make_unique<TrackCandidateCollection>();
 
   // loop over the seeds
   for (unsigned seedIndex = 0; seedIndex < seeds->size(); ++seedIndex) {
