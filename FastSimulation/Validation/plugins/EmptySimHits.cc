@@ -41,12 +41,12 @@ EmptySimHits::EmptySimHits(const edm::ParameterSet& iConfig)
 
 void EmptySimHits::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (size_t i = 0; i < pSimHitInstanceLabels.size(); i++) {
-    std::unique_ptr<edm::PSimHitContainer> pSimHitContainer(new edm::PSimHitContainer());
+    std::unique_ptr<edm::PSimHitContainer> pSimHitContainer = std::make_unique<edm::PSimHitContainer>();
     iEvent.put(std::move(pSimHitContainer), pSimHitInstanceLabels[i]);
   }
 
   for (size_t i = 0; i < pCaloHitInstanceLabels.size(); i++) {
-    std::unique_ptr<edm::PCaloHitContainer> pCaloHitContainer(new edm::PCaloHitContainer());
+    std::unique_ptr<edm::PCaloHitContainer> pCaloHitContainer = std::make_unique<edm::PCaloHitContainer>();
     iEvent.put(std::move(pCaloHitContainer), pCaloHitInstanceLabels[i]);
   }
 }

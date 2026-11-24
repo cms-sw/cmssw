@@ -82,7 +82,7 @@ void CastorFastClusterProducer::produce(edm::Event& iEvent, const edm::EventSetu
   const edm::Handle<reco::GenParticleCollection>& genParticles = iEvent.getHandle(tokGenPart_);
 
   // make pointer to towers that will be made
-  unique_ptr<CastorClusterCollection> CastorClusters(new CastorClusterCollection);
+  unique_ptr<CastorClusterCollection> CastorClusters = std::make_unique<CastorClusterCollection>();
 
   /*
    // declare castor array

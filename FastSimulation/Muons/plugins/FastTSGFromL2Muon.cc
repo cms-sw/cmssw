@@ -11,6 +11,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 
+#include <memory>
 #include <set>
 
 FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg)
@@ -31,7 +32,7 @@ FastTSGFromL2Muon::FastTSGFromL2Muon(const edm::ParameterSet& cfg)
 
 void FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   // Initialize the output product
-  std::unique_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
+  std::unique_ptr<L3MuonTrajectorySeedCollection> result = std::make_unique<L3MuonTrajectorySeedCollection>();
 
   // Region builder
   theRegionBuilder->setEvent(ev, es);

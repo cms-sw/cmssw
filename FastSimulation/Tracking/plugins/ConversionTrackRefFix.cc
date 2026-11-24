@@ -1,5 +1,7 @@
 #include "FastSimulation/Tracking/plugins/ConversionTrackRefFix.h"
 
+#include <memory>
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTrack.h"
@@ -27,7 +29,7 @@ void ConversionTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& i
   Handle<TrackCollection> newTracks;
   iEvent.getByToken(newTracksToken, newTracks);
 
-  unique_ptr<ConversionTrackCollection> output(new ConversionTrackCollection);
+  unique_ptr<ConversionTrackCollection> output = std::make_unique<ConversionTrackCollection>();
 
   for (const ConversionTrack& conversion : *(conversionTracks.product())) {
     size_t trackIndex = conversion.trackRef().key();

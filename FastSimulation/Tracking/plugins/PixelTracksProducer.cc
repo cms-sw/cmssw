@@ -51,9 +51,9 @@ PixelTracksProducer::~PixelTracksProducer() = default;
 
 // Functions that gets called by framework every event
 void PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-  std::unique_ptr<reco::TrackCollection> tracks(new reco::TrackCollection);
-  std::unique_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection);
-  std::unique_ptr<reco::TrackExtraCollection> trackExtras(new reco::TrackExtraCollection);
+  std::unique_ptr<reco::TrackCollection> tracks = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<TrackingRecHitCollection> recHits = std::make_unique<TrackingRecHitCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> trackExtras = std::make_unique<reco::TrackExtraCollection>();
   typedef std::vector<const TrackingRecHit*> RecHits;
 
   TracksWithRecHits pixeltracks;
