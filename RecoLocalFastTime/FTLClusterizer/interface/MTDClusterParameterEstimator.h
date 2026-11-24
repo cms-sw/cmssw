@@ -9,6 +9,8 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/FTLRecHit/interface/FTLCluster.h"
+#include "DataFormats/FTLRecHit/interface/FTLMergedClusterCollections.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <tuple>
 
@@ -34,6 +36,18 @@ public:
                                    const LocalTrajectoryParameters& ltp) const = 0;
 
   virtual ReturnType getParameters(const FTLCluster& cl,
+                                   const GeomDetUnit& det,
+                                   const TrajectoryStateOnSurface& tsos) const {
+    return getParameters(cl, det, tsos.localParameters());
+  }
+  // FTLMergedCluster overloads
+  virtual ReturnType getParameters(const FTLMergedCluster& cl, const GeomDetUnit& det) const = 0;
+
+  virtual ReturnType getParameters(const FTLMergedCluster& cl,
+                                   const GeomDetUnit& det,
+                                   const LocalTrajectoryParameters& ltp) const = 0;
+
+  virtual ReturnType getParameters(const FTLMergedCluster& cl,
                                    const GeomDetUnit& det,
                                    const TrajectoryStateOnSurface& tsos) const {
     return getParameters(cl, det, tsos.localParameters());
