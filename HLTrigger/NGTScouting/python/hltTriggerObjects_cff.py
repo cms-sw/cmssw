@@ -58,7 +58,9 @@ hltTriggerObjP4Table = cms.EDProducer(
 
     # Extra HLT filter labels whose passing objects are also included in the
     # table rows (union with the path seeds above, deduplicated).
-    # No additional bool column is created for these - they only extend coverage.
+    # Each object also gets a filterBits column: bit i is set if it passed extraFilters[i]
+    # (filterBits1, filterBits2, ... hold filters 64-127, 128-191, ...; the column
+    # description lists which bit is which filter).
     # Useful for intermediate filters, L1-seeded objects, or cross-trigger seeds.
     extraFilters=cms.vstring(
         # e.g. "hltEGL1SingleEGOrFilter",
