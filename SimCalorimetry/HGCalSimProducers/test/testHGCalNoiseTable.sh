@@ -1,5 +1,5 @@
 #!/bin/bash
-# With customiseEventSeeding the noise-only HGCAL digis of each event do not depend on the number of streams.
+# With the Phase-2 defaults the noise-only HGCAL digis of each event do not depend on the number of streams.
 
 function die { echo "$1: status $2"; exit $2; }
 

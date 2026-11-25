@@ -385,7 +385,7 @@ namespace edm {
               "MixMaxRng gets a 64-bit seed: for N events with one initialSeed, the probability that two events "
               "get the same sequence is about N*N/2^65. PhiloxEngine uses the full 128-bit stream identifier. "
               "A module that keeps random state across events must not depend on the first event of a stream; "
-              "the HGCAL digitizers need noiseTableFromJobSeed = True, see customiseEventSeeding.");
+              "the HGCAL digitizers need noiseTableFromJobSeed = True. Phase-2 sets \"event\" in IOMC_cff.py.");
       desc.addUntracked<bool>("verbose", false);
 
       ParameterSetDescription val;

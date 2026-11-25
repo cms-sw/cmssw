@@ -8,10 +8,10 @@ options.register("streams", 1, VarParsing.VarParsing.multiplicity.singleton, Var
                  "number of streams and threads")
 options.register("events", 8, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
                  "number of events")
-options.register("eventSeeding", True, VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool, "apply customiseEventSeeding")
+options.register("seedingMode", "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,
+                 "seedingMode of the RandomNumberGeneratorService; empty keeps the default of the era")
 options.register("noiseTableFromJobSeed", True, VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool, "with eventSeeding, fill the noise table from the job seed")
+                 VarParsing.VarParsing.varType.bool, "fill the noise table from the job seed")
 options.register("digest", "hgcalNoiseDigest.txt", VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string, "digest file")
 options.parseArguments()
@@ -43,12 +43,11 @@ process.mix.mixObjects = cms.PSet()
 for alias in list(process.aliases_()):
     delattr(process, alias)
 
-if options.eventSeeding:
-    from IOMC.RandomEngine.customiseEventSeeding import customiseEventSeeding
-    process = customiseEventSeeding(process)
-    for digitizer in (process.mix.digitizers.hgceeDigitizer, process.mix.digitizers.hgchefrontDigitizer,
-                      process.mix.digitizers.hgchebackDigitizer):
-        digitizer.noiseTableFromJobSeed = options.noiseTableFromJobSeed
+if options.seedingMode:
+    process.RandomNumberGeneratorService.seedingMode = cms.untracked.string(options.seedingMode)
+for digitizer in (process.mix.digitizers.hgceeDigitizer, process.mix.digitizers.hgchefrontDigitizer,
+                  process.mix.digitizers.hgchebackDigitizer):
+    digitizer.noiseTableFromJobSeed = options.noiseTableFromJobSeed
 
 process.hgcalDigiDigest = cms.EDAnalyzer("HGCalDigiDigest",
                                          digis=cms.VInputTag(cms.InputTag("mix", "HGCDigisEE"),

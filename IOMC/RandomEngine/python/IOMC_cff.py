@@ -217,3 +217,7 @@ phase2_timing.toModify(
         engineName = FullSimEngine
         )
 )
+
+# Phase-2: the random numbers of each event depend on the seeds and the EventID, not on the stream.
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(RandomNumberGeneratorService, seedingMode = cms.untracked.string("event"))
