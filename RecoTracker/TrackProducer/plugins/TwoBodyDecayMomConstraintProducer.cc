@@ -97,7 +97,7 @@ TwoBodyDecayMomConstraintProducer::TwoBodyDecayMomConstraintProducer(const edm::
   trackCollToken_ = consumes<reco::TrackCollection>(edm::InputTag(srcTag_));
   bsToken_ = consumes<reco::BeamSpot>(edm::InputTag(bsSrcTag_));
 
-  produces<std::vector<MomentumConstraint> >();
+  produces<std::vector<MomentumConstraint>>();
   produces<TrackMomConstraintAssociationCollection>();
 
   //   //debug
@@ -123,8 +123,8 @@ void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid,
 
   auto trackingGeometry = iSetup.getHandle(trackingGeometryToken_);
 
-  edm::RefProd<std::vector<MomentumConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint> >();
-  std::unique_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
+  edm::RefProd<std::vector<MomentumConstraint>> rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint>>();
+  std::unique_ptr<std::vector<MomentumConstraint>> pairs = std::make_unique<std::vector<MomentumConstraint>>();
   std::unique_ptr<TrackMomConstraintAssociationCollection> output(
       new TrackMomConstraintAssociationCollection(trackColl, rPairs));
 
@@ -156,12 +156,12 @@ void TwoBodyDecayMomConstraintProducer::produce(edm::StreamID streamid,
       // produce constraint for first track
       MomentumConstraint constraint1(fitMomenta.first, fixedMomentumError_);
       pairs->push_back(constraint1);
-      output->insert(reco::TrackRef(trackColl, 0), edm::Ref<std::vector<MomentumConstraint> >(rPairs, 0));
+      output->insert(reco::TrackRef(trackColl, 0), edm::Ref<std::vector<MomentumConstraint>>(rPairs, 0));
 
       // produce constraint for second track
       MomentumConstraint constraint2(fitMomenta.second, fixedMomentumError_);
       pairs->push_back(constraint2);
-      output->insert(reco::TrackRef(trackColl, 1), edm::Ref<std::vector<MomentumConstraint> >(rPairs, 1));
+      output->insert(reco::TrackRef(trackColl, 1), edm::Ref<std::vector<MomentumConstraint>>(rPairs, 1));
     }
 
     //     // debug

@@ -49,7 +49,7 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
   }
 
   // Create the new object we are going to copy the information to
-  std::unique_ptr<L1GlobalTriggerObjectMaps> gtObjectMaps(new L1GlobalTriggerObjectMaps);
+  std::unique_ptr<L1GlobalTriggerObjectMaps> gtObjectMaps = std::make_unique<L1GlobalTriggerObjectMaps>();
 
   // get the algorithm bit numbers and sort them
   std::vector<int> algoBitNumbers;

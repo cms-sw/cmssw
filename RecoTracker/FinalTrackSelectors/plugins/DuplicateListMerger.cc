@@ -31,8 +31,6 @@
 #include <iostream>
 #include <memory>
 
-// #include "TMVA/Reader.h"
-
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"

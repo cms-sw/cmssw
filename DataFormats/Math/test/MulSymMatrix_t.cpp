@@ -194,7 +194,7 @@ bool isSym(M const& m) {
 }
 
 #include <iostream>
-#include "FWCore/Utilities/interface/HRRealTime.h"
+#include <benchmark/benchmark.h>
 
 #include <random>
 
@@ -215,15 +215,7 @@ namespace {
 }  // namespace
 
 template <typename T, IndexType N>
-void go(edm::HRTimeType& s1,
-        edm::HRTimeType& s2,
-        edm::HRTimeType& s3,
-        edm::HRTimeType& s4,
-        edm::HRTimeType& s5,
-        edm::HRTimeType& s6,
-        edm::HRTimeType& s7,
-        edm::HRTimeType& s8,
-        bool print) {
+void go(bool print) {
   typedef ROOT::Math::SMatrix<T, N, N, ROOT::Math::MatRepStd<T, N> > Matrix;
   typedef ROOT::Math::SMatrix<T, N, N, ROOT::Math::MatRepSym<T, N> > SymMatrix;
 
@@ -252,19 +244,13 @@ void go(edm::HRTimeType& s1,
   fillRandom(j2);
 
   SymMatrix rh;
-  s6 = edm::hrRealTime();
   rh = ROOT::Math::Similarity(j1, is1);
-  s6 = edm::hrRealTime() - s6;
 
   SymMatrix rh2;
-  s7 = edm::hrRealTime();
   rh2 = ROOT::Math::Similarity(j1, im1);
-  s7 = edm::hrRealTime() - s7;
 
   Matrix mrh;
-  s8 = edm::hrRealTime();
   similarity(mrh, j1, im1);
-  s8 = edm::hrRealTime() - s8;
 
   SymMatrix lh = ROOT::Math::SimilarityT(j2, is1);
 
@@ -272,31 +258,21 @@ void go(edm::HRTimeType& s1,
   similarityT(mlh, j2, im1);
 
   SymMatrix a;
-  s1 = edm::hrRealTime();
   mult(a, lh, rh);
-  s1 = edm::hrRealTime() - s1;
 
   SymMatrix b;
-  s2 = edm::hrRealTime();
   ROOT::Math::AssignSym::Evaluate(b, lh * rh);
-  s2 = edm::hrRealTime() - s2;
 
   Matrix m0 = b;
 
   Matrix m;
-  s3 = edm::hrRealTime();
   m = mlh * mrh;
-  s3 = edm::hrRealTime() - s3;
 
   SymMatrix sm;
-  s4 = edm::hrRealTime();
   ROOT::Math::AssignSym::Evaluate(sm, mlh * mrh);
-  s4 = edm::hrRealTime() - s4;
 
   Matrix m2;
-  s5 = edm::hrRealTime();
   mult(m2, mlh, mrh);
-  s5 = edm::hrRealTime() - s5;
 
   SymMatrix smm;
   ROOT::Math::AssignSym::Evaluate(smm, m);
@@ -338,52 +314,131 @@ void go(edm::HRTimeType& s1,
       std::cout << "problem with MulMatrix " << eps(m, m2) << std::endl;
     if (smm != smm2)
       std::cout << "problem with MulMatrix twice " << eps(smm, smm2) << std::endl;
-
-    std::cout << "sym mult   " << s1 << std::endl;
-    std::cout << "sym    *   " << s2 << std::endl;
-    std::cout << "mat    *   " << s3 << std::endl;
-    std::cout << "mat as sym " << s4 << std::endl;
-    std::cout << "mat mult   " << s5 << std::endl;
-    std::cout << "sym  sim   " << s6 << std::endl;
-    std::cout << "std  sim   " << s7 << std::endl;
-    std::cout << "loop sim   " << s8 << std::endl;
   }
 }
 
-int main() {
-  edm::HRTimeType s1 = 0, s2 = 0, s3 = 0, s4 = 0, s5 = 0, s6 = 0, s7 = 0, s8 = 0;
-  go<double, 3>(s1, s2, s3, s4, s5, s6, s7, s8, true);
+namespace {
+  template <typename T, IndexType N>
+  struct Data {
+    typedef ROOT::Math::SMatrix<T, N, N, ROOT::Math::MatRepStd<T, N> > Matrix;
+    typedef ROOT::Math::SMatrix<T, N, N, ROOT::Math::MatRepSym<T, N> > SymMatrix;
 
-  go<double, 15>(s1, s2, s3, s4, s5, s6, s7, s8, true);
+    Data() : im1(ROOT::Math::SMatrixIdentity()) {
+      ROOT::Math::AssignSym::Evaluate(is1, im1);
+      fillRandom(j1);
+      fillRandom(j2);
+      rh = ROOT::Math::Similarity(j1, is1);
+      similarity(mrh, j1, im1);
+      lh = ROOT::Math::SimilarityT(j2, is1);
+      similarityT(mlh, j2, im1);
+    }
 
-  edm::HRTimeType t1 = 0;
-  edm::HRTimeType t2 = 0;
-  edm::HRTimeType t3 = 0;
-  edm::HRTimeType t4 = 0;
-  edm::HRTimeType t5 = 0;
-  edm::HRTimeType t6 = 0;
-  edm::HRTimeType t7 = 0;
-  edm::HRTimeType t8 = 0;
+    Matrix im1;
+    SymMatrix is1;
+    Matrix j1;
+    Matrix j2;
+    SymMatrix rh;
+    SymMatrix lh;
+    Matrix mrh;
+    Matrix mlh;
+  };
 
-  for (int i = 0; i != 50000; ++i) {
-    go<double, 15>(s1, s2, s3, s4, s5, s6, s7, s8, false);
-    t1 += s1;
-    t2 += s2;
-    t3 += s3;
-    t4 += s4;
-    t5 += s5;
-    t6 += s6;
-    t7 += s7;
-    t8 += s8;
+  template <typename T, IndexType N>
+  void BM_symSimilarity(benchmark::State& state) {
+    Data<T, N> d;
+    for (auto _ : state) {
+      typename Data<T, N>::SymMatrix r = ROOT::Math::Similarity(d.j1, d.is1);
+      benchmark::DoNotOptimize(r);
+    }
   }
-  std::cout << "sym mult   " << t1 / 50000 << std::endl;
-  std::cout << "sym    *   " << t2 / 50000 << std::endl;
-  std::cout << "mat    *   " << t3 / 50000 << std::endl;
-  std::cout << "mat as sym " << t4 / 50000 << std::endl;
-  std::cout << "mat mult   " << t5 / 50000 << std::endl;
-  std::cout << "sym  sim " << t6 / 50000 << std::endl;
-  std::cout << "std  sim " << t7 / 50000 << std::endl;
-  std::cout << "loop sim " << t8 / 50000 << std::endl;
+
+  template <typename T, IndexType N>
+  void BM_stdSimilarity(benchmark::State& state) {
+    Data<T, N> d;
+    for (auto _ : state) {
+      typename Data<T, N>::SymMatrix r = ROOT::Math::Similarity(d.j1, d.im1);
+      benchmark::DoNotOptimize(r);
+    }
+  }
+
+  template <typename T, IndexType N>
+  void BM_loopSimilarity(benchmark::State& state) {
+    Data<T, N> d;
+    typename Data<T, N>::Matrix r;
+    for (auto _ : state) {
+      similarity(r, d.j1, d.im1);
+      benchmark::DoNotOptimize(r);
+    }
+  }
+
+  template <typename T, IndexType N>
+  void BM_symMult(benchmark::State& state) {
+    Data<T, N> d;
+    typename Data<T, N>::SymMatrix r;
+    for (auto _ : state) {
+      mult(r, d.lh, d.rh);
+      benchmark::DoNotOptimize(r);
+    }
+  }
+
+  template <typename T, IndexType N>
+  void BM_symStarOperator(benchmark::State& state) {
+    Data<T, N> d;
+    typename Data<T, N>::SymMatrix r;
+    for (auto _ : state) {
+      ROOT::Math::AssignSym::Evaluate(r, d.lh * d.rh);
+      benchmark::DoNotOptimize(r);
+    }
+  }
+
+  template <typename T, IndexType N>
+  void BM_matStarOperator(benchmark::State& state) {
+    Data<T, N> d;
+    typename Data<T, N>::Matrix r;
+    for (auto _ : state) {
+      r = d.mlh * d.mrh;
+      benchmark::DoNotOptimize(r);
+    }
+  }
+
+  template <typename T, IndexType N>
+  void BM_matAsSym(benchmark::State& state) {
+    Data<T, N> d;
+    typename Data<T, N>::SymMatrix r;
+    for (auto _ : state) {
+      ROOT::Math::AssignSym::Evaluate(r, d.mlh * d.mrh);
+      benchmark::DoNotOptimize(r);
+    }
+  }
+
+  template <typename T, IndexType N>
+  void BM_matMult(benchmark::State& state) {
+    Data<T, N> d;
+    typename Data<T, N>::Matrix r;
+    for (auto _ : state) {
+      mult(r, d.mlh, d.mrh);
+      benchmark::DoNotOptimize(r);
+    }
+  }
+
+  BENCHMARK_TEMPLATE(BM_symSimilarity, double, 15);
+  BENCHMARK_TEMPLATE(BM_stdSimilarity, double, 15);
+  BENCHMARK_TEMPLATE(BM_loopSimilarity, double, 15);
+  BENCHMARK_TEMPLATE(BM_symMult, double, 15);
+  BENCHMARK_TEMPLATE(BM_symStarOperator, double, 15);
+  BENCHMARK_TEMPLATE(BM_matStarOperator, double, 15);
+  BENCHMARK_TEMPLATE(BM_matAsSym, double, 15);
+  BENCHMARK_TEMPLATE(BM_matMult, double, 15);
+}  // namespace
+
+int main(int argc, char* argv[]) {
+  go<double, 3>(true);
+
+  go<double, 15>(true);
+
+  benchmark::Initialize(&argc, argv);
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
 
   return 0;
 }

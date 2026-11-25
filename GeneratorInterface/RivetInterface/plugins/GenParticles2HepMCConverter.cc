@@ -66,7 +66,8 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
       outputFile_(pset.getUntrackedParameter<std::string>("outputFile", "events.hepmc")) {
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
   genEventInfoToken_ = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("genEventInfo"));
-  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun>(pset.getParameter<edm::InputTag>("genEventInfo"));
+  genRunInfoToken_ = consumes<GenRunInfoProduct, edm::InRun, edm::Transition::BeginRun>(
+      pset.getParameter<edm::InputTag>("genEventInfo"));
   pTable_ = esConsumes<HepPDT::ParticleDataTable, PDTRecord>();
 
   produces<edm::HepMC3Product>("unsmeared");
@@ -200,6 +201,8 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   ParticleToVertexMap particleToVertexMap;
   particleToVertexMap[parton1] = vertex1;
   particleToVertexMap[parton2] = vertex2;
+  // decay vertices of mothers that list no daughters (one-way links in a pruned collection)
+  ParticleToVertexMap orphanDecayVertexMap;
   for (unsigned int i = 0, n = genParticlesHandle->size(); i < n; ++i) {
     const reco::Candidate* p = &genParticlesHandle->at(i);
     if (p == parton1 or p == parton2)
@@ -216,8 +219,19 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
     }
     // Connect mother-daughters for the other cases
     for (unsigned int j = 0, nMothers = p->numberOfMothers(); j < nMothers; ++j) {
+      const reco::Candidate* mother = p->mother(j);
+      if (mother->numberOfDaughters() == 0) {
+        auto& orphan = orphanDecayVertexMap[mother];
+        if (!orphan) {
+          orphan = make_shared<HepMC3::GenVertex>(FourVector(p->vertex()));
+          hepmc_event.add_vertex(orphan);
+          orphan->add_particle_in(genCandToHepMCMap[mother]);
+        }
+        orphan->add_particle_out(hepmc_particles[i]);
+        continue;
+      }
       // Mother-daughter hierarchy defines vertex
-      const reco::Candidate* elder = p->mother(j)->daughter(0);
+      const reco::Candidate* elder = mother->daughter(0);
       HepMC3::GenVertexPtr vertex;
       if (particleToVertexMap.find(elder) == particleToVertexMap.end()) {
         vertex = make_shared<HepMC3::GenVertex>(FourVector(elder->vertex()));
@@ -228,7 +242,6 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
       }
 
       // Vertex is found. Now connect each other
-      const reco::Candidate* mother = p->mother(j);
       vertex->add_particle_in(genCandToHepMCMap[mother]);
       vertex->add_particle_out(hepmc_particles[i]);
     }

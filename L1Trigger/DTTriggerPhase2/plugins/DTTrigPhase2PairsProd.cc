@@ -31,6 +31,7 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1Phase2MuDTExtPhiThetaPairContainer.h"
 
 #include <cmath>
+#include <memory>
 
 // Plugin which takes Phi and Theta DT Phase2 digi Extended collections(*) and
 // creates a new class container of the 4 best closest Phi-Theta digi pairs per DT chamber
@@ -244,7 +245,8 @@ void DTTrigPhase2PairsProd::produce(edm::Event& iEvent, const edm::EventSetup& i
     LogDebug("DTTrigPhase2PairsProd") << "Saving products";
 
   // Storing results in the event
-  std::unique_ptr<L1Phase2MuDTExtPhiThetaPairContainer> resultPhiThetaPair(new L1Phase2MuDTExtPhiThetaPairContainer);
+  std::unique_ptr<L1Phase2MuDTExtPhiThetaPairContainer> resultPhiThetaPair =
+      std::make_unique<L1Phase2MuDTExtPhiThetaPairContainer>();
   resultPhiThetaPair->setContainer(allPairs);
   iEvent.put(std::move(resultPhiThetaPair));
   if (debug_)

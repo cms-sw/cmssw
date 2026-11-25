@@ -49,6 +49,7 @@ Description: A essource/esproducer for lumi correction factor and run parameters
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "LumiCorrectionSource.h"
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <memory>
@@ -102,7 +103,7 @@ const std::string LumiCorrectionSource::servletTranslation(const std::string& se
   std::string frontierConnect;
   std::string realconnect;
   cms::concurrency::xercesInitialize();
-  std::unique_ptr<xercesc::XercesDOMParser> parser(new xercesc::XercesDOMParser);
+  std::unique_ptr<xercesc::XercesDOMParser> parser = std::make_unique<xercesc::XercesDOMParser>();
   try {
     parser->setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
     parser->setDoNamespaces(false);

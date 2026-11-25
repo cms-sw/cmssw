@@ -33,6 +33,7 @@ process.path = cms.Path()
 # data provider
 process.DataSource = torchtest_DataSource_alpaka(
     totalSize = cms.uint32(args.totalSize if args.totalSize >= 0 else 0),
+    hitsPerTrack = cms.uint32(args.hitsPerTrack if args.hitsPerTrack >= 1 else 1),
     alpaka = cms.untracked.PSet(
         backend = cms.untracked.string(args.backend)
     ),
@@ -67,7 +68,7 @@ if "SimpleNet" in args.only:
     if "SimpleNetMiniBatch" in args.only:
         process.SimpleNetMiniBatch = torchtest_SimpleNetMiniBatch_alpaka(
             model = cms.FileInPath(args.simpleNet),
-            batchSize = cms.int32(args.batchSize),
+            batchSize = cms.uint32(args.batchSize),
             particles = 'DataSource',
             alpaka = cms.untracked.PSet(
                 backend = cms.untracked.string("serial_sync")
@@ -115,7 +116,7 @@ if "TinyResNet" in args.only:
 if "TinyResNetMiniBatch" in args.only:
     process.TinyResNetMiniBatch = torchtest_TinyResNetMiniBatch_alpaka(
         model = cms.FileInPath(args.tinyResNet),
-        batchSize = cms.int32(args.batchSize),
+        batchSize = cms.uint32(args.batchSize),
         images = 'DataSource',
         alpaka = cms.untracked.PSet(
             backend = cms.untracked.string(args.backend)
@@ -123,6 +124,26 @@ if "TinyResNetMiniBatch" in args.only:
         environment = cms.untracked.int32(args.environment)
     )
     process.path += process.TinyResNetMiniBatch
+# --only TrackHitDeepSet
+if "TrackHitDeepSet" in args.only:
+    from PhysicsTools.PyTorchAlpakaTest.modules import torchtest_TrackHitDeepSet_alpaka
+    process.TrackHitDeepSetFull = torchtest_TrackHitDeepSet_alpaka(
+        model = cms.FileInPath(args.trackHitDeepSet),
+        batchSize = cms.uint32(args.totalSize if args.totalSize > 0 else 1),
+        particles = 'DataSource',
+        hits='DataSource',
+        hit_to_track='DataSource',
+        alpaka = cms.untracked.PSet(
+            backend = cms.untracked.string(args.backend)
+        ),
+        environment = cms.untracked.int32(args.environment)
+    )
+    process.TrackHitDeepSetBatched = process.TrackHitDeepSetFull.clone(
+        batchSize = cms.uint32(args.batchSize)
+    )
+
+    process.path += process.TrackHitDeepSetFull
+    process.path += process.TrackHitDeepSetBatched
 
 # debug (if --environment < 1 only assertions are checked)
 process.InspectionSink = torchtest_InspectionSink(
@@ -130,6 +151,8 @@ process.InspectionSink = torchtest_InspectionSink(
     simple_net = 'SimpleNet',
     simple_net_minibatch = 'SimpleNetMiniBatch',
     simple_net_runtimeFP16 = 'SimpleNetRuntineFP16',
+    track_hit_deep_set_full = "TrackHitDeepSetFull",
+    track_hit_deep_set_batched = "TrackHitDeepSetBatched",
     masked_net = 'MaskedNet',
     multi_head_net = 'MultiHeadNet',
     images = 'DataSource',

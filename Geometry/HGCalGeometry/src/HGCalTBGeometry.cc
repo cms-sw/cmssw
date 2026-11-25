@@ -329,9 +329,9 @@ HGCalTBGeometry::DetIdSet HGCalTBGeometry::getCells(const GlobalPoint& r, double
 }
 
 std::string HGCalTBGeometry::cellElement() const {
-  if (m_subdet == HGCEE)
+  if (m_det == DetId::HGCalEE)
     return "HGCalEE";
-  else if (m_subdet == HGCHEF)
+  else if (m_det == DetId::HGCalHSi)
     return "HGCalHEFront";
   else
     return "Unknown";

@@ -125,7 +125,7 @@ void HoverEValueMapProducer<pat::Photon>::doHoverEPho(edm::Event& iEvent) const 
                               (std::max(0.0, hOverE - (quadratic_ea_hOverE * rho * rho + linear_ea_hOverE * rho))));
   }
 
-  std::unique_ptr<edm::ValueMap<float>> HoverEQuadraticV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> HoverEQuadraticV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerHoverEQuadratic(*HoverEQuadraticV);
   fillerHoverEQuadratic.insert(src, HoverEQuadratic.begin(), HoverEQuadratic.end());
   fillerHoverEQuadratic.fill();

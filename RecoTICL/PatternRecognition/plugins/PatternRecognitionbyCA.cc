@@ -38,10 +38,10 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       min_clusters_per_ntuplet_(min_layers_per_trackster_),
       max_delta_time_(conf.getParameter<float>("max_delta_time")),
       computeLocalTime_(conf.getParameter<bool>("computeLocalTime")),
-      siblings_maxRSquared_(conf.getParameter<std::vector<float>>("siblings_maxRSquared")){};
+      siblings_maxRSquared_(conf.getParameter<std::vector<float>>("siblings_maxRSquared")) {};
 
 template <typename TILES>
-PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
+PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA() {};
 
 template <typename TILES>
 void PatternRecognitionbyCA<TILES>::setGeometry(ticlgeom::Tools const &rhtools) {

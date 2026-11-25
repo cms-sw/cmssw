@@ -254,7 +254,7 @@ namespace edm {
 
       // Trick to have every full class name to end with comma to
       // avoid treating the end as a special case
-      result += ",";
+      result += ',';
 
       std::string result2;
       result2.reserve(iIn.size());

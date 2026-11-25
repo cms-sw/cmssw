@@ -102,7 +102,7 @@ namespace {
 
 namespace edm::test {
 
-  TestSourceProcessor::TestSourceProcessor(std::string const& iConfig, ServiceToken iToken)
+  TestSourceProcessor::TestSourceProcessor(std::string const& iConfig, OwningServiceToken const& iToken)
       : globalControl_(oneapi::tbb::global_control::max_allowed_parallelism, 1),
         arena_(1),
         historyAppender_(std::make_unique<HistoryAppender>()) {
@@ -121,7 +121,7 @@ namespace edm::test {
 
     //initialize the services
     auto& serviceSets = procDesc->getServicesPSets();
-    ServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError);
+    OwningServiceToken token = items.initServices(serviceSets, *psetPtr, iToken, serviceregistry::kOverlapIsError);
     serviceToken_ = items.addTNS(*psetPtr, token);
 
     //make the services available

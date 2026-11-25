@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
@@ -39,7 +41,7 @@ namespace reco {
       using namespace std;
       Handle<HitCollection> hits;
       evt.getByToken(srcToken_, hits);
-      unique_ptr<CandidateCollection> cands(new CandidateCollection);
+      unique_ptr<CandidateCollection> cands = std::make_unique<CandidateCollection>();
       size_t size = hits->size();
       cands->reserve(size);
       for (size_t idx = 0; idx != size; ++idx) {

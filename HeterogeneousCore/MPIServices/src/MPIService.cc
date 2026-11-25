@@ -114,15 +114,23 @@ MPIService::MPIService(edm::ParameterSet const& config, edm::ActivityRegistry& i
 }
 
 MPIService::~MPIService() {
-  // Finalize MPI execution environment
-  MPI_Finalize();
+  // Finalize the MPI execution environment only if the job is not unwinding due to an exception (e.g. thrown while
+  // constructing the EventProcessor, which does not trigger any of the early termination signals).
+  // MPI_Finalize() would block waiting for the other processes, which may themselves be blocked waiting for this one.
+  // Skipping it lets cmsRun print the original error and exit, and mpirun then terminates the other processes.
+  if (std::uncaught_exceptions() == 0) {
+    MPI_Finalize();
+  }
 }
 
 void MPIService::abortOnError_(std::string const& termination_type) {
-  // Clean exit involves several blocking synchronisation calls in the destructors, which hang because the error is not yet propagated to the other processes.
+  // Clean exit involves several blocking synchronisation calls in the destructors, which hang because the error is not
+  // yet propagated to the other processes.
   // The hang might also occur when failing process is inside a blocking Wait() to send or receive a ususal message.
-  // Doing a flag check would solve the problem for deadlocks in the first case, but in the second case process might be already inside a Wait() call when the error occurs, therefore flag check would not help in this scenario.
-  // As we don't have any recovery mechanisms anyway, it's better to simply abort the MPI job immediately to avoid deadlocks and other issues.
+  // Doing a flag check would solve the problem for deadlocks in the first case, but in the second case process might be
+  // already inside a Wait() call when the error occurs, therefore flag check would not help in this scenario.
+  // As we don't have any recovery mechanisms anyway, it's better to simply abort the MPI job immediately to avoid
+  // deadlocks and other issues.
   edm::LogError("MPIService") << "MPIService: " << termination_type
                               << " event occured, Aborting MPI to avoid possible synchronization issues..."
                               << std::endl;

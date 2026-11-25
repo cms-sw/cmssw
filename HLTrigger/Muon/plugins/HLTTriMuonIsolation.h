@@ -3,6 +3,7 @@
 
 #include <array>
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -94,8 +95,9 @@ inline HLTTriMuonIsolation::HLTTriMuonIsolation(const edm::ParameterSet& iConfig
 }
 
 inline void HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
-  std::unique_ptr<reco::CompositeCandidateCollection> Taus(new reco::CompositeCandidateCollection);
-  std::unique_ptr<reco::CompositeCandidateCollection> SelectedTaus(new reco::CompositeCandidateCollection);
+  std::unique_ptr<reco::CompositeCandidateCollection> Taus = std::make_unique<reco::CompositeCandidateCollection>();
+  std::unique_ptr<reco::CompositeCandidateCollection> SelectedTaus =
+      std::make_unique<reco::CompositeCandidateCollection>();
 
   // Get the L3 muon candidates
   edm::Handle<reco::RecoChargedCandidateCollection> L3MuCands;

@@ -176,16 +176,19 @@ namespace edm {
           break;
         }
         case InLumi: {
-          token = consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
-                                   InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
+          token = consumes<InLumi, Transition::EndLuminosityBlock>(
+              TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
+              InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
           break;
         }
         case InRun: {
-          token = consumes<InRun>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
-                                  InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
+          token = consumes<InRun, Transition::EndRun>(
+              TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
+              InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
           break;
         }
         case InProcess: {
+          //The writeProcessBlock is called on both the end process block and input process block transitions.
           token = consumes<InProcess>(TypeToGet{desc.unwrappedTypeID(), PRODUCT_TYPE},
                                       InputTag(desc.moduleLabel(), desc.productInstanceName(), desc.processName()));
           break;

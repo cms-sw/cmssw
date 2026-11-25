@@ -17,5 +17,6 @@ hltParticleTransformerONNXJetTags = cms.EDProducer( "HLTParticleTransformerAK4ON
         "vtx",
     ),
     output_names = cms.vstring("output"),
-    mightGet = cms.optional.untracked.vstring,
+    produceValueMap = cms.untracked.bool(True),
+    jets =  cms.InputTag("hltAK4PFPuppiJets")
 )

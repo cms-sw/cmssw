@@ -9,6 +9,8 @@
   \version  $Id: HLTL1MuonMatcher.cc,v 1.3 2010/07/12 20:56:11 gpetrucc Exp $
 */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -107,7 +109,7 @@ void pat::HLTL1MuonMatcher::produce(edm::Event &iEvent, const edm::EventSetup &i
   iEvent.getByToken(recoToken_, reco);
   iEvent.getByToken(l1Token_, l1s);
 
-  unique_ptr<PATPrimitiveCollection> propOut(new PATPrimitiveCollection());
+  unique_ptr<PATPrimitiveCollection> propOut = std::make_unique<PATPrimitiveCollection>();
   vector<int> propMatches(reco->size(), -1);
   vector<int> fullMatches(reco->size(), -1);
   vector<float> deltaRs(reco->size(), 999), deltaPhis(reco->size(), 999);
@@ -132,13 +134,13 @@ void pat::HLTL1MuonMatcher::produce(edm::Event &iEvent, const edm::EventSetup &i
 
   OrphanHandle<PATPrimitiveCollection> propDone = iEvent.put(std::move(propOut), "propagatedReco");
 
-  unique_ptr<PATTriggerAssociation> propAss(new PATTriggerAssociation(propDone));
+  unique_ptr<PATTriggerAssociation> propAss = std::make_unique<PATTriggerAssociation>(propDone);
   PATTriggerAssociation::Filler propFiller(*propAss);
   propFiller.insert(reco, propMatches.begin(), propMatches.end());
   propFiller.fill();
   iEvent.put(std::move(propAss), "propagatedReco");
 
-  unique_ptr<PATTriggerAssociation> fullAss(new PATTriggerAssociation(l1s));
+  unique_ptr<PATTriggerAssociation> fullAss = std::make_unique<PATTriggerAssociation>(l1s);
   PATTriggerAssociation::Filler fullFiller(*fullAss);
   fullFiller.insert(reco, fullMatches.begin(), fullMatches.end());
   fullFiller.fill();

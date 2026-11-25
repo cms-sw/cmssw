@@ -31,7 +31,7 @@ namespace clangcms {
     }
 
     // == Check attributes ==
-    const clang::FunctionDecl *FuncD = C.getLocationContext()->getStackFrame()->getDecl()->getAsFunction();
+    const clang::FunctionDecl *FuncD = C.getStackFrame()->getDecl()->getAsFunction();
     const clang::AttrVec &Attrs = FuncD->getAttrs();
     for (const auto *A : Attrs) {
       if (clang::isa<clang::CMSThreadGuardAttr>(A) || clang::isa<clang::CMSThreadSafeAttr>(A) ||
@@ -43,7 +43,7 @@ namespace clangcms {
     // == Check if this is a cmssw local file ==
     // Create a PathDiagnosticLocation for reporting
     clang::ento::PathDiagnosticLocation PathLoc =
-        clang::ento::PathDiagnosticLocation::createBegin(ME, C.getSourceManager(), C.getLocationContext());
+        clang::ento::PathDiagnosticLocation::createBegin(ME, C.getSourceManager(), C.getStackFrame());
 
     // Get the BugReporter instance from the CheckerContext
     clang::ento::BugReporter &BR = C.getBugReporter();
@@ -119,8 +119,8 @@ namespace clangcms {
     // == Check if this is a modifying statement ==
 
     // Retrieve the parent statement of the MemberExpr
-    const clang::LocationContext *LC = C.getLocationContext();
-    const clang::ParentMap &PM = LC->getParentMap();
+    const clang::StackFrame *SF = C.getStackFrame();
+    const clang::ParentMap &PM = SF->getParentMap();
     const clang::Stmt *ParentStmt = PM.getParent(ME);
 
     if (!ParentStmt) {
@@ -189,7 +189,7 @@ namespace clangcms {
         }
       }
       // Move up to the parent expression
-      const clang::Stmt *ParentStmt = C.getLocationContext()->getParentMap().getParent(E);
+      const clang::Stmt *ParentStmt = C.getStackFrame()->getParentMap().getParent(E);
       E = llvm::dyn_cast_or_null<clang::Expr>(ParentStmt);
     }
     return false;

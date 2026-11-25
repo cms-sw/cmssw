@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "TMatrixD.h"
 
 #include <iostream>
+#include <memory>
 
 using namespace edm;
 using namespace std;
@@ -111,7 +112,7 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet& pset)
     : fVertex(nullptr),
       boost_(nullptr),
       fTimeOffset(0),
-      vtxLabel(mayConsume<reco::VertexCollection>(pset.getParameter<edm::InputTag>("vtxLabel"))),
+      vtxLabel(consumes<reco::VertexCollection>(pset.getParameter<edm::InputTag>("vtxLabel"))),
       signalLabel(consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("signalLabel"))),
       mixLabel(consumes<CrossingFrame<HepMCProduct> >(pset.getParameter<edm::InputTag>("mixLabel"))),
       useRecVertex(pset.exists("useRecVertex") ? pset.getParameter<bool>("useRecVertex") : false) {
@@ -275,7 +276,7 @@ void MixBoostEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
 
   // Copy the HepMC::GenEvent
   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
-  std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt = std::make_unique<edm::HepMCProduct>(genevt);
   // generate new vertex & apply the shift
   //
 

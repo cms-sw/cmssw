@@ -1,46 +1,38 @@
-#include "FWCore/Framework/interface/Event.h"
-#include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer_Ph2.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/ComponentSimParameterMap.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "SimCalorimetry/EcalSimAlgos/interface/EcalLiteDTUCoder.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 #include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
-#include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
-#include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
-#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
-#include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 
-//*****************************************//
-//Ecal Digi Producer for PhaseII data format
-//Removed EE and ES
-//Moved to EBDigiCollectionPh2
-//Moved to 2 Gains instead of 3, and from 10 to 16 ecal digi samples
-//This producer calls the EcalLiteDTUCoder, the PhaseII noise matrices and the EcalLiteDTUPedestals
-//*****************************************//
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/APDSimParameters.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/ComponentSimParameterMap.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalLiteDTUCoder.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
+#include "SimCalorimetry/EcalSimProducers/interface/EcalDigiProducer_Ph2.h"
+#include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
+
+//*****************************************
+// Ecal Digi Producer for PhaseII data format
+// Only EB
+// EBDigiCollectionPh2 collection
+// 2 Gains and 16 ecal digi samples
+// This producer calls the EcalLiteDTUCoder, the PhaseII noise matrices and the EcalLiteDTUPedestals
+//*****************************************
 EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params,
                                            edm::ProducesCollector producesCollector,
                                            edm::ConsumesCollector& iC)
@@ -57,6 +49,12 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params,
 // version for Pre-Mixing, for use outside of MixingModule
 EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm::ConsumesCollector& iC)
     : DigiAccumulatorMixMod(),
+      pedestalToken_(iC.esConsumes()),
+      laserToken_(iC.esConsumes()),
+      agcToken_(iC.esConsumes()),
+      icalToken_(iC.esConsumes()),
+      gainRatiosToken_(iC.esConsumes()),
+      geom_token_(iC.esConsumes()),
       m_APDShape(iC),
       m_ComponentShapes(iC),
       m_EBShape(iC),
@@ -139,26 +137,19 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
                                                        &m_ComponentShapes)),
 
       m_PreMix1(params.getParameter<bool>("EcalPreMixStage1")),
+      m_lowGainPreSamples(params.getParameter<unsigned int>("lowGainPreSamples")),
+      m_lowGainPostSamples(params.getParameter<unsigned int>("lowGainPostSamples")),
       m_HitsEBToken(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"))),
 
+      m_BarrelDigitizer(nullptr),
       m_APDDigitizer(nullptr),
       m_ComponentDigitizer(nullptr),
-      m_BarrelDigitizer(nullptr),
       m_ElectronicsSim(nullptr),
       m_Coder(nullptr),
       m_APDElectronicsSim(nullptr),
       m_APDCoder(nullptr),
       m_Geometry(nullptr),
-      m_EBCorrNoise({{nullptr, nullptr}})
-
-{
-  iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"));
-  pedestalToken_ = iC.esConsumes();
-  laserToken_ = iC.esConsumes<EcalLaserDbService, EcalLaserDbRecord>();
-  agcToken_ = iC.esConsumes<EcalADCToGeVConstant, EcalADCToGeVConstantRcd>();
-  icalToken_ = iC.esConsumes<EcalIntercalibConstants, EcalIntercalibConstantsRcd>();
-  geom_token_ = iC.esConsumes<CaloGeometry, CaloGeometryRecord>();
-
+      m_EBCorrNoise({{nullptr, nullptr}}) {
   const std::vector<double> ebCorMatG10Ph2 = params.getParameter<std::vector<double>>("EBCorrNoiseMatrixG10Ph2");
   const std::vector<double> ebCorMatG01Ph2 = params.getParameter<std::vector<double>>("EBCorrNoiseMatrixG01Ph2");
 
@@ -194,31 +185,32 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
   }
   m_EBCorrNoise[0] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix_Ph2>>(ebMatrix[0]);
   m_EBCorrNoise[1] = std::make_unique<CorrelatedNoisifier<EcalCorrMatrix_Ph2>>(ebMatrix[1]);
-  m_Coder = std::make_unique<EcalLiteDTUCoder>(addNoise, m_PreMix1, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
+
+  m_Coder = std::make_unique<EcalLiteDTUCoder>(
+      addNoise, m_PreMix1, m_lowGainPreSamples, m_lowGainPostSamples, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
   m_ElectronicsSim =
       std::make_unique<EcalElectronicsSim_Ph2>(m_ParameterMap.get(), m_Coder.get(), applyConstantTerm, rmsConstantTerm);
+  m_BarrelDigitizer = std::make_unique<EBDigitizer_Ph2>(m_EBResponse.get(), m_ElectronicsSim.get(), addNoise);
 
   if (m_apdSeparateDigi) {
-    m_APDCoder = std::make_unique<EcalLiteDTUCoder>(false, m_PreMix1, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
+    m_APDCoder = std::make_unique<EcalLiteDTUCoder>(
+        false, m_PreMix1, m_lowGainPreSamples, m_lowGainPostSamples, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
 
     m_APDElectronicsSim = std::make_unique<EcalElectronicsSim_Ph2>(
         m_ParameterMap.get(), m_APDCoder.get(), applyConstantTerm, rmsConstantTerm);
 
     m_APDDigitizer = std::make_unique<EBDigitizer_Ph2>(m_APDResponse.get(), m_APDElectronicsSim.get(), false);
   }
+
   if (m_componentSeparateDigi) {
-    m_ComponentCoder =
-        std::make_unique<EcalLiteDTUCoder>(addNoise, m_PreMix1, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
+    m_ComponentCoder = std::make_unique<EcalLiteDTUCoder>(
+        addNoise, m_PreMix1, m_lowGainPreSamples, m_lowGainPostSamples, m_EBCorrNoise[0].get(), m_EBCorrNoise[1].get());
     m_ComponentElectronicsSim = std::make_unique<EcalElectronicsSim_Ph2>(
         m_ParameterMap.get(), m_ComponentCoder.get(), applyConstantTerm, rmsConstantTerm);
     m_ComponentDigitizer =
         std::make_unique<EBDigitizer_Ph2>(m_ComponentResponse.get(), m_ComponentElectronicsSim.get(), addNoise);
   }
-
-  m_BarrelDigitizer = std::make_unique<EBDigitizer_Ph2>(m_EBResponse.get(), m_ElectronicsSim.get(), addNoise);
 }
-
-EcalDigiProducer_Ph2::~EcalDigiProducer_Ph2() {}
 
 void EcalDigiProducer_Ph2::initializeEvent(edm::Event const& event, edm::EventSetup const& eventSetup) {
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -277,14 +269,15 @@ void EcalDigiProducer_Ph2::finalizeEvent(edm::Event& event, edm::EventSetup cons
   std::unique_ptr<EBDigiCollectionPh2> apdResult(nullptr);
   std::unique_ptr<EBDigiCollectionPh2> componentResult(nullptr);
   std::unique_ptr<EBDigiCollectionPh2> barrelResult = std::make_unique<EBDigiCollectionPh2>();
+
   if (m_apdSeparateDigi) {
     apdResult = std::make_unique<EBDigiCollectionPh2>();
   }
   if (m_componentSeparateDigi) {
     componentResult = std::make_unique<EBDigiCollectionPh2>();
   }
-  // run the algorithm
 
+  // run the algorithm
   m_BarrelDigitizer->run(*barrelResult, randomEngine_);
   cacheEBDigis(&*barrelResult);
 
@@ -294,14 +287,17 @@ void EcalDigiProducer_Ph2::finalizeEvent(edm::Event& event, edm::EventSetup cons
     m_APDDigitizer->run(*apdResult, randomEngine_);
     edm::LogInfo("DigiInfo") << "APD Digis: " << apdResult->size();
   }
+
   if (m_componentSeparateDigi) {
     m_ComponentDigitizer->run(*componentResult, randomEngine_);
     edm::LogInfo("DigiInfo") << "Component Digis: " << componentResult->size();
   }
 
   // Step D: Put outputs into event
-
   event.put(std::move(barrelResult), m_EBdigiCollection);
+  if (m_apdSeparateDigi) {
+    event.put(std::move(apdResult), m_apdDigiTag);
+  }
   if (m_componentSeparateDigi) {
     event.put(std::move(componentResult), m_componentDigiTag);
   }
@@ -318,72 +314,74 @@ void EcalDigiProducer_Ph2::beginLuminosityBlock(edm::LuminosityBlock const& lumi
   }
   CLHEP::HepRandomEngine* engine = &rng->getEngine(lumi.index());
 
-  if (nullptr != m_APDResponse)
+  if (m_APDResponse)
     m_APDResponse->initialize(engine);
-  if (nullptr != m_ComponentResponse)
+  if (m_ComponentResponse)
     m_ComponentResponse->initialize(engine);
   m_EBResponse->initialize(engine);
 }
 
 void EcalDigiProducer_Ph2::checkCalibrations(const edm::Event& event, const edm::EventSetup& eventSetup) {
   // Pedestals from event setup
-  auto pedestals = &eventSetup.getData(pedestalToken_);
+  auto const* pedestals = &eventSetup.getData(pedestalToken_);
 
   m_Coder->setPedestals(pedestals);
-  if (nullptr != m_APDCoder)
+  if (m_APDCoder)
     m_APDCoder->setPedestals(pedestals);
-  if (nullptr != m_ComponentCoder)
+  if (m_ComponentCoder)
     m_ComponentCoder->setPedestals(pedestals);
 
   // Ecal Intercalibration Constants
-  auto ical = &eventSetup.getData(icalToken_);
+  auto const* ical = &eventSetup.getData(icalToken_);
 
   m_Coder->setIntercalibConstants(ical);
-  if (nullptr != m_APDCoder)
+  if (m_APDCoder)
     m_APDCoder->setIntercalibConstants(ical);
-  if (nullptr != m_ComponentCoder)
+  if (m_ComponentCoder)
     m_ComponentCoder->setIntercalibConstants(ical);
 
   m_EBResponse->setIntercal(ical);
-  if (nullptr != m_APDResponse)
+  if (m_APDResponse)
     m_APDResponse->setIntercal(ical);
-  if (nullptr != m_ComponentResponse)
+  if (m_ComponentResponse)
     m_ComponentResponse->setIntercal(ical);
 
   // Ecal LaserCorrection Constants
-  auto laser = &eventSetup.getData(laserToken_);
+  auto const* laser = &eventSetup.getData(laserToken_);
 
   const edm::TimeValue_t eventTimeValue = event.time().value();
 
   m_EBResponse->setEventTime(eventTimeValue);
   m_EBResponse->setLaserConstants(laser, m_useLCcorrection);
 
+  // CATIA gain ratios
+  auto const* gainRatios = &eventSetup.getData(gainRatiosToken_);
+
+  m_Coder->setGainRatios(gainRatios);
+  if (m_APDCoder)
+    m_APDCoder->setGainRatios(gainRatios);
+  if (m_ComponentCoder)
+    m_ComponentCoder->setGainRatios(gainRatios);
+
   // ADC -> GeV Scale
-  auto agc = &eventSetup.getData(agcToken_);
+  auto const* agc = &eventSetup.getData(agcToken_);
 
-  m_Coder->setGainRatios(ecalPh2::gains[0] / ecalPh2::gains[1]);
-  if (nullptr != m_APDCoder)
-    m_APDCoder->setGainRatios(ecalPh2::gains[0] / ecalPh2::gains[1]);
-  if (nullptr != m_ComponentCoder)
-    m_ComponentCoder->setGainRatios(ecalPh2::gains[0] / ecalPh2::gains[1]);
-
-  const double EBscale((agc->getEBValue()) * ecalPh2::gains[1] * (ecalPh2::MAXADC)*m_EBs25notCont);
+  double const EBscale(agc->getEBValue() * ecalPh2::gains[0] * ecalPh2::MAXADC * m_EBs25notCont);
 
   LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEBValue() << "\n"
                        << " notCont = " << m_EBs25notCont << "\n"
-                       << " saturation for EB = " << EBscale << ", " << m_EBs25notCont;
+                       << " saturation for EB = " << EBscale;
 
   m_Coder->setFullScaleEnergy(EBscale);
-  if (nullptr != m_APDCoder)
+  if (m_APDCoder)
     m_APDCoder->setFullScaleEnergy(EBscale);
-  if (nullptr != m_ComponentCoder)
+  if (m_ComponentCoder)
     m_ComponentCoder->setFullScaleEnergy(EBscale);
 }
 
 void EcalDigiProducer_Ph2::checkGeometry(const edm::EventSetup& eventSetup) {
   // TODO find a way to avoid doing this every event
-  edm::ESHandle<CaloGeometry> hGeometry = eventSetup.getHandle(geom_token_);
-  const CaloGeometry* pGeometry = &*hGeometry;
+  auto const* pGeometry = &eventSetup.getData(geom_token_);
 
   if (pGeometry != m_Geometry) {
     m_Geometry = pGeometry;
@@ -392,9 +390,9 @@ void EcalDigiProducer_Ph2::checkGeometry(const edm::EventSetup& eventSetup) {
 }
 
 void EcalDigiProducer_Ph2::updateGeometry() {
-  if (nullptr != m_APDResponse)
+  if (m_APDResponse)
     m_APDResponse->setGeometry(m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
-  if (nullptr != m_ComponentResponse)
+  if (m_ComponentResponse)
     m_ComponentResponse->setGeometry(m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
   m_EBResponse->setGeometry(m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel));
 }

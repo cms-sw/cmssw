@@ -28,6 +28,7 @@
 #include "CondFormats/PPSObjects/interface/CTPPSPixelFramePosition.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 
+#include <memory>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
@@ -301,7 +302,7 @@ void CTPPSPixelDAQMappingESSourceXML::ParseXML(ParseType pType,
                                                const string &file,
                                                const std::unique_ptr<CTPPSPixelDAQMapping> &mapping,
                                                const std::unique_ptr<CTPPSPixelAnalysisMask> &mask) {
-  unique_ptr<XercesDOMParser> parser(new XercesDOMParser());
+  unique_ptr<XercesDOMParser> parser = std::make_unique<XercesDOMParser>();
   parser->parse(file.c_str());
 
   DOMDocument *domDoc = parser->getDocument();

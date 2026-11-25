@@ -187,7 +187,7 @@ namespace edmtest {
         // just to create a data dependence
         auto const& tag = p.getParameter<edm::InputTag>("moduleLabel");
         if (not tag.label().empty()) {
-          consumes<unsigned int, edm::InLumi>(tag);
+          consumes<unsigned int, edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
         }
       }
       const unsigned int trans_;

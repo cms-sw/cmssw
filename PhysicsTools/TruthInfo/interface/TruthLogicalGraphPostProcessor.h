@@ -23,7 +23,12 @@ namespace truth {
     // trackId, so the test reduces to "no logical particle at or below this one
     // carries a positive-energy calo or tracker sim-hit". GEN-only descendants
     // of a removed SIM particle (e.g. neutrinos) are swept out with it, while
-    // the GEN skeleton outside removed SIM subtrees is preserved. This step
+    // the GEN skeleton outside removed SIM subtrees is preserved. The decay
+    // products of a GEN particle of a reconstructablePdgIds species with a hit
+    // in its subgraph are kept, with or without hits of their own (the photons
+    // of a pi0). The removal of a hitless SIM ancestor still removes them, and
+    // their hitless SIM continuation is still removed. A status-2 GEN particle
+    // left with only invisible decay products is removed with them. This step
     // only runs when the producer supplies a per-particle direct-hit presence
     // vector (it needs the sim-hit collections); without it it is a no-op.
     bool dropHitlessSimSubgraphs = true;
@@ -54,16 +59,18 @@ namespace truth {
     // their other descendants.
     uint32_t seedParentDepth = 0;
 
-    // If true (default), stable final-state GEN particles outside the selected
-    // subgraph are kept and attached to an artificial UnderlyingEvent source
-    // vertex. If false, they are dropped, giving a focused subgraph that
-    // contains only the selection and its truncated upstream (ISR) context.
+    // If true (default), stable final-state GEN particles and GEN particles of the
+    // reconstructablePdgIds species outside the selected subgraph, with no
+    // selected particle below them, are kept and attached to an artificial
+    // UnderlyingEvent source vertex, each with its subgraph, which is where
+    // its hits are. If false, they are dropped, leaving the selection, its
+    // truncated initial-state context and the beam-side input of its vertices.
     // Only meaningful when a selection is active (seedPdgIds/decayPdgIdGroups).
     bool keepStableSpectators = true;
 
     // If true (default), kept particles whose real production vertices all fall
-    // outside the selection are attached to an artificial Upstream (ISR) or
-    // UnderlyingEvent source vertex, keeping the selected subgraph rooted in a
+    // outside the selection are attached to an artificial InitialState,
+    // UnderlyingEvent or BeamSideInput source vertex, keeping the selected subgraph rooted in a
     // summary of the activity above it. If false, those particles become true
     // graph roots (no production vertex), so each selected seed yields a
     // self-contained subgraph starting directly at the seed - e.g. the ten taus
@@ -78,7 +85,7 @@ namespace truth {
     // jets and "produce" the Higgs - which are siblings of the seed, not its
     // ancestors, and so are never reached by seedParentDepth. Keeping the
     // production vertex also means the seed is no longer at the upstream boundary,
-    // so the real hard vertex is shown in place of the artificial Upstream summary.
+    // so the real hard vertex is shown in place of the artificial InitialState summary.
     // Only meaningful when a selection (seedPdgIds/seedHadronFlavors/...) is active.
     bool keepProductionSiblings = false;
 
@@ -118,6 +125,14 @@ namespace truth {
     // collapsing step is applied.
     std::vector<uint32_t> ignoredParticleIds;
   };
+
+  // Gives a GEN-only particle with no momentum the sum of its decay products that have
+  // one. A decay here is a GEN vertex whose only incoming particle is this one, so a vertex
+  // fed by several partons, a string or the beams adds nothing. The sum is exact when
+  // every product has a momentum. Otherwise it misses the products Geant4 did not track,
+  // which are those outside the g4SimHits Generator primary cuts. A decay chain resolves
+  // from the bottom up, and a product that closes a cycle is not added.
+  void fillMomentumFromDecayProducts(Graph& graph);
 
   class TruthLogicalGraphPostProcessor {
   public:

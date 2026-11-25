@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/global/OutputModule.h"
 #include "FWCore/Framework/interface/OutputModuleCommunicatorT.h"
 #include "FWCore/Framework/interface/TransitionInfoTypes.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
 #include "FWCore/Framework/interface/OccurrenceTraits.h"
 #include "FWCore/Framework/interface/ProductResolversFactory.h"
@@ -127,7 +127,7 @@ namespace {
     typedef edm::service::TriggerNamesService TNS;
     typedef edm::serviceregistry::ServiceWrapper<TNS> w_TNS;
     std::shared_ptr<w_TNS> tnsptr_;
-    edm::ServiceToken serviceToken_;
+    edm::OwningServiceToken serviceToken_;
 
     template <typename Traits, typename Info>
     void doWork(WorkerTypes iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {
@@ -285,12 +285,12 @@ namespace {
     oneapi::tbb::task_arena arena(1);
     arena.execute([&]() {
       iMod->doPreallocate(m_preallocConfig);
-      edm::WorkerT<edm::global::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal> wOther{
-          iMod, m_desc, m_params.actions_};
-      edm::WorkerT<edm::global::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal> wGlobalLumi{
-          iMod, m_desc, m_params.actions_};
-      edm::WorkerT<edm::global::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal> wGlobalRun{
-          iMod, m_desc, m_params.actions_};
+      edm::ModuleTransitionWorker<edm::global::OutputModuleBase, edm::EventTransitionInfo, edm::TransitionPhaseGlobal>
+          wOther{iMod, m_desc, m_params.actions_};
+      edm::ModuleTransitionWorker<edm::global::OutputModuleBase, edm::LumiTransitionInfo, edm::TransitionPhaseGlobal>
+          wGlobalLumi{iMod, m_desc, m_params.actions_};
+      edm::ModuleTransitionWorker<edm::global::OutputModuleBase, edm::RunTransitionInfo, edm::TransitionPhaseGlobal>
+          wGlobalRun{iMod, m_desc, m_params.actions_};
       edm::OutputModuleCommunicatorT<edm::global::OutputModuleBase> comm(iMod.get());
       edm::maker::ModuleHolderT<edm::global::OutputModuleBase> h(iMod);
       for (auto& keyVal : m_transToFunc) {

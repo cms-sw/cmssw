@@ -71,14 +71,14 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet &pS
   if (ptRanges.size() <= 1)
     ptRanges = {pSet.getParameter<double>("ptRecJetMin"), pSet.getParameter<double>("ptRecJetMax")};
 
-  genToken = mayConsume<GenEventInfoProduct>(edm::InputTag("generator"));
+  genToken = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
   genJetsMatchedToken =
-      mayConsume<edm::Association<reco::GenJetCollection>>(pSet.getParameter<InputTag>("genJetsMatched"));
+      consumes<edm::Association<reco::GenJetCollection>>(pSet.getParameter<InputTag>("genJetsMatched"));
   jetToken = consumes<JetFlavourInfoMatchingCollection>(pSet.getParameter<InputTag>("jetMCSrc"));
-  caloJetToken = mayConsume<JetFlavourMatchingCollection>(pSet.getParameter<InputTag>("caloJetMCSrc"));
+  caloJetToken = consumes<JetFlavourMatchingCollection>(pSet.getParameter<InputTag>("caloJetMCSrc"));
   slInfoToken = consumes<SoftLeptonTagInfoCollection>(pSet.getParameter<InputTag>("softLeptonInfo"));
   jecMCToken = consumes<JetCorrector>(pSet.getParameter<edm::InputTag>("JECsourceMC"));
-  jecDataToken = mayConsume<JetCorrector>(pSet.getParameter<edm::InputTag>("JECsourceData"));
+  jecDataToken = consumes<JetCorrector>(pSet.getParameter<edm::InputTag>("JECsourceData"));
 
   for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
        ++iModule) {
@@ -360,9 +360,6 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event &iEvent, const edm::Eve
           binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(
               jetWithFlavour.first, jec, tagI->second, std::abs(jetWithFlavour.second.getPartonFlavour()), weight);
       }
-    }
-    for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-      binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(weight);
     }
   }
 

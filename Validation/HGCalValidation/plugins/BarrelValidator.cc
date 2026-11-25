@@ -64,8 +64,6 @@ bool assignTracksterMaps(const edm::Handle<std::vector<ticl::Trackster>>& tracks
 
 BarrelValidator::BarrelValidator(const edm::ParameterSet& pset)
     : ticlGeomToken_(esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       lclTag_(pset.getParameter<edm::InputTag>("lclTag")),
       sclTag_(pset.getParameter<edm::InputTag>("sclTag")),
       rechitmapTag_(pset.getParameter<edm::InputTag>("rechitmapTag")),
@@ -339,8 +337,7 @@ void BarrelValidator::dqmAnalyze(const edm::Event& event,
 
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
 
-  tools_->setGeometry(
-      setup.getData(ticlGeomToken_), setup.getData(ticlGeomLookupToken_), setup.getData(ticlGeomLayersToken_));
+  tools_->setGeometry(setup.getData(ticlGeomToken_));
   histoProducerAlgo_->setRecHitTools(tools_);
 
   std::vector<ticl::RecoToSimCollectionT<reco::CaloClusterCollection>> recSimColl;

@@ -220,7 +220,7 @@ namespace edm {
 
   // ---------------------------------------------------------------
   EventProcessor::EventProcessor(std::unique_ptr<ParameterSet> parameterSet,  //std::string const& config,
-                                 ServiceToken const& iToken,
+                                 OwningServiceToken const& iToken,
                                  serviceregistry::ServiceLegacy iLegacy,
                                  std::vector<std::string> const& defaultServices,
                                  std::vector<std::string> const& forcedServices)
@@ -239,8 +239,7 @@ namespace edm {
         looper_(),
         deferredExceptionPtrIsSet_(false),
         sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
-                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
-                           serviceToken_),
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -273,8 +272,7 @@ namespace edm {
         looper_(),
         deferredExceptionPtrIsSet_(false),
         sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
-                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
-                           serviceToken_),
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -286,11 +284,11 @@ namespace edm {
         looperBeginJobRun_(false) {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
-    init(processDesc, ServiceToken(), serviceregistry::kOverlapIsError);
+    init(processDesc, OwningServiceToken(), serviceregistry::kOverlapIsError);
   }
 
   EventProcessor::EventProcessor(std::shared_ptr<ProcessDesc> processDesc,
-                                 ServiceToken const& token,
+                                 OwningServiceToken const& token,
                                  serviceregistry::ServiceLegacy legacy)
       : actReg_(),
         preg_(),
@@ -307,8 +305,7 @@ namespace edm {
         looper_(),
         deferredExceptionPtrIsSet_(false),
         sourceCoordinator_(SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().first,
-                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second,
-                           serviceToken_),
+                           SharedResourcesRegistry::instance()->createAcquirerForSourceDelayedReader().second),
         principalCache_(),
         beginJobCalled_(false),
         shouldWeStop_(false),
@@ -322,7 +319,7 @@ namespace edm {
   }
 
   void EventProcessor::init(std::shared_ptr<ProcessDesc>& processDesc,
-                            ServiceToken const& iToken,
+                            OwningServiceToken const& iToken,
                             serviceregistry::ServiceLegacy iLegacy) {
     //std::cerr << processDesc->dump() << std::endl;
 
@@ -432,10 +429,11 @@ namespace edm {
     //initialize the services
     edm::TimingServiceBase::servicesStarting();
     auto& serviceSets = processDesc->getServicesPSets();
-    ServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy);
+    OwningServiceToken token = items.initServices(serviceSets, *parameterSet, iToken, iLegacy);
     serviceToken_ = items.addTNS(*parameterSet, token);
     items.actReg_->postServicesConstructionSignal_.emit();
 
+    sourceCoordinator_.setServiceToken(serviceToken_);
     sourceCoordinator_.setSignals(*items.actReg_);
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
@@ -1591,6 +1589,7 @@ namespace edm {
   namespace {
     void prefetchForRandomNumberGeneratorAsync(edm::WaitingTaskHolder const& iTask,
                                                edm::Principal const& iPrincipal,
+                                               edm::Transition iTransition,
                                                edm::ServiceToken const& iServiceToken) {
       edm::ServiceRegistry::Operate operate(iServiceToken);
       Service<edm::RandomNumberGenerator> rng;
@@ -1598,7 +1597,7 @@ namespace edm {
         auto consumer = rng->consumer();
         if (consumer) {
           // Prefetch products the module declares it consumes
-          std::vector<ProductResolverIndexAndSkipBit> const& items = consumer->itemsToGetFrom(iPrincipal.branchType());
+          std::vector<ProductResolverIndexAndSkipBit> const& items = consumer->itemsToGetFrom(iTransition);
 
           for (auto const& item : items) {
             ProductResolverIndex productResolverIndex = item.productResolverIndex();
@@ -1672,7 +1671,8 @@ namespace edm {
                   //handle RandomNumberGenerator prefetching and preBeginLumi
                   assert(status->lumiPrincipal() != nullptr);
                   auto& lumiPrincipal = *status->lumiPrincipal();
-                  prefetchForRandomNumberGeneratorAsync(std::move(nextTask), lumiPrincipal, serviceToken_);
+                  prefetchForRandomNumberGeneratorAsync(
+                      std::move(nextTask), lumiPrincipal, Transition::BeginLuminosityBlock, serviceToken_);
                 }) | ifThen(rng.isAvailable() and rng->consumer() != nullptr, [this, status](auto nextTask) {
                   ServiceRegistry::Operate operate(serviceToken_);
                   Service<RandomNumberGenerator> rng;
@@ -2093,7 +2093,7 @@ namespace edm {
     chain::firstIf(rng.isAvailable() and rng->consumer() != nullptr, [this, pep](auto nextTask) {
       //handle RandomNumberGenerator prefetching and postEventRead
       chain::first([this, pep](auto nextTask) {
-        prefetchForRandomNumberGeneratorAsync(std::move(nextTask), *pep, serviceToken_);
+        prefetchForRandomNumberGeneratorAsync(std::move(nextTask), *pep, Transition::Event, serviceToken_);
       }) | then([this, pep](auto nextTask) {
         ServiceRegistry::Operate operate(serviceToken_);
         Service<RandomNumberGenerator> rng;
@@ -2180,7 +2180,7 @@ namespace edm {
        << "require synchronizing on LuminosityBlock boundaries:";
     bool found = false;
     for (auto worker : schedule_->allWorkersLumis()) {
-      if (worker->wantsGlobalLuminosityBlocks() and worker->globalLuminosityBlocksQueue()) {
+      if (worker->wantsGlobalTransitions() and worker->globalTransitionsQueue()) {
         found = true;
         ex << "\n  " << worker->description()->moduleName() << " " << worker->description()->moduleLabel();
       }
@@ -2196,7 +2196,7 @@ namespace edm {
   void EventProcessor::warnAboutModulesRequiringRunSynchronization() const {
     std::unique_ptr<LogSystem> s;
     for (auto worker : schedule_->allWorkersRun()) {
-      if (worker->wantsGlobalRuns() and worker->globalRunsQueue()) {
+      if (worker->wantsGlobalTransitions() and worker->globalTransitionsQueue()) {
         if (not s) {
           s = std::make_unique<LogSystem>("ModulesSynchingOnRuns");
           (*s) << "The following modules require synchronizing on Run boundaries:";

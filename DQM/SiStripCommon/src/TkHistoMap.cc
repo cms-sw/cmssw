@@ -91,7 +91,7 @@ void TkHistoMap::loadTkHistoMap(const std::string& path, const std::string& MapN
                              << " find " << folder.find_last_of("/") << "  length " << folder.length();
 #endif
       if (folder.find_last_of('/') != folder.length() - 1)
-        folder += "/";
+        folder += '/';
       tkHistoMap_[layer] = igetter.get(folder + fullName);
 #ifdef debug_TkHistoMap
       LogTrace("TkHistoMap") << "[TkHistoMap::loadTkHistoMap] folder " << folder << " histoName " << fullName

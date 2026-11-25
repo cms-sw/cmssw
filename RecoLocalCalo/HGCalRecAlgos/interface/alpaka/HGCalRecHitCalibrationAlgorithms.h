@@ -18,6 +18,11 @@
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalCalibrationParameterDevice.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingParameterHost.h"
 #include "CondFormats/HGCalObjects/interface/alpaka/HGCalMappingParameterDevice.h"
+#include "DataFormats/HGCalDigi/interface/HGCalECONDPacketInfoHost.h"
+#include "DataFormats/HGCalDigi/interface/alpaka/HGCalECONDPacketInfoDevice.h"
+
+// maxChPerErx_
+#include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexer.h"
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
@@ -37,6 +42,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                               HGCalMappingModuleParamDevice const& device_mapmod,
                                               HGCalMappingCellParamDevice const& device_mapping,
                                               HGCalDenseIndexInfoDevice const& device_index,
+                                              HGCalECONDPacketInfoHost const& host_econd,
                                               double k_noise) const;
 
     HGCalSoARecHitsDeviceCollection select(Queue& queue,

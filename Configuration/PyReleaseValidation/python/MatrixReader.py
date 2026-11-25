@@ -103,23 +103,24 @@ class MatrixReader(object):
 
     def makeCmd(self, step):
 
-        cmd = ''
+        cmd = []
         cfg = None
         input = None
         for k,v in step.items():
             if 'no_exec' in k : continue  # we want to really run it ...
-            if k.lower() == 'cfg':
+            klow = k.lower()
+            if klow == 'cfg':
                 cfg = v
                 continue # do not append to cmd, return separately
-            if k.lower() == 'input':
-                input = v 
+            if klow == 'input':
+                input = v
                 continue # do not append to cmd, return separately
-            
+
             #chain the configs
             #if k.lower() == '--python':
             #    v = 'step%d_%s'%(index,v)
-            cmd += ' ' + k + ' ' + str(v)
-        return cfg, input, cmd
+            cmd.append(' ' + k + ' ' + str(v))
+        return cfg, input, ''.join(cmd)
     
     def makeStep(self,step,overrides):
         from Configuration.PyReleaseValidation.relval_steps import merge
@@ -144,8 +145,8 @@ With --checkInputs option this throws an error.
 =============================================================================
                              """.format(sys._getframe(1).f_lineno - 1,wf[0],wf))    
 
-    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None):
-        
+    def readMatrix(self, fileNameIn, useInput=None, refRel=None, fromScratch=None, selected=None):
+
         prefix = self.filesPrefMap[fileNameIn]
         
         print("processing", fileNameIn)
@@ -205,7 +206,14 @@ With --checkInputs option this throws an error.
                     [(x,refRel) for x in self.relvalModule.baseDataSetRelease]
                     )
 
+        useIBEos = os.getenv("CMSSW_USE_IBEOS","false")=="true"
+        madeCmds = {}
+
         for num, wfInfo in self.relvalModule.workflows.items():
+            # an unselected workflow is still read when -i rewrites its step list,
+            # because that list can be shared with a selected workflow
+            if selected is not None and num not in selected and num not in fromInput:
+                continue
             commands=[]
             wfName = wfInfo[0]
             stepList = wfInfo[1]
@@ -267,6 +275,9 @@ With --checkInputs option this throws an error.
                         #print "\t\tmod",stepList
                         break
 
+            if selected is not None and num not in selected:
+                continue
+
             for (stepI,step) in enumerate(stepList):
                 stepName=step
                 if self.relvalModule.steps[stepName] is None:
@@ -303,8 +314,16 @@ With --checkInputs option this throws an error.
                     from Configuration.PyReleaseValidation.relval_steps import merge
                     copyStep=merge(addCom+[self.makeStep(self.relvalModule.steps[stepName],stepOverrides)])
                     cfg, input, opts = self.makeCmd(copyStep)
-                else:
+                elif stepOverrides:
                     cfg, input, opts = self.makeCmd(self.makeStep(self.relvalModule.steps[stepName],stepOverrides))
+                else:
+                    # without overrides a step yields the same command in every
+                    # workflow that runs it
+                    made = madeCmds.get(stepName)
+                    if made is None:
+                        made = self.makeCmd(self.relvalModule.steps[stepName])
+                        madeCmds[stepName] = made
+                    cfg, input, opts = made
 
                 if input and cfg :
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
@@ -330,7 +349,7 @@ With --checkInputs option this throws an error.
                     if self.wm and self.revertDqmio=='yes':
                         cmd=cmd.replace('DQMIO','DQM')
                         cmd=cmd.replace('--filetype DQM','')
-                    if os.getenv("CMSSW_USE_IBEOS","false")=="true":
+                    if useIBEos:
                         cmd="export CMSSW_USE_IBEOS=true; "+cmd
                 commands.append(cmd)
                 ranStepList.append(stepName)
@@ -522,7 +541,9 @@ With --checkInputs option this throws an error.
 
         return
 
-    def prepare(self, useInput=None, refRel='', fromScratch=None):
+    # selected: the workflow numbers to expand, None for all of them
+    def prepare(self, useInput=None, refRel='', fromScratch=None, selected=None):
+        selected = set(selected) if selected else None
         
         for matrixFile in self.files:
             if self.what != 'all' and not any('_'+el in matrixFile for el in self.what.split(",")):
@@ -533,13 +554,13 @@ With --checkInputs option this throws an error.
                 continue
             
             try:
-                self.readMatrix(matrixFile, useInput, refRel, fromScratch)
+                self.readMatrix(matrixFile, useInput, refRel, fromScratch, selected)
                 if self.checkInputs:
                     self.verifyDefaultInputs()
             except Exception as e:
                 print("ERROR reading file:", matrixFile, str(e))
                 raise
-            
+
             try:
                 self.createWorkFlows(matrixFile)
             except Exception as e:

@@ -68,7 +68,7 @@ void TrigCodes::getCodeName(TrigBitSet code, std::string& id) const {
   for (auto const& codeDef : codeDefs_) {
     if ((code & codeDef.second) == codeDef.second) {
       if (!id.empty())
-        id += ":";  //seperating entries by a ':'
+        id += ':';  //seperating entries by a ':'
       id += codeDef.first;
     }
   }

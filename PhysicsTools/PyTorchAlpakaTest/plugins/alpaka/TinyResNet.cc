@@ -43,10 +43,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
       auto input_records = images.const_view().records();
       auto output_records = logits.view().records();
       // input tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> inputs(total_size);
+      cms::torch::alpakatools::TensorCollection<Queue> inputs;
       inputs.add<portabletest::ImageSoA>("images", input_records.r(), input_records.g(), input_records.b());
       // output tensor definition
-      cms::torch::alpakatools::TensorCollection<Queue> outputs(total_size);
+      cms::torch::alpakatools::TensorCollection<Queue> outputs;
       outputs.add<portabletest::LogitsSoA>("logits", output_records.logits());
 
       model_.forward(event.queue(), inputs, outputs);

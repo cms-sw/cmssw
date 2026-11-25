@@ -56,7 +56,7 @@ using namespace std;
 L1MuDTSectorReceiver::L1MuDTSectorReceiver(L1MuDTSectorProcessor& sp, edm::ConsumesCollector iC)
     : m_sp(sp),
       m_DTDigiToken(iC.consumes<L1MuDTChambPhContainer>(m_sp.tf().config()->getDTDigiInputTag())),
-      m_CSCTrSToken(iC.mayConsume<CSCTriggerContainer<csctf::TrackStub> >(m_sp.tf().config()->getCSCTrSInputTag())),
+      m_CSCTrSToken(iC.consumes<CSCTriggerContainer<csctf::TrackStub> >(m_sp.tf().config()->getCSCTrSInputTag())),
       m_parsToken(iC.esConsumes()),
       m_msksToken(iC.esConsumes()) {}
 

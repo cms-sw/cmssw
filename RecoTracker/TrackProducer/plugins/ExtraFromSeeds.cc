@@ -70,10 +70,10 @@ void ExtraFromSeeds::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
   iEvent.getByToken(tracks_, tracks);
 
   // out
-  std::unique_ptr<ExtremeLight> exxtralOut(new ExtremeLight());
+  std::unique_ptr<ExtremeLight> exxtralOut = std::make_unique<ExtremeLight>();
   exxtralOut->resize(tracks->size());
 
-  std::unique_ptr<TrackingRecHitCollection> hitOut(new TrackingRecHitCollection());
+  std::unique_ptr<TrackingRecHitCollection> hitOut = std::make_unique<TrackingRecHitCollection>();
   TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
   hitOut->reserve(3 * tracks->size());
 

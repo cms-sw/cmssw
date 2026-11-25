@@ -457,8 +457,7 @@ lstProducerSerialSync = makeSerialClone(lstProducer, lstInput = "lstInputProduce
 highPtTripletStepTrackCandidatesSerialSync = highPtTripletStepTrackCandidates.clone()
 (~seedingLST & trackingPhase2PU140 & alpakaValidationLST & trackingLST).toModify(highPtTripletStepTrackCandidatesSerialSync,
     lstOutput = "lstProducerSerialSync",
-    lstInput = "lstInputProducerSerialSync",
-    lstPixelSeeds = "lstInputProducerSerialSync"
+    lstInput = "lstInputProducerSerialSync"
 )
 highPtTripletStepTracksSerialSync = highPtTripletStepTracks.clone()
 (trackingPhase2PU140 & alpakaValidationLST & trackingLST).toModify(highPtTripletStepTracksSerialSync, src = "highPtTripletStepTrackCandidatesSerialSync")
@@ -477,8 +476,7 @@ _phase2LSTmkFitValidation = (
 )
 _phase2LSTmkFitValidation.toModify(highPtTripletStepSeedsPixelsWithLSTSerialSync,
     lstOutput = "lstProducerSerialSync",
-    lstInput = "lstInputProducerSerialSync",
-    lstPixelSeeds = "lstInputProducerSerialSync"
+    lstInput = "lstInputProducerSerialSync"
 )
 _phase2LSTmkFitValidation.toModify(highPtTripletStepTrackCandidatesSerialSync,
     seeds = 'highPtTripletStepSeedsPixelsWithLSTSerialSync',

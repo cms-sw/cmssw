@@ -987,7 +987,7 @@ void PixelPortCardConfig::fillDBToFileAddress() {
 void PixelPortCardConfig::writeASCII(std::string dir) const {
   std::string mthn = "[PixelPortCardConfig::writeASCII()]\t\t\t\t    ";
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
   std::string filename = dir + "portcard_" + portcardname_ + ".dat";
 
   std::ofstream out(filename.c_str());

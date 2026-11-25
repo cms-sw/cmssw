@@ -117,13 +117,16 @@ void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
     int detType = detTypes_[type];
     G4String nameX = "HGCal";
     if (types_[type] <= 1) {
-      dets_.emplace_back(static_cast<unsigned int>(DetId::Forward));
-      if (detType == 0)
-        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCEE));
-      else if (detType == 1)
-        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCHEF));
-      else
-        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::HGCHEB));
+      if (detType == 0) {
+        dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalEE));
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::ForwardEmpty));
+      } else if (detType == 1) {
+        dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalHSi));
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::ForwardEmpty));
+      } else {
+        dets_.emplace_back(static_cast<unsigned int>(DetId::HGCalHSc));
+        subdet_.emplace_back(static_cast<int>(ForwardSubdetector::ForwardEmpty));
+      }
       if (detType == 0)
         nameX = "HGCalEESensitive";
       else if (detType == 1)
@@ -143,7 +146,7 @@ void SimG4HGCalValidation::registerConsumes(edm::ConsumesCollector cc) {
 }
 
 void SimG4HGCalValidation::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<PHGCalValidInfo> productLayer(new PHGCalValidInfo);
+  std::unique_ptr<PHGCalValidInfo> productLayer = std::make_unique<PHGCalValidInfo>();
   layerAnalysis(*productLayer);
   e.put(std::move(productLayer), labelLayer_);
 }

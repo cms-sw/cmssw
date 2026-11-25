@@ -180,7 +180,7 @@ void RPCLBLinkMapHandler::getNewObjects() {
   int first_strip(0), slope(1);
   std::uint16_t channels(0x0);
 
-  std::unique_ptr<RPCLBLinkMap> lb_link_map_object(new RPCLBLinkMap());
+  std::unique_ptr<RPCLBLinkMap> lb_link_map_object = std::make_unique<RPCLBLinkMap>();
   RPCLBLinkMap::map_type& lb_link_map = lb_link_map_object->getMap();
   RPCLBLink lb_link;
   RPCDetId det_id;

@@ -32,7 +32,7 @@ void DDValue::init(const std::string& name) {
   allNames.grow_to_at_least(id_ + 1);
   auto& storedName = allNames[id_];
   if (not storedName.string_) {
-    std::unique_ptr<std::string> newName(new std::string{name});
+    std::unique_ptr<std::string> newName = std::make_unique<std::string>(name);
     std::string* previous = nullptr;
     if (storedName.string_.compare_exchange_strong(previous, newName.get())) {
       newName.release();

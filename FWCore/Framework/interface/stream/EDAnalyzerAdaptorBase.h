@@ -67,9 +67,9 @@ namespace edm {
     class EDAnalyzerAdaptorBase {
     public:
       template <typename T, typename TI, typename TP>
-      friend class edm::WorkerT;
+      friend class edm::ModuleTransitionWorker;
       template <typename T, typename TI, typename TP>
-      friend class edm::WorkerTBase;
+      friend class edm::ModuleTransitionWorkerBase;
       template <typename T>
       friend class edm::maker::ModuleHolderT;
 
@@ -109,7 +109,7 @@ namespace edm {
       //Same interface as EDConsumerBase
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
-      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
+      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition) const;
 
       std::vector<ESResolverIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
       std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const;

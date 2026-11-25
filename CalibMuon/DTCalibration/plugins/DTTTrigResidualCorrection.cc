@@ -25,14 +25,6 @@
 #include "TF1.h"
 #include "TCanvas.h"
 
-#include "RooPlot.h"
-#include "RooRealVar.h"
-#include "RooDataHist.h"
-#include "RooGaussian.h"
-#include "RooAddPdf.h"
-#include "RooFitResult.h"
-#include "RooGlobalFunc.h"
-
 #include <string>
 #include <sstream>
 #include <fstream>

@@ -130,7 +130,7 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
   // ~~~~~~~~~~~~~~~~~~~~ Muons ~~~~~~~~~~~~~~~~~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  unique_ptr<L1MuonParticleCollection> muColl(new L1MuonParticleCollection);
+  unique_ptr<L1MuonParticleCollection> muColl = std::make_unique<L1MuonParticleCollection>();
 
   if (produceMuonParticles_) {
     ESHandle<L1MuTriggerScales> muScales = iSetup.getHandle(muScalesToken_);
@@ -201,15 +201,15 @@ void L1ExtraParticlesProd::produce(edm::Event &iEvent, const edm::EventSetup &iS
   // ~~~~~~~~~~~~~~~~~~~~ Calorimeter ~~~~~~~~~~~~~~~~~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  unique_ptr<L1EmParticleCollection> isoEmColl(new L1EmParticleCollection);
-  unique_ptr<L1EmParticleCollection> nonIsoEmColl(new L1EmParticleCollection);
-  unique_ptr<L1JetParticleCollection> cenJetColl(new L1JetParticleCollection);
-  unique_ptr<L1JetParticleCollection> forJetColl(new L1JetParticleCollection);
-  unique_ptr<L1JetParticleCollection> tauJetColl(new L1JetParticleCollection);
-  unique_ptr<L1JetParticleCollection> isoTauJetColl(new L1JetParticleCollection);
-  unique_ptr<L1EtMissParticleCollection> etMissColl(new L1EtMissParticleCollection);
-  unique_ptr<L1EtMissParticleCollection> htMissColl(new L1EtMissParticleCollection);
-  unique_ptr<L1HFRingsCollection> hfRingsColl(new L1HFRingsCollection);
+  unique_ptr<L1EmParticleCollection> isoEmColl = std::make_unique<L1EmParticleCollection>();
+  unique_ptr<L1EmParticleCollection> nonIsoEmColl = std::make_unique<L1EmParticleCollection>();
+  unique_ptr<L1JetParticleCollection> cenJetColl = std::make_unique<L1JetParticleCollection>();
+  unique_ptr<L1JetParticleCollection> forJetColl = std::make_unique<L1JetParticleCollection>();
+  unique_ptr<L1JetParticleCollection> tauJetColl = std::make_unique<L1JetParticleCollection>();
+  unique_ptr<L1JetParticleCollection> isoTauJetColl = std::make_unique<L1JetParticleCollection>();
+  unique_ptr<L1EtMissParticleCollection> etMissColl = std::make_unique<L1EtMissParticleCollection>();
+  unique_ptr<L1EtMissParticleCollection> htMissColl = std::make_unique<L1EtMissParticleCollection>();
+  unique_ptr<L1HFRingsCollection> hfRingsColl = std::make_unique<L1HFRingsCollection>();
 
   if (produceCaloParticles_) {
     // ~~~~~~~~~~~~~~~~~~~~ Geometry ~~~~~~~~~~~~~~~~~~~~

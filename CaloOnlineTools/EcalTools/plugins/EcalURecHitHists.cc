@@ -236,7 +236,7 @@ void EcalURecHitHists::endJob() {
   std::string channels;
   for (std::vector<int>::const_iterator itr = maskedChannels_.begin(); itr != maskedChannels_.end(); ++itr) {
     channels += intToString(*itr);
-    channels += ",";
+    channels += ',';
   }
 
   LogWarning("EcalMipGraphs") << "Masked channels are: " << channels << " and that is all!";

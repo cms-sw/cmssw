@@ -2,7 +2,8 @@
 
 # Audits the raw TruthGraph and the logical truth::Graph for strange topologies
 # (many-particle vertices, multi-parent / multi-production particles, cycles,
-# disconnected components). Full graph, no seed selection.
+# disconnected components). Full graph, no seed selection. With --rawsrc, the job audits
+# the graphs stored in the file, for example the DIGI-built ones (--rawsrc mix).
 
 import FWCore.ParameterSet.Config as cms
 from argparse import ArgumentParser
@@ -15,6 +16,8 @@ parser.add_argument("--collapse", action="store_true", default=True)
 parser.add_argument("--no-collapse", dest="collapse", action="store_false")
 parser.add_argument("--merge-gensim", action="store_true", default=True)
 parser.add_argument("--no-merge-gensim", dest="merge_gensim", action="store_false")
+parser.add_argument("--rawsrc", default=None,
+                    help="label of the raw TruthGraph in the file; the logical graph is then read from the file too")
 args = parser.parse_args()
 if '/' not in args.inputFile and ':' not in args.inputFile:
     args.inputFile = 'file:' + args.inputFile
@@ -64,4 +67,8 @@ process.MessageLogger.cerr.threshold = "INFO"
 process.MessageLogger.cerr.default = cms.untracked.PSet(limit=cms.untracked.int32(0))
 process.MessageLogger.cerr.TruthGraphTopologyChecker = cms.untracked.PSet(limit=cms.untracked.int32(-1))
 
-process.p = cms.Path(process.truthGraphProducer + process.truthLogicalGraphProducer + process.topoChecker)
+if args.rawsrc:
+    process.topoChecker.rawSrc = args.rawsrc
+    process.p = cms.Path(process.topoChecker)
+else:
+    process.p = cms.Path(process.truthGraphProducer + process.truthLogicalGraphProducer + process.topoChecker)

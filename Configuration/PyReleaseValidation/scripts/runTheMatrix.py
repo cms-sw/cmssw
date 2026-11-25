@@ -22,14 +22,15 @@ def showRaw(opt):
 def runSelected(opt):
 
     mrd = MatrixReader(opt)
-    mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch)
+    mrd.prepare(opt.useInput, opt.refRel, opt.fromScratch, opt.testList)
 
     # test for wrong input workflows
     if opt.testList:
         definedWf = [dwf.numId for dwf in mrd.workFlows]
         definedSet = set(definedWf)
         testSet = set(opt.testList)
-        undefSet = testSet - definedSet
+        # built by iterating testSet, so the order does not depend on the size of definedSet
+        undefSet = {wf for wf in testSet if wf not in definedSet}
         if len(undefSet)>0: raise ValueError('Undefined workflows: '+', '.join(map(str,list(undefSet))))
         if not opt.allowDuplicates:
             testList = testSet
@@ -151,27 +152,36 @@ if __name__ == '__main__':
         'metmc' : [5.1, 15, 25, 37, 38, 39], #MC
         'muonmc' : [5.1, 124.4, 124.5, 20, 21, 22, 23, 25, 30], #MC
 
-        'ph2_hlt' : [prefixDet+34.75,    # HLT phase-2 timing menu
+        'ph2_hlt' : [
+                     # menu flavours
+                     prefixDet+34.75,    # HLT phase-2 timing menu
                      prefixDet+34.7501,  # HLT phase-2 tracking-only menu
                      prefixDet+34.7502,  # HLT phase-2 tracking menu with tracking ntuple
                      prefixDet+34.7503,  # HLT phase-2 menu, CPU vs. GPU validation
+                     prefixDet+34.7504,  # HLT phase-2 development menu
+                     # heterogeneous backend
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
-                     prefixDet+34.7521,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant
-                     prefixDet+34.7522,  # HLT phase-2 timing menu mtd_at_hlt variant
+                     # tracking variants
                      prefixDet+34.753,   # HLT phase-2 timing menu legacy tracking
-                     prefixDet+34.755,   # HLT phase-2 timing menu LST building variant
-                     prefixDet+34.757,   # HLT phase-2 timing menu mkFit fitting variant
-                     prefixDet+34.758,   # HLT phase-2 timing menu ticl_barrel variant
+                     prefixDet+34.7531,  # HLT phase-2 timing menu LST building variant
+                     prefixDet+34.7532,  # HLT phase-2 timing menu mkFit fitting variant
+                     prefixDet+34.7533,  # HLT phase-2 timing menu phase2CAVectorHits variant
+                     # calorimetry (TICL) and timing (MTD) variants
+                     prefixDet+34.756,   # HLT phase-2 timing menu ticl_barrel variant
+                     prefixDet+34.7561,  # HLT phase-2 timing menu ticlv5TrackLinkGNN variant
+                     prefixDet+34.7562,  # HLT phase-2 timing menu mtd_at_hlt variant
+                     # NANO
                      prefixDet+34.759,   # HLT phase-2 menu, with NANO:@Phase2HLT
                      prefixDet+34.7591,  # HLT phase-2 menu, with NANO:@Phase2HLTVal
                      prefixDet+34.7592,  # HLT phase-2 menu, with NANO:@Phase2HLT + DQM
+                     # NGT scouting
                      prefixDet+34.77,    # HLT phase-2 NGT Scouting menu
                      prefixDet+34.771,   # HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
+                     prefixDet+34.7711,  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
                      prefixDet+34.772,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
                      prefixDet+34.7721,  # HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting + DQM
-                     prefixDet+34.773,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
-                     prefixDet+34.774,   # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen
-                     prefixDet+34.775],  # HLT phase-2 NGT Scouting menu, Phase2CAExtension&LSTT5 as GeneralTracks
+                     prefixDet+34.7722,  # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+                     prefixDet+34.7723], # HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen
     }
 
     predefinedSet['limited'] = (

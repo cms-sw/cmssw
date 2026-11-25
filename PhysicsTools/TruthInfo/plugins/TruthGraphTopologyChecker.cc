@@ -31,6 +31,7 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 #include "SimDataFormats/TruthInfo/interface/Graph.h"
+#include "SimDataFormats/TruthInfo/interface/InteractionId.h"
 #include "SimDataFormats/TruthInfo/interface/TruthGraph.h"
 
 namespace {
@@ -101,13 +102,6 @@ namespace {
   void capPush(std::vector<std::string>& v, std::string s, std::size_t cap = 6) {
     if (v.size() < cap)
       v.push_back(std::move(s));
-  }
-
-  // Decode the packed EncodedEventId (memcpy reverse of TruthGraphProducer::packEventId).
-  EncodedEventId decodeEid(uint64_t packed) {
-    uint32_t raw = 0;
-    std::memcpy(&raw, &packed, sizeof(raw));
-    return EncodedEventId(raw);
   }
 
 }  // namespace
@@ -183,7 +177,7 @@ void TruthGraphTopologyChecker::analyzeRaw(TruthGraph const& g) {
   for (uint32_t s = 0; s < n; ++s) {
     const auto kids = g.children(s);
     const auto kinds = g.childrenEdgeKinds(s);
-    const NK sk = g.nodeRef(s).kind;
+    const NK sk = g.nodeRef(s).kind();
     for (std::size_t e = 0; e < kids.size(); ++e) {
       const uint32_t d = kids[e];
       const EK ek = static_cast<EK>(kinds[e]);
@@ -208,7 +202,7 @@ void TruthGraphTopologyChecker::analyzeRaw(TruthGraph const& g) {
   };
 
   for (uint32_t v = 0; v < n; ++v) {
-    const NK k = g.nodeRef(v).kind;
+    const NK k = g.nodeRef(v).kind();
     if (k == NK::GenVertex || k == NK::SimVertex) {
       const uint32_t outdeg = static_cast<uint32_t>(structOut[v].size());
       const uint32_t mothers = inFromParticle[v];
@@ -223,7 +217,7 @@ void TruthGraphTopologyChecker::analyzeRaw(TruthGraph const& g) {
         // mothers' pdgs: scan for particle nodes whose structural out-edge hits v
         for (uint32_t s = 0, shown = 0; s < n && shown < 4; ++s) {
           for (const uint32_t d : structOut[s])
-            if (d == v && (g.nodeRef(s).kind == NK::GenParticle || g.nodeRef(s).kind == NK::SimTrack)) {
+            if (d == v && (g.nodeRef(s).kind() == NK::GenParticle || g.nodeRef(s).kind() == NK::SimTrack)) {
               os << nodeStr(s) << "; ";
               ++shown;
               break;
@@ -254,7 +248,7 @@ void TruthGraphTopologyChecker::analyzeRaw(TruthGraph const& g) {
           os << (isGen ? "GenPart " : "SimTrk ") << nodeStr(v) << " parents=" << parents << " [";
           for (uint32_t s = 0, shown = 0; s < n && shown < 5; ++s)
             for (const uint32_t d : structOut[s])
-              if (d == pv && (g.nodeRef(s).kind == NK::GenParticle || g.nodeRef(s).kind == NK::SimTrack)) {
+              if (d == pv && (g.nodeRef(s).kind() == NK::GenParticle || g.nodeRef(s).kind() == NK::SimTrack)) {
                 os << nodeStr(s) << "; ";
                 ++shown;
                 break;
@@ -366,9 +360,9 @@ void TruthGraphTopologyChecker::analyzeLogical(truth::Graph const& g) {
     }
 
     // Pileup provenance: signal is (bx==0, event==0); everything else is pileup.
-    const EncodedEventId eid = decodeEid(g.particles()[p].eventId);
+    const EncodedEventId eid = truth::decodeEventId(g.particles()[p].eventId);
     ++logBxHist_[eid.bunchCrossing()];
-    if (eid.bunchCrossing() == 0 && eid.event() == 0)
+    if (truth::isSignalEventId(g.particles()[p].eventId))
       ++logSignalParticles_;
     else
       ++logPileupParticles_;

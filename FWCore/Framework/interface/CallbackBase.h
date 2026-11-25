@@ -84,7 +84,7 @@ namespace edm {
 
       template <typename ProduceFunctor>  // ProduceFunctor executes TProduceFunc
       WaitingTaskHolder makeProduceTask(oneapi::tbb::task_group* group,
-                                        ServiceWeakToken const& serviceToken,
+                                        ServiceToken const& serviceToken,
                                         EventSetupRecordImpl const* record,
                                         EventSetupImpl const* eventSetupImpl,
                                         bool emitPostPrefetchingSignal,
@@ -106,7 +106,7 @@ namespace edm {
               if (emitPostPrefetchingSignal) {
                 try {
                   convertException::wrap([this, &serviceToken, &record] {
-                    ServiceRegistry::Operate guard(serviceToken.lock());
+                    ServiceRegistry::Operate guard(serviceToken);
                     record->activityRegistry()->postESModulePrefetchingSignal_.emit(record->key(), callingContext_);
                   });
                 } catch (cms::Exception& caughtException) {
@@ -135,7 +135,7 @@ namespace edm {
                         TRecord rec;
                         ESParentContext pc{&context};
                         rec.setImpl(record, produceMethodID(), resolvers, eventSetupImpl, &pc);
-                        ServiceRegistry::Operate operate(serviceToken.lock());
+                        ServiceRegistry::Operate operate(serviceToken);
                         auto guard = signalslot::make_sentry([&record, &context]() {
                           record->activityRegistry()->postESModuleSignal_.emit(record->key(), context);
                         });
@@ -166,14 +166,13 @@ namespace edm {
         taskList_.add(iTask);
         if (doPrefetch) {
           auto group = iTask.group();
-          ServiceWeakToken weakToken(token);
-          WaitingTaskHolder runModuleTaskHolder = runModuleFnctr(group, weakToken, iRecord, iEventSetupImpl);
+          WaitingTaskHolder runModuleTaskHolder = runModuleFnctr(group, token, iRecord, iEventSetupImpl);
           callingContext_.setContext(ESModuleCallingContext::State::kPrefetching, iParent);
           iRecord->activityRegistry()->preESModulePrefetchingSignal_.emit(iRecord->key(), callingContext_);
           if UNLIKELY (producer_->hasMayConsumes()) {
             //after prefetching need to do the mayGet
             auto mayGetTask = make_waiting_task(
-                [this, iRecord, iEventSetupImpl, weakToken, runModuleTaskHolder = std::move(runModuleTaskHolder)](
+                [this, iRecord, iEventSetupImpl, token, runModuleTaskHolder = std::move(runModuleTaskHolder)](
                     std::exception_ptr const* iExcept) mutable {
                   if (iExcept) {
                     runModuleTaskHolder.doneWaiting(*iExcept);
@@ -181,7 +180,7 @@ namespace edm {
                   }
                   if (handleMayGet(iRecord, iEventSetupImpl)) {
                     prefetchNeededDataAsync(
-                        runModuleTaskHolder, iEventSetupImpl, &((*postMayGetResolvers_).front()), weakToken.lock());
+                        runModuleTaskHolder, iEventSetupImpl, &((*postMayGetResolvers_).front()), token);
                   } else {
                     runModuleTaskHolder.doneWaiting(std::exception_ptr{});
                   }

@@ -1,0 +1,12 @@
+<use name="onnxruntime"/>
+<use name="FWCore/AbstractServices"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/Utilities"/>
+<use name="HeterogeneousCore/CUDAServices"/>
+<use name="HeterogeneousCore/ROCmServices"/>
+<use name="PhysicsTools/ONNXRuntime"/>
+<library file="ONNXService.cc" name="PhysicsToolsONNXRuntimePlugins">
+  <flags EDM_PLUGIN="1"/>
+</library>

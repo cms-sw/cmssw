@@ -24,8 +24,8 @@
 <use name="CommonTools/Utils"/>
 <use name="CommonTools/BaseParticlePropagator"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
-<use name="roottmva"/>
 <use name="PhysicsTools/TensorFlow"/>
+<use name="PhysicsTools/ONNXRuntime"/>
 <export>
   <lib name="1"/>
 </export>

@@ -320,7 +320,7 @@ namespace jsoncollector {
         lastValue_->setComment(std::string(begin, end), placement);
       } else {
         if (!commentsBefore_.empty())
-          commentsBefore_ += "\n";
+          commentsBefore_ += '\n';
         commentsBefore_ += std::string(begin, end);
       }
     }

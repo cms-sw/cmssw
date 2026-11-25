@@ -36,9 +36,9 @@ namespace pat {
 using namespace pat;
 
 PATLeptonCountFilter::PATLeptonCountFilter(const edm::ParameterSet& iConfig)
-    : electronToken_(mayConsume<edm::View<Electron> >(iConfig.getParameter<edm::InputTag>("electronSource"))),
-      muonToken_(mayConsume<edm::View<Muon> >(iConfig.getParameter<edm::InputTag>("muonSource"))),
-      tauToken_(mayConsume<edm::View<Tau> >(iConfig.getParameter<edm::InputTag>("tauSource"))),
+    : electronToken_(consumes<edm::View<Electron> >(iConfig.getParameter<edm::InputTag>("electronSource"))),
+      muonToken_(consumes<edm::View<Muon> >(iConfig.getParameter<edm::InputTag>("muonSource"))),
+      tauToken_(consumes<edm::View<Tau> >(iConfig.getParameter<edm::InputTag>("tauSource"))),
       countElectrons_(iConfig.getParameter<bool>("countElectrons")),
       countMuons_(iConfig.getParameter<bool>("countMuons")),
       countTaus_(iConfig.getParameter<bool>("countTaus")),

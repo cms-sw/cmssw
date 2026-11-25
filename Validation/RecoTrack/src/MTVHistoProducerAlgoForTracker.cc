@@ -147,6 +147,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   maxEta = pset.getParameter<double>("maxEta");
   nintEta = pset.getParameter<int>("nintEta");
   useFabsEta = pset.getParameter<bool>("useFabsEta");
+  doDetailedPullPlots = pset.getParameter<bool>("doDetailedPullPlots");
 
   //parameters for _vs_pt plots
   minPt = pset.getParameter<double>("minPt");
@@ -1364,6 +1365,33 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook,
       histograms.phipull_vs_eta, false, "phipull_vs_eta", "phipull_vs_eta", nintEta, minEta, maxEta, 100, -10, 10);
   bookResolutionPlots2D(
       histograms.thetapull_vs_eta, false, "thetapull_vs_eta", "thetapull_vs_eta", nintEta, minEta, maxEta, 100, -10, 10);
+  if (doDetailedPullPlots) {
+    bookResolutionPlots2D(
+        histograms.ptpull_vs_nhits, false, "ptpull_vs_nhits", "ptpull_vs_nhits", nintHit, minHit, maxHit, 100, -10, 10);
+    bookResolutionPlots2D(histograms.dxypull_vs_nhits,
+                          false,
+                          "dxypull_vs_nhits",
+                          "dxypull_vs_nhits",
+                          nintHit,
+                          minHit,
+                          maxHit,
+                          100,
+                          -10,
+                          10);
+    bookResolutionPlots2D(
+        histograms.dzpull_vs_nhits, false, "dzpull_vs_nhits", "dzpull_vs_nhits", nintHit, minHit, maxHit, 100, -10, 10);
+    // logx axes: the limits are log10 of the filled error; dxy/pt err in [1e-4,1], dz err in [1e-4,10] cm
+    bookResolutionPlots2D(
+        histograms.dxypull_vs_dxyerr, true, "dxypull_vs_dxyerr", "dxypull_vs_dxyerr", 60, -4., 0., 100, -10, 10);
+    bookResolutionPlots2D(
+        histograms.dzpull_vs_dzerr, true, "dzpull_vs_dzerr", "dzpull_vs_dzerr", 60, -4., 1., 100, -10, 10);
+    bookResolutionPlots2D(
+        histograms.ptpull_vs_pterr, true, "ptpull_vs_pterr", "ptpull_vs_pterr", 60, -4., 0., 100, -10, 10);
+    bookResolutionPlots2D(
+        histograms.dxypull_vs_dxysim, false, "dxypull_vs_dxysim", "dxypull_vs_dxysim", 100, -5.0, 5.0, 100, -10, 10);
+    bookResolutionPlots2D(
+        histograms.dzpull_vs_dzsim, false, "dzpull_vs_dzsim", "dzpull_vs_dzsim", 100, -15.0, 15.0, 100, -10, 10);
+  }
   bookResolutionPlots2D(
       histograms.dxypull_vs_pt, useLogPt, "dxypull_vs_pt", "dxypull_vs_pt", nintPt, minPt, maxPt, 100, -10, 10);
   bookResolutionPlots2D(
@@ -2416,6 +2444,17 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(const His
   histograms.ptpull_vs_eta[count]->Fill(etaSim, ptres / ptError);
   histograms.dzpull_vs_eta[count]->Fill(etaSim, dzPull);
   histograms.phipull_vs_eta[count]->Fill(etaSim, phiPull);
+  if (doDetailedPullPlots) {
+    const auto nValidHits = track.numberOfValidHits();
+    histograms.ptpull_vs_nhits[count]->Fill(nValidHits, ptres / ptError);
+    histograms.dxypull_vs_nhits[count]->Fill(nValidHits, dxyPull);
+    histograms.dzpull_vs_nhits[count]->Fill(nValidHits, dzPull);
+    histograms.dxypull_vs_dxyerr[count]->Fill(track.dxyError(), dxyPull);
+    histograms.dzpull_vs_dzerr[count]->Fill(track.dzError(), dzPull);
+    histograms.ptpull_vs_pterr[count]->Fill(ptRec > 0. ? ptError / ptRec : 0., ptres / ptError);
+    histograms.dxypull_vs_dxysim[count]->Fill(dxySim, dxyPull);
+    histograms.dzpull_vs_dzsim[count]->Fill(dzSim, dzPull);
+  }
   histograms.thetapull_vs_eta[count]->Fill(etaSim, thetaPull);
 
   //pulls of track params vs pt: fill 2D histos

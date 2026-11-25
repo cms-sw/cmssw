@@ -131,7 +131,10 @@ bool HLTP2GTTripleObjectFilter::hltFilter(edm::Event& iEvent,
 
   for (const auto& cfg : m_algos) {
     auto it = algoMap.find(cfg.algoName);
-    if (it == algoMap.end() || !it->second.decisionBeforeBxMaskAndPrescale())
+    if (it == algoMap.end()) {
+      throw cms::Exception("Configuration") << "[" << cfg.algoName << "] Algorithm not found in P2GTAlgoBlockMap";
+    }
+    if (!it->second.decisionBeforeBxMaskAndPrescale())
       continue;
 
     const auto& objs = it->second.trigObjects();

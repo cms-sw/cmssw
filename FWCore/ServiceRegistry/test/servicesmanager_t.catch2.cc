@@ -24,23 +24,17 @@ namespace {
   };
 }  // namespace
 
-class testServicesManager {
-public:
-  static edm::ServiceToken createToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager) {
-    return edm::ServiceToken(iManager);
-  }
-};
 TEST_CASE("ServicesManager", "[ServicesManager]") {
   SECTION("putGetTest") {
     using namespace edm::serviceregistry;
 
     std::vector<edm::ParameterSet> ps;
-    ServicesManager sm(ps);
+    auto sm = ServicesManager::create(ps);
 
-    REQUIRE(!sm.isAvailable<DummyService>());
+    REQUIRE(!sm->isAvailable<DummyService>());
     bool exceptionThrown = true;
     try {
-      sm.get<DummyService>();
+      sm->get<DummyService>();
       exceptionThrown = false;
     } catch (const edm::Exception&) {
     }
@@ -48,13 +42,13 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
 
     auto ptrWrapper = std::make_shared<ServiceWrapper<DummyService>>(std::make_unique<DummyService>());
 
-    REQUIRE(sm.put(ptrWrapper));
+    REQUIRE(sm->put(ptrWrapper));
 
-    REQUIRE(sm.isAvailable<DummyService>());
+    REQUIRE(sm->isAvailable<DummyService>());
 
-    sm.get<DummyService>();
+    sm->get<DummyService>();
 
-    REQUIRE(!sm.put(ptrWrapper));
+    REQUIRE(!sm->put(ptrWrapper));
   }
 
   SECTION("loadTest") {
@@ -74,9 +68,9 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
       ps.addParameter("value", value);
       pss.push_back(ps);
 
-      ServicesManager sm(pss);
+      auto sm = ServicesManager::create(pss);
 
-      REQUIRE(1 == sm.get<TestService>().value());
+      REQUIRE(1 == sm->get<TestService>().value());
     }
     {
       std::vector<edm::ParameterSet> pss;
@@ -88,7 +82,7 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
 
       bool threwConfigurationException = false;
       try {
-        ServicesManager sm(pss);
+        auto sm = ServicesManager::create(pss);
       } catch (const cms::Exception&) {
         threwConfigurationException = true;
       }
@@ -108,7 +102,7 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
 
       bool caughtMultipleServiceError = false;
       try {
-        ServicesManager sm(pss);
+        auto sm = ServicesManager::create(pss);
       } catch (const edm::Exception&) {
         caughtMultipleServiceError = true;
       }
@@ -135,10 +129,9 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
       ps.addParameter("value", value);
       pssLegacy.push_back(ps);
     }
-    auto legacy = std::make_shared<ServicesManager>(pssLegacy);
+    auto legacy = ServicesManager::create(pssLegacy);
     REQUIRE(1 == legacy->get<TestService>().value());
 
-    edm::ServiceToken legacyToken(testServicesManager::createToken(legacy));
     {
       std::vector<edm::ParameterSet> pss;
 
@@ -150,7 +143,7 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
 
       bool threwConfigurationException = false;
       try {
-        ServicesManager sm(legacyToken, kOverlapIsError, pss);
+        auto sm = ServicesManager::create(legacy, kOverlapIsError, pss);
       } catch (const edm::Exception&) {
         threwConfigurationException = true;
       }
@@ -166,22 +159,22 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
       ps.addParameter("value", value);
       pss.push_back(ps);
 
-      ServicesManager sm(legacyToken, kTokenOverrides, pss);
+      auto sm = ServicesManager::create(legacy, kTokenOverrides, pss);
 
-      REQUIRE(1 == sm.get<TestService>().value());
+      REQUIRE(1 == sm->get<TestService>().value());
     }
     {
       try {
         std::vector<edm::ParameterSet> pss;
 
-        ServicesManager sm(legacyToken, kOverlapIsError, pss);
+        auto sm = ServicesManager::create(legacy, kOverlapIsError, pss);
 
-        REQUIRE(!sm.get<TestService>().beginJobCalled());
+        REQUIRE(!sm->get<TestService>().beginJobCalled());
         edm::ActivityRegistry ar;
-        sm.connectTo(ar);
+        sm->connectTo(ar);
         ar.postBeginJobSignal_.emit();
 
-        REQUIRE(sm.get<TestService>().beginJobCalled());
+        REQUIRE(sm->get<TestService>().beginJobCalled());
       } catch (const edm::Exception& iException) {
         std::cout << iException.what() << std::endl;
         throw;
@@ -217,9 +210,9 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
         pss.push_back(ps);
       }
 
-      ServicesManager sm(pss);
+      auto sm = ServicesManager::create(pss);
 
-      REQUIRE(1 == sm.get<testserviceregistry::DependsOnDummyService>().value());
+      REQUIRE(1 == sm->get<testserviceregistry::DependsOnDummyService>().value());
     }
     {
       std::vector<edm::ParameterSet> pss;
@@ -238,9 +231,9 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
         pss.push_back(ps);
       }
 
-      ServicesManager sm(pss);
+      auto sm = ServicesManager::create(pss);
 
-      REQUIRE(1 == sm.get<testserviceregistry::DependsOnDummyService>().value());
+      REQUIRE(1 == sm->get<testserviceregistry::DependsOnDummyService>().value());
     }
   }
 
@@ -269,7 +262,7 @@ TEST_CASE("ServicesManager", "[ServicesManager]") {
         pss.push_back(ps);
       }
 
-      ServicesManager sm(pss);
+      auto sm = ServicesManager::create(pss);
 
       REQUIRE(!pss[0].exists("@save_config"));
       REQUIRE(pss[1].exists("@save_config"));

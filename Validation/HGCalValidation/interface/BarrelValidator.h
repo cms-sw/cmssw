@@ -68,8 +68,6 @@ public:
 
 protected:
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   edm::InputTag lclTag_;
   edm::InputTag sclTag_;
   edm::InputTag rechitmapTag_;

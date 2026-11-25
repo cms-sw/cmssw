@@ -115,7 +115,7 @@ void Phase2ITValidateTrackingRecHit::fillITHistos(const edm::Event& iEvent,
   if (!tracks.isValid())
     return;
 
-  std::map<std::string, unsigned int> nrechitLayerMap_primary;
+  std::map<int, unsigned int> nrechitLayerMap_primary;
 
   // loop over tracks
   for (const auto& track : *tracks) {
@@ -135,7 +135,7 @@ void Phase2ITValidateTrackingRecHit::fillITHistos(const edm::Event& iEvent,
         continue;
       GlobalPoint detPos = geomDetunit->surface().toGlobal(Local2DPoint(0, 0));
       // determine the detector we are in
-      std::string key = phase2tkutil::getITHistoId(id.rawId(), tTopo_, detPos.phi());
+      int key = phase2tkutil::getNumericHistoId(id.rawId(), tTopo_, detPos.phi(), 6);
       if (nrechitLayerMap_primary.find(key) == nrechitLayerMap_primary.end()) {
         nrechitLayerMap_primary.emplace(key, 1);
       } else {

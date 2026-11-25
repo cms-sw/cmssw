@@ -95,6 +95,13 @@ void TestBTLReadoutMap::analyze(const edm::Event& iEvent, const edm::EventSetup&
     edm::LogError("TestBTLReadoutMap") << "BTL readout map is empty !";
   }
 
+  if (btlReadoutMap.checkDenseChannelIndex()) {
+    edm::LogInfo("TestBTLReadoutMap") << "Dense channel index check passed for " << 2 * btlReadoutMap.size()
+                                      << " channels";
+  } else {
+    edm::LogError("TestBTLReadoutMap") << "Dense channel index check failed!";
+  }
+
   if (ddTopNodeName_ != "BarrelTimingLayer") {
     edm::LogWarning("TestBTLReadoutMap") << ddTopNodeName_ << "Not valid top BarrelTimingLayer volume";
     return;
@@ -156,7 +163,6 @@ void TestBTLReadoutMap::analyze(const edm::Event& iEvent, const edm::EventSetup&
       dd4hep::Box mySens(fv.solid());
       DD3Vector x, y, z;
       fv.rotation().GetComponents(x, y, z);
-      DD3Vector zeroLocal(0., 0., 0.);
       DD3Vector plusLocal(mySens.x(), 0., 0.);
       DD3Vector plusGlobal = (fv.rotation())(plusLocal) + fv.translation();
       DD3Vector minusLocal(-mySens.x(), 0., 0.);

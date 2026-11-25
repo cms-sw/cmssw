@@ -68,6 +68,7 @@
    <class name="std::vector<EcalFEMSample>"/>
    <class name="std::vector<ESSample>"/>
    <class name="std::vector<EcalTriggerPrimitiveSample>"/>
+   <class name="std::vector<EcalEBTriggerPrimitiveSample>"/>
    <class name="std::vector<EcalEBTriggerPrimitiveDigi>"/>
    <class name="std::vector<EcalPseudoStripInputSample>"/>
    <class name="std::vector<ESDataFrame>"/>

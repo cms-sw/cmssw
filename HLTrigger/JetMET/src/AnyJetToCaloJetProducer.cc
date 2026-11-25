@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "HLTrigger/JetMET/interface/AnyJetToCaloJetProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
@@ -20,7 +22,7 @@ void AnyJetToCaloJetProducer::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 void AnyJetToCaloJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
-  std::unique_ptr<reco::CaloJetCollection> newjets(new reco::CaloJetCollection());
+  std::unique_ptr<reco::CaloJetCollection> newjets = std::make_unique<reco::CaloJetCollection>();
 
   edm::Handle<edm::View<reco::Jet>> jets;
   if (iEvent.getByToken(m_theGenericJetToken, jets)) {

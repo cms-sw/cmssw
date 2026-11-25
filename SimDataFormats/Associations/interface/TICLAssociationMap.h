@@ -269,32 +269,34 @@ namespace ticl {
         // Sorting not applicable for one-to-one maps
       } else {
         for (auto& vec : map_) {
-          if (byScore && IsValueTypeWithScore<V>::value) {
+          if constexpr (IsValueTypeWithScore<V>::value) {
+            if (byScore) {
+              std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+                if (a.score() != b.score()) {
+                  return a.score() > b.score();
+                } else {
+                  return a.index() < b.index();
+                }
+              });
+              continue;
+            }
+          }
+          if constexpr (std::is_same_v<V, FractionType> || std::is_same_v<V, std::pair<FractionType, float>>) {
             std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
-              if (a.score() != b.score()) {
-                return a.score() > b.score();
+              if (a.fraction() != b.fraction()) {
+                return a.fraction() > b.fraction();
               } else {
                 return a.index() < b.index();
               }
             });
           } else {
-            if constexpr (std::is_same_v<V, FractionType> || std::is_same_v<V, std::pair<FractionType, float>>) {
-              std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
-                if (a.fraction() != b.fraction()) {
-                  return a.fraction() > b.fraction();
-                } else {
-                  return a.index() < b.index();
-                }
-              });
-            } else {
-              std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
-                if (a.sharedEnergy() != b.sharedEnergy()) {
-                  return a.sharedEnergy() > b.sharedEnergy();
-                } else {
-                  return a.index() < b.index();
-                }
-              });
-            }
+            std::sort(vec.begin(), vec.end(), [](const auto& a, const auto& b) {
+              if (a.sharedEnergy() != b.sharedEnergy()) {
+                return a.sharedEnergy() > b.sharedEnergy();
+              } else {
+                return a.index() < b.index();
+              }
+            });
           }
         }
       }
@@ -317,7 +319,9 @@ namespace ticl {
 
     auto& operator[](unsigned int index1) { return map_[index1]; }
 
-    const auto& at(unsigned int index1) const {
+    const auto& at(unsigned int index1) const
+      requires is_one_to_one
+    {
       const auto& elem = map_.at(index1);
       if (!elem.isValid()) {
         throw std::out_of_range("Attempted to access an unset element in TICLAssociationMap. Element index: " +
@@ -326,7 +330,9 @@ namespace ticl {
       return elem;
     }
 
-    auto& at(unsigned int index1) {
+    auto& at(unsigned int index1)
+      requires is_one_to_one
+    {
       auto& elem = map_.at(index1);
       if (!elem.isValid()) {
         throw std::out_of_range("Attempted to access an unset element in TICLAssociationMap. Element index: " +

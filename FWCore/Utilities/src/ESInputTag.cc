@@ -53,7 +53,7 @@ bool ESInputTag::operator==(const edm::ESInputTag& iRHS) const {
 
 std::string ESInputTag::encode() const {
   std::string result = module_;
-  result += ":";
+  result += ':';
   if (!data_.empty()) {
     result += data_;
   }

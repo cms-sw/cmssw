@@ -233,7 +233,7 @@ TSGForOIDNN::TSGForOIDNN(const edm::ParameterSet& iConfig)
       tf_session_ = tensorflow::createSession(graphDef_.get());
     }
   }
-  produces<std::vector<TrajectorySeed> >();
+  produces<std::vector<TrajectorySeed>>();
 }
 
 TSGForOIDNN::~TSGForOIDNN() {
@@ -327,7 +327,7 @@ void TSGForOIDNN::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup
   auto const& l2TrackCol = iEvent.get(src_);
 
   // The product
-  std::unique_ptr<std::vector<TrajectorySeed> > result(new std::vector<TrajectorySeed>());
+  std::unique_ptr<std::vector<TrajectorySeed>> result = std::make_unique<std::vector<TrajectorySeed>>();
 
   // Get vector of Detector layers
   auto const* gsTracker = measurementTracker.geometricSearchTracker();

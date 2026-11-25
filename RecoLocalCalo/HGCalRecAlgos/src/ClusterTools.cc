@@ -24,9 +24,7 @@ ClusterTools::ClusterTools(const edm::ParameterSet& conf, edm::ConsumesCollector
       bhtok(sumes.consumes<HGCRecHitCollection>(conf.getParameter<edm::InputTag>("HGCBHInput"))),
       hitMapToken_(sumes.consumes<std::unordered_map<DetId, const unsigned int>>(
           conf.getParameter<edm::InputTag>("hgcalHitMap"))),
-      ticlGeomToken_{sumes.esConsumes(edm::ESInputTag("", ""))},
-      ticlGeomLookupToken_{sumes.esConsumes(edm::ESInputTag("", ""))},
-      ticlGeomLayersToken_{sumes.esConsumes(edm::ESInputTag("", ""))} {}
+      ticlGeomToken_{sumes.esConsumes(edm::ESInputTag("", ""))} {}
 
 void ClusterTools::getEvent(const edm::Event& ev) {
   eerh_ = &ev.get(eetok);
@@ -39,9 +37,7 @@ void ClusterTools::getEvent(const edm::Event& ev) {
   rechitSpan_->add(*bhrh_);
 }
 
-void ClusterTools::getEventSetup(const edm::EventSetup& es) {
-  rhtools_.setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
-}
+void ClusterTools::getEventSetup(const edm::EventSetup& es) { rhtools_.setGeometry(es.getData(ticlGeomToken_)); }
 
 float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) const {
   float energy = 0.f, energyHad = 0.f;
@@ -51,16 +47,14 @@ float ClusterTools::getClusterHadronFraction(const reco::CaloCluster& clus) cons
     const auto& id = hit.first;
     const float fraction = hit.second;
     auto hitIter = hitMap_->find(id.rawId());
-    if (hitIter == hitMap_->end()) {
-      continue;
-    }
-    unsigned int rechitIndex = hitIter->second;
-    float hitEnergy = rhspan[rechitIndex].energy() * fraction;
-    energy += hitEnergy;
-    if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
-        (id.det() == DetId::Forward && id.subdetId() == HGCHEF) ||
-        (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap)) {
-      energyHad += hitEnergy;
+    if (hitIter != hitMap_->end()) {
+      unsigned int rechitIndex = hitIter->second;
+      float hitEnergy = rhspan[rechitIndex].energy() * fraction;
+      energy += hitEnergy;
+      if (id.det() == DetId::HGCalHSi || id.det() == DetId::HGCalHSc ||
+          (id.det() == DetId::Hcal && id.subdetId() == HcalEndcap)) {
+        energyHad += hitEnergy;
+      }
     }
   }
   float hadronicFraction = -1.f;

@@ -42,13 +42,12 @@ namespace edm {
       return m_streamModules[0]->transformIndex_(iBranch);
     }
     template <>
-    void ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::doTransformAsync(
-        WaitingTaskHolder iTask,
-        size_t iTransformIndex,
-        EventPrincipal const& iEvent,
-        ActivityRegistry* iAct,
-        ModuleCallingContext iMCC,
-        ServiceWeakToken const& iToken) noexcept {
+    void ProducingModuleAdaptorBase<edm::stream::EDProducerBase>::doTransformAsync(WaitingTaskHolder iTask,
+                                                                                   size_t iTransformIndex,
+                                                                                   EventPrincipal const& iEvent,
+                                                                                   ActivityRegistry* iAct,
+                                                                                   ModuleCallingContext iMCC,
+                                                                                   ServiceToken const& iToken) noexcept {
       EventForTransformer ev(iEvent, iMCC);
       m_streamModules[iEvent.streamID()]->transformAsync_(iTask, iTransformIndex, ev, iAct, iToken);
     }

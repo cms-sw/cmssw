@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Association.h"
 #include <iostream>
+#include <memory>
 
 class PFMuonUntagger : public edm::global::EDProducer<> {
 public:
@@ -33,7 +34,7 @@ private:
   void writeAssociation(
       edm::Event &out, const H1 &from, const H2 &to, const std::vector<int> indices, const std::string &name) const {
     typedef edm::Association<std::vector<reco::Muon>> AssoMap;
-    std::unique_ptr<AssoMap> assomap(new AssoMap(to));
+    std::unique_ptr<AssoMap> assomap = std::make_unique<AssoMap>(to);
     typename AssoMap::Filler filler(*assomap);
     filler.insert(from, indices.begin(), indices.end());
     filler.fill();
@@ -43,7 +44,7 @@ private:
   template <typename H1>
   void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> values, const std::string &name) const {
     typedef edm::ValueMap<int> IntMap;
-    std::unique_ptr<IntMap> intmap(new IntMap());
+    std::unique_ptr<IntMap> intmap = std::make_unique<IntMap>();
     typename IntMap::Filler filler(*intmap);
     filler.insert(from, values.begin(), values.end());
     filler.fill();
@@ -71,7 +72,7 @@ void PFMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, const edm::E
   iEvent.getByToken(muons_, muons);
 
   unsigned int n = muons->size();
-  std::unique_ptr<std::vector<reco::Muon>> copy(new std::vector<reco::Muon>(*muons));
+  std::unique_ptr<std::vector<reco::Muon>> copy = std::make_unique<std::vector<reco::Muon>>(*muons);
   std::vector<int> oldPF(n);
   std::vector<int> dummyIndices(n);
   for (unsigned int i = 0; i < n; ++i) {
@@ -91,7 +92,7 @@ void PFMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, const edm::E
     }
   }
 
-  std::unique_ptr<std::vector<reco::Muon>> bad(new std::vector<reco::Muon>());
+  std::unique_ptr<std::vector<reco::Muon>> bad = std::make_unique<std::vector<reco::Muon>>();
   std::vector<int> good2bad(n, -1), bad2good;
   for (unsigned int i = 0; i < n; ++i) {
     const reco::Muon &mu = (*copy)[i];

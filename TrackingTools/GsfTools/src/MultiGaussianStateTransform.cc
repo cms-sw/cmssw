@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "TrackingTools/GsfTools/interface/MultiGaussianStateTransform.h"
 #include "TrackingTools/GsfTools/interface/GetComponents.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
@@ -44,8 +46,8 @@ MultiGaussianState<MultiGaussianStateTransform::N> MultiGaussianStateTransform::
   MultiGaussianState<N>::SingleStateContainer components;
   components.reserve(nc);
   for (unsigned int i = 0; i < nc; ++i) {
-    MultiGaussianState<N>::SingleStatePtr sgs(
-        new MultiGaussianState<N>::SingleState(parameters[i], covariances[i], weights[i]));
+    MultiGaussianState<N>::SingleStatePtr sgs =
+        std::make_shared<MultiGaussianState<N>::SingleState>(parameters[i], covariances[i], weights[i]);
     components.push_back(sgs);
   }
   return MultiGaussianState<N>(components);

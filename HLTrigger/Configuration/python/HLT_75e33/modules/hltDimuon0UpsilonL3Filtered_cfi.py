@@ -1,0 +1,53 @@
+import FWCore.ParameterSet.Config as cms
+
+# Run-3 hltDimuon0UpsilonyL3fL3Filtered (HLT_GRun), adapted to the Phase-2 L3 muons:
+# - CandTag/inputMuonCollection: Phase-2 L3 muons, BeamSpotTag: hltOnlineBeamSpot;
+# - MatchToPreviousCand = False: the Run-3 L3 -> L2 -> L1 matching (InputLinks, L1CandTag) does
+#   not apply to Phase-2, the L1 matching is done by hltL3fL1DoubleTkMuonUpsilonPreFiltered0.
+# The other selections are the Run-3 ones: |eta| < 2.5, opposite sign, 8 < m(mumu) < 12,
+# DCA(mumu) < 0.5 cm, no pT cuts.
+hltDimuon0UpsilonL3Filtered = cms.EDFilter("HLTMuonDimuonL3Filter",
+    saveTags = cms.bool(True),
+    BeamSpotTag = cms.InputTag("hltOnlineBeamSpot"),
+    CandTag = cms.InputTag("hltPhase2L3MuonCandidates"),
+    PreviousCandTag = cms.InputTag("hltL3fL1DoubleTkMuonUpsilonPreFiltered0"),
+    L1CandTag = cms.InputTag(""),
+    inputMuonCollection = cms.InputTag("hltPhase2L3Muons"),
+    PreviousCandIsL2 = cms.bool(False),
+    FastAccept = cms.bool(False),
+    MinN = cms.int32(1),
+    MaxEta = cms.double(2.5),
+    MinNhits = cms.int32(0),
+    MaxDr = cms.double(2.0),
+    MaxDz = cms.double(9999.0),
+    ChargeOpt = cms.int32(-1),
+    MinPtPair = cms.vdouble(0.0),
+    MaxPtPair = cms.vdouble(1.0E125),
+    MinPtMax = cms.vdouble(0.0),
+    MinPtMin = cms.vdouble(0.0),
+    MaxPtMin = cms.vdouble(1.0E125),
+    MinInvMass = cms.vdouble(8.0),
+    MaxInvMass = cms.vdouble(12.0),
+    MinDiMuonDeltaR = cms.double(-1.0),
+    MinAcop = cms.double(-999.0),
+    MaxAcop = cms.double(999.0),
+    MinPtBalance = cms.double(-1.0),
+    MaxPtBalance = cms.double(999999.0),
+    NSigmaPt = cms.double(0.0),
+    MaxDCAMuMu = cms.double(0.5),
+    MaxRapidityPair = cms.double(99999.0),
+    CutCowboys = cms.bool(False),
+    InputLinks = cms.InputTag(""),
+    L1MatchingdR = cms.double(0.3),
+    MatchToPreviousCand = cms.bool(False),
+    useSimpleGeometry = cms.bool(True),
+    useStation2 = cms.bool(True),
+    fallbackToME1 = cms.bool(False),
+    cosmicPropagationHypothesis = cms.bool(False),
+    useMB2InOverlap = cms.bool(False),
+    useTrack = cms.string("tracker"),
+    useState = cms.string("atVertex"),
+    propagatorAlong = cms.ESInputTag("", "hltESPSteppingHelixPropagatorAlong"),
+    propagatorAny = cms.ESInputTag("", "SteppingHelixPropagatorAny"),
+    propagatorOpposite = cms.ESInputTag("", "hltESPSteppingHelixPropagatorOpposite")
+)

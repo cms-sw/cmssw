@@ -1,0 +1,2142 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+<ConstantsSection label="fbcm" eval="true">
+  <!-- dimensions of the FBCM Module -->
+  <Constant name="FBCM_ModuleZ"            value="2780*mm"/><!-- Should be between [cmsFbcm:FBCM_Z1] and [cmsFbcm:FBCM_Z2] -->
+  <Constant name="FBCM_ModuleThickness"    value="10*mm"/>
+  <Constant name="FbcmModule_InnerRadius"  value="[cmsFbcm:FBCM_InnerRadius]"/>
+  <Constant name="FbcmModule_OuterRadius"  value="[cmsFbcm:FBCM_OuterRadius]"/> 
+  
+  <Constant name="NumOfStations"           value="4"/>
+  <Constant name="SensorPad_LZ"            value="[SiliconDie_LZ]"/>
+  <Constant name="SiliconDie_LZ"           value="0.28*mm"/>
+  <Constant name="SensorPad_Gap"           value="0.13*mm"/>
+
+  <Constant name="StationStartPhi"         value="0.*deg"/>
+  <Constant name="MinNumOfCols"            value="4"/>
+  <Constant name="MaxNumOfCols"            value="4"/>
+  <Constant name="NumOfSiDiesPerStationPerRing"   value="8"/>
+  <Constant name="NumOfRingsPerStation"           value="5"/>
+  <Constant name="TotalNumOfSiDiesPerRing" value="[NumOfSiDiesPerStationPerRing]*[NumOfStations]"/>
+  <Constant name="IncrementRotAngle"       value="(360*deg)/[TotalNumOfSiDiesPerRing]"/>
+  <Constant name="SiPadLen1"    value="1.7*mm"/>
+  <Constant name="SiPadLen2"    value="1.7*mm"/>
+  <Constant name="SiPadLen3"    value="1.7*mm"/>
+  <Constant name="SiPadLen4"    value="1.7*mm"/>
+  <Constant name="SiPadLen5"    value="1.7*mm"/>
+  <Constant name="SiPadLen6"    value="1.7*mm"/>
+  <Constant name="SiPadLen7"    value="1.7*mm"/>
+  <Constant name="SiPadLen8"    value="1.7*mm"/>
+  
+  <Constant name="SiCellLen1"   value="[SiPadLen1]+[SensorPad_Gap]"/>
+  <Constant name="SiCellLen2"   value="[SiPadLen2]+[SensorPad_Gap]"/>
+  <Constant name="SiCellLen3"   value="[SiPadLen3]+[SensorPad_Gap]"/>
+  <Constant name="SiCellLen4"   value="[SiPadLen4]+[SensorPad_Gap]"/>
+  <Constant name="SiCellLen5"   value="[SiPadLen5]+[SensorPad_Gap]"/>
+  <Constant name="SiCellLen6"   value="[SiPadLen6]+[SensorPad_Gap]"/>
+  <Constant name="SiCellLen7"   value="[SiPadLen7]+[SensorPad_Gap]"/>
+  <Constant name="SiCellLen8"   value="[SiPadLen8]+[SensorPad_Gap]"/>
+   
+  <Constant name="SiDie1_NumOfCols"     value="15"/>
+  <Constant name="SiDie2_NumOfCols"     value="15"/>
+  <Constant name="SiDie3_NumOfCols"     value="15"/>
+  <Constant name="SiDie4_NumOfCols"     value="15"/>
+  <Constant name="SiDie5_NumOfCols"     value="15"/>
+  <Constant name="SiDie6_NumOfCols"     value="15"/>
+  <Constant name="SiDie7_NumOfCols"     value="15"/>
+  <Constant name="SiDie8_NumOfCols"     value="15"/>
+   
+  <!--SiliconDieRing_RX is the location of the sensors in rho-z with respect to CMS (0,0,0) -->
+  <Constant name="SiliconDieRing_R0"    value="93.5*mm"/>
+  <Constant name="SiliconDieRing_R1"    value="121.0*mm"/>
+  <Constant name="SiliconDieRing_R2"    value="148.5*mm"/>
+  <Constant name="SiliconDieRing_R3"    value="176.0*mm"/>
+  <Constant name="SiliconDieRing_R4"    value="203.5*mm"/>
+  <!--end of RX -->
+   
+  <!--Ring0 -->
+  <Constant name="SiDie1_NumOfRowsR0"   value="8"/>
+  <Constant name="SiDie2_NumOfRowsR0"   value="8"/>
+  <Constant name="SiDie3_NumOfRowsR0"   value="8"/>
+  <Constant name="SiDie4_NumOfRowsR0"   value="8"/>
+  <Constant name="SiDie5_NumOfRowsR0"   value="8"/>
+  <Constant name="SiDie6_NumOfRowsR0"   value="8"/>
+  <Constant name="SiDie7_NumOfRowsR0"   value="8"/>
+  <Constant name="SiDie8_NumOfRowsR0"   value="8"/>
+   
+  <!--Ring1 -->
+  <Constant name="SiDie1_NumOfRowsR1"   value="11"/>
+  <Constant name="SiDie2_NumOfRowsR1"   value="11"/>
+  <Constant name="SiDie3_NumOfRowsR1"   value="11"/>
+  <Constant name="SiDie4_NumOfRowsR1"   value="11"/>
+  <Constant name="SiDie5_NumOfRowsR1"   value="11"/>
+  <Constant name="SiDie6_NumOfRowsR1"   value="11"/>
+  <Constant name="SiDie7_NumOfRowsR1"   value="11"/>
+  <Constant name="SiDie8_NumOfRowsR1"   value="11"/>
+   
+  <!--Ring2 -->
+  <Constant name="SiDie1_NumOfRowsR2"   value="14"/>
+  <Constant name="SiDie2_NumOfRowsR2"   value="14"/>
+  <Constant name="SiDie3_NumOfRowsR2"   value="14"/>
+  <Constant name="SiDie4_NumOfRowsR2"   value="14"/>
+  <Constant name="SiDie5_NumOfRowsR2"   value="14"/>
+  <Constant name="SiDie6_NumOfRowsR2"   value="14"/>
+  <Constant name="SiDie7_NumOfRowsR2"   value="14"/>
+  <Constant name="SiDie8_NumOfRowsR2"   value="14"/>
+   
+  <!--Ring3 -->
+  <Constant name="SiDie1_NumOfRowsR3"   value="17"/>
+  <Constant name="SiDie2_NumOfRowsR3"   value="17"/>
+  <Constant name="SiDie3_NumOfRowsR3"   value="17"/>
+  <Constant name="SiDie4_NumOfRowsR3"   value="17"/>
+  <Constant name="SiDie5_NumOfRowsR3"   value="17"/>
+  <Constant name="SiDie6_NumOfRowsR3"   value="17"/>
+  <Constant name="SiDie7_NumOfRowsR3"   value="17"/>
+  <Constant name="SiDie8_NumOfRowsR3"   value="17"/>
+   
+  <!--Ring4 -->
+  <Constant name="SiDie1_NumOfRowsR4"   value="20"/>
+  <Constant name="SiDie2_NumOfRowsR4"   value="20"/>
+  <Constant name="SiDie3_NumOfRowsR4"   value="20"/>
+  <Constant name="SiDie4_NumOfRowsR4"   value="20"/>
+  <Constant name="SiDie5_NumOfRowsR4"   value="20"/>
+  <Constant name="SiDie6_NumOfRowsR4"   value="20"/>
+  <Constant name="SiDie7_NumOfRowsR4"   value="20"/>
+  <Constant name="SiDie8_NumOfRowsR4"   value="20"/>
+</ConstantsSection>
+ 
+ <!-- Create geometrical shapes -->
+<SolidSection label="fbcm">
+  <Tubs name="FBCM"  rMin="[FbcmModule_InnerRadius]" rMax="[FbcmModule_OuterRadius]" dz="[FBCM_ModuleThickness]/2" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="FBCM_Station"  rMin="[SiliconDieRing_R2]-3*([SiDie8_NumOfCols]*[SiCellLen8])" rMax="[SiliconDieRing_R2]+3*([SiDie8_NumOfCols]*[SiCellLen8])" dz="[SiliconDie_LZ]/2." startPhi="[StationStartPhi]" deltaPhi="[IncrementRotAngle]*[NumOfSiDiesPerStationPerRing]"/>
+  
+  <Box  name="FBCM_SensorPad1"   dx="[SiPadLen1]/2."  dy="[SiPadLen1]/2."  dz="[SensorPad_LZ]/2."/>
+  <Box  name="FBCM_SensorPad2"   dx="[SiPadLen2]/2."  dy="[SiPadLen2]/2."  dz="[SensorPad_LZ]/2."/>
+  <Box  name="FBCM_SensorPad3"   dx="[SiPadLen3]/2."  dy="[SiPadLen3]/2."  dz="[SensorPad_LZ]/2."/>
+  <Box  name="FBCM_SensorPad4"   dx="[SiPadLen4]/2."  dy="[SiPadLen4]/2."  dz="[SensorPad_LZ]/2."/>
+  <Box  name="FBCM_SensorPad5"   dx="[SiPadLen5]/2."  dy="[SiPadLen5]/2."  dz="[SensorPad_LZ]/2."/>
+  <Box  name="FBCM_SensorPad6"   dx="[SiPadLen6]/2."  dy="[SiPadLen6]/2."  dz="[SensorPad_LZ]/2."/>
+  <Box  name="FBCM_SensorPad7"   dx="[SiPadLen7]/2."  dy="[SiPadLen7]/2."  dz="[SensorPad_LZ]/2."/>
+  <Box  name="FBCM_SensorPad8"   dx="[SiPadLen8]/2."  dy="[SiPadLen8]/2."  dz="[SensorPad_LZ]/2."/>
+  
+  <!--Ring0 -->
+  <Box name="FBCM_SensorCol01" dx="[SiCellLen1]/2." dy="([SiDie1_NumOfRowsR0]*[SiCellLen1])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol02" dx="[SiCellLen2]/2." dy="([SiDie2_NumOfRowsR0]*[SiCellLen2])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol03" dx="[SiCellLen3]/2." dy="([SiDie3_NumOfRowsR0]*[SiCellLen3])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol04" dx="[SiCellLen4]/2." dy="([SiDie4_NumOfRowsR0]*[SiCellLen4])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol05" dx="[SiCellLen5]/2." dy="([SiDie5_NumOfRowsR0]*[SiCellLen5])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol06" dx="[SiCellLen6]/2." dy="([SiDie6_NumOfRowsR0]*[SiCellLen6])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol07" dx="[SiCellLen7]/2." dy="([SiDie7_NumOfRowsR0]*[SiCellLen7])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol08" dx="[SiCellLen8]/2." dy="([SiDie8_NumOfRowsR0]*[SiCellLen8])/2." dz="[SensorPad_LZ]/2."/>
+   
+  <Box  name="FBCM_SiliconDie01"  dx="([SiDie1_NumOfCols]*[SiCellLen1])/2." dy="([SiDie1_NumOfRowsR0]*[SiCellLen1])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie02"  dx="([SiDie2_NumOfCols]*[SiCellLen2])/2." dy="([SiDie2_NumOfRowsR0]*[SiCellLen2])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie03"  dx="([SiDie3_NumOfCols]*[SiCellLen3])/2." dy="([SiDie3_NumOfRowsR0]*[SiCellLen3])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie04"  dx="([SiDie4_NumOfCols]*[SiCellLen4])/2." dy="([SiDie4_NumOfRowsR0]*[SiCellLen4])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie05"  dx="([SiDie5_NumOfCols]*[SiCellLen5])/2." dy="([SiDie5_NumOfRowsR0]*[SiCellLen5])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie06"  dx="([SiDie6_NumOfCols]*[SiCellLen6])/2." dy="([SiDie6_NumOfRowsR0]*[SiCellLen6])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie07"  dx="([SiDie7_NumOfCols]*[SiCellLen7])/2." dy="([SiDie7_NumOfRowsR0]*[SiCellLen7])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie08"  dx="([SiDie8_NumOfCols]*[SiCellLen8])/2." dy="([SiDie8_NumOfRowsR0]*[SiCellLen8])/2." dz="[SiliconDie_LZ]/2."/>
+
+  <!--Ring1 -->
+  <Box name="FBCM_SensorCol11" dx="[SiCellLen1]/2." dy="([SiDie1_NumOfRowsR1]*[SiCellLen1])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol12" dx="[SiCellLen2]/2." dy="([SiDie2_NumOfRowsR1]*[SiCellLen2])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol13" dx="[SiCellLen3]/2." dy="([SiDie3_NumOfRowsR1]*[SiCellLen3])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol14" dx="[SiCellLen4]/2." dy="([SiDie4_NumOfRowsR1]*[SiCellLen4])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol15" dx="[SiCellLen5]/2." dy="([SiDie5_NumOfRowsR1]*[SiCellLen5])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol16" dx="[SiCellLen6]/2." dy="([SiDie6_NumOfRowsR1]*[SiCellLen6])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol17" dx="[SiCellLen7]/2." dy="([SiDie7_NumOfRowsR1]*[SiCellLen7])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol18" dx="[SiCellLen8]/2." dy="([SiDie8_NumOfRowsR1]*[SiCellLen8])/2." dz="[SensorPad_LZ]/2."/>
+   
+  <Box  name="FBCM_SiliconDie11"  dx="([SiDie1_NumOfCols]*[SiCellLen1])/2." dy="([SiDie1_NumOfRowsR1]*[SiCellLen1])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie12"  dx="([SiDie2_NumOfCols]*[SiCellLen2])/2." dy="([SiDie2_NumOfRowsR1]*[SiCellLen2])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie13"  dx="([SiDie3_NumOfCols]*[SiCellLen3])/2." dy="([SiDie3_NumOfRowsR1]*[SiCellLen3])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie14"  dx="([SiDie4_NumOfCols]*[SiCellLen4])/2." dy="([SiDie4_NumOfRowsR1]*[SiCellLen4])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie15"  dx="([SiDie5_NumOfCols]*[SiCellLen5])/2." dy="([SiDie5_NumOfRowsR1]*[SiCellLen5])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie16"  dx="([SiDie6_NumOfCols]*[SiCellLen6])/2." dy="([SiDie6_NumOfRowsR1]*[SiCellLen6])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie17"  dx="([SiDie7_NumOfCols]*[SiCellLen7])/2." dy="([SiDie7_NumOfRowsR1]*[SiCellLen7])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie18"  dx="([SiDie8_NumOfCols]*[SiCellLen8])/2." dy="([SiDie8_NumOfRowsR1]*[SiCellLen8])/2." dz="[SiliconDie_LZ]/2."/>
+    
+  <!--Ring2 -->
+  <Box name="FBCM_SensorCol21" dx="[SiCellLen1]/2." dy="([SiDie1_NumOfRowsR2]*[SiCellLen1])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol22" dx="[SiCellLen2]/2." dy="([SiDie2_NumOfRowsR2]*[SiCellLen2])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol23" dx="[SiCellLen3]/2." dy="([SiDie3_NumOfRowsR2]*[SiCellLen3])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol24" dx="[SiCellLen4]/2." dy="([SiDie4_NumOfRowsR2]*[SiCellLen4])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol25" dx="[SiCellLen5]/2." dy="([SiDie5_NumOfRowsR2]*[SiCellLen5])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol26" dx="[SiCellLen6]/2." dy="([SiDie6_NumOfRowsR2]*[SiCellLen6])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol27" dx="[SiCellLen7]/2." dy="([SiDie7_NumOfRowsR2]*[SiCellLen7])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol28" dx="[SiCellLen8]/2." dy="([SiDie8_NumOfRowsR2]*[SiCellLen8])/2." dz="[SensorPad_LZ]/2."/>
+   
+  <Box  name="FBCM_SiliconDie21"  dx="([SiDie1_NumOfCols]*[SiCellLen1])/2." dy="([SiDie1_NumOfRowsR2]*[SiCellLen1])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie22"  dx="([SiDie2_NumOfCols]*[SiCellLen2])/2." dy="([SiDie2_NumOfRowsR2]*[SiCellLen2])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie23"  dx="([SiDie3_NumOfCols]*[SiCellLen3])/2." dy="([SiDie3_NumOfRowsR2]*[SiCellLen3])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie24"  dx="([SiDie4_NumOfCols]*[SiCellLen4])/2." dy="([SiDie4_NumOfRowsR2]*[SiCellLen4])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie25"  dx="([SiDie5_NumOfCols]*[SiCellLen5])/2." dy="([SiDie5_NumOfRowsR2]*[SiCellLen5])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie26"  dx="([SiDie6_NumOfCols]*[SiCellLen6])/2." dy="([SiDie6_NumOfRowsR2]*[SiCellLen6])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie27"  dx="([SiDie7_NumOfCols]*[SiCellLen7])/2." dy="([SiDie7_NumOfRowsR2]*[SiCellLen7])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie28"  dx="([SiDie8_NumOfCols]*[SiCellLen8])/2." dy="([SiDie8_NumOfRowsR2]*[SiCellLen8])/2." dz="[SiliconDie_LZ]/2."/>
+  
+  <!--Ring3 -->
+  <Box name="FBCM_SensorCol31" dx="[SiCellLen1]/2." dy="([SiDie1_NumOfRowsR3]*[SiCellLen1])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol32" dx="[SiCellLen2]/2." dy="([SiDie2_NumOfRowsR3]*[SiCellLen2])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol33" dx="[SiCellLen3]/2." dy="([SiDie3_NumOfRowsR3]*[SiCellLen3])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol34" dx="[SiCellLen4]/2." dy="([SiDie4_NumOfRowsR3]*[SiCellLen4])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol35" dx="[SiCellLen5]/2." dy="([SiDie5_NumOfRowsR3]*[SiCellLen5])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol36" dx="[SiCellLen6]/2." dy="([SiDie6_NumOfRowsR3]*[SiCellLen6])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol37" dx="[SiCellLen7]/2." dy="([SiDie7_NumOfRowsR3]*[SiCellLen7])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol38" dx="[SiCellLen8]/2." dy="([SiDie8_NumOfRowsR3]*[SiCellLen8])/2." dz="[SensorPad_LZ]/2."/>
+   
+  <Box  name="FBCM_SiliconDie31"  dx="([SiDie1_NumOfCols]*[SiCellLen1])/2." dy="([SiDie1_NumOfRowsR3]*[SiCellLen1])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie32"  dx="([SiDie2_NumOfCols]*[SiCellLen2])/2." dy="([SiDie2_NumOfRowsR3]*[SiCellLen2])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie33"  dx="([SiDie3_NumOfCols]*[SiCellLen3])/2." dy="([SiDie3_NumOfRowsR3]*[SiCellLen3])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie34"  dx="([SiDie4_NumOfCols]*[SiCellLen4])/2." dy="([SiDie4_NumOfRowsR3]*[SiCellLen4])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie35"  dx="([SiDie5_NumOfCols]*[SiCellLen5])/2." dy="([SiDie5_NumOfRowsR3]*[SiCellLen5])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie36"  dx="([SiDie6_NumOfCols]*[SiCellLen6])/2." dy="([SiDie6_NumOfRowsR3]*[SiCellLen6])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie37"  dx="([SiDie7_NumOfCols]*[SiCellLen7])/2." dy="([SiDie7_NumOfRowsR3]*[SiCellLen7])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie38"  dx="([SiDie8_NumOfCols]*[SiCellLen8])/2." dy="([SiDie8_NumOfRowsR3]*[SiCellLen8])/2." dz="[SiliconDie_LZ]/2."/>
+  
+  <!--Ring4 -->
+  <Box name="FBCM_SensorCol41" dx="[SiCellLen1]/2." dy="([SiDie1_NumOfRowsR4]*[SiCellLen1])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol42" dx="[SiCellLen2]/2." dy="([SiDie2_NumOfRowsR4]*[SiCellLen2])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol43" dx="[SiCellLen3]/2." dy="([SiDie3_NumOfRowsR4]*[SiCellLen3])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol44" dx="[SiCellLen4]/2." dy="([SiDie4_NumOfRowsR4]*[SiCellLen4])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol45" dx="[SiCellLen5]/2." dy="([SiDie5_NumOfRowsR4]*[SiCellLen5])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol46" dx="[SiCellLen6]/2." dy="([SiDie6_NumOfRowsR4]*[SiCellLen6])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol47" dx="[SiCellLen7]/2." dy="([SiDie7_NumOfRowsR4]*[SiCellLen7])/2." dz="[SensorPad_LZ]/2."/>
+  <Box name="FBCM_SensorCol48" dx="[SiCellLen8]/2." dy="([SiDie8_NumOfRowsR4]*[SiCellLen8])/2." dz="[SensorPad_LZ]/2."/>
+     
+  <Box  name="FBCM_SiliconDie41"  dx="([SiDie1_NumOfCols]*[SiCellLen1])/2." dy="([SiDie1_NumOfRowsR4]*[SiCellLen1])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie42"  dx="([SiDie2_NumOfCols]*[SiCellLen2])/2." dy="([SiDie2_NumOfRowsR4]*[SiCellLen2])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie43"  dx="([SiDie3_NumOfCols]*[SiCellLen3])/2." dy="([SiDie3_NumOfRowsR4]*[SiCellLen3])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie44"  dx="([SiDie4_NumOfCols]*[SiCellLen4])/2." dy="([SiDie4_NumOfRowsR4]*[SiCellLen4])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie45"  dx="([SiDie5_NumOfCols]*[SiCellLen5])/2." dy="([SiDie5_NumOfRowsR4]*[SiCellLen5])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie46"  dx="([SiDie6_NumOfCols]*[SiCellLen6])/2." dy="([SiDie6_NumOfRowsR4]*[SiCellLen6])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie47"  dx="([SiDie7_NumOfCols]*[SiCellLen7])/2." dy="([SiDie7_NumOfRowsR4]*[SiCellLen7])/2." dz="[SiliconDie_LZ]/2."/>
+  <Box  name="FBCM_SiliconDie48"  dx="([SiDie8_NumOfCols]*[SiCellLen8])/2." dy="([SiDie8_NumOfRowsR4]*[SiCellLen8])/2." dz="[SiliconDie_LZ]/2."/>
+ </SolidSection>
+ 
+<!-- Define the materials of the geometrical shapes -->
+<LogicalPartSection label="fbcm">
+  <LogicalPart name="FBCM" category="unspecified">
+    <rSolid name="FBCM"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_Station" category="unspecified">
+    <rSolid name="FBCM_Station"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+       
+  <LogicalPart name="FBCM_SensorPad1" category="unspecified">
+    <rSolid name="FBCM_SensorPad1"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorPad2" category="unspecified">
+    <rSolid name="FBCM_SensorPad2"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorPad3" category="unspecified">
+    <rSolid name="FBCM_SensorPad3"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorPad4" category="unspecified">
+    <rSolid name="FBCM_SensorPad4"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorPad5" category="unspecified">
+    <rSolid name="FBCM_SensorPad5"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorPad6" category="unspecified">
+    <rSolid name="FBCM_SensorPad6"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorPad6" category="unspecified">
+    <rSolid name="FBCM_SensorPad6"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorPad7" category="unspecified">
+    <rSolid name="FBCM_SensorPad7"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorPad8" category="unspecified">
+    <rSolid name="FBCM_SensorPad8"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+   
+  <!--Ring0 -->
+  <LogicalPart name="FBCM_SiliconDie01" category="unspecified">
+    <rSolid name="FBCM_SiliconDie01"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie02" category="unspecified">
+    <rSolid name="FBCM_SiliconDie02"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie03" category="unspecified">
+    <rSolid name="FBCM_SiliconDie03"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie04" category="unspecified">
+    <rSolid name="FBCM_SiliconDie04"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie05" category="unspecified">
+    <rSolid name="FBCM_SiliconDie05"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie06" category="unspecified">
+    <rSolid name="FBCM_SiliconDie06"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie07" category="unspecified">
+    <rSolid name="FBCM_SiliconDie07"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie08" category="unspecified">
+    <rSolid name="FBCM_SiliconDie08"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+   
+  <LogicalPart name="FBCM_SensorCol01" category="unspecified">
+    <rSolid name="FBCM_SensorCol01"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol02" category="unspecified">
+    <rSolid name="FBCM_SensorCol02"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol03" category="unspecified">
+    <rSolid name="FBCM_SensorCol03"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol04" category="unspecified">
+    <rSolid name="FBCM_SensorCol04"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol05" category="unspecified">
+    <rSolid name="FBCM_SensorCol05"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol06" category="unspecified">
+    <rSolid name="FBCM_SensorCol06"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol07" category="unspecified">
+    <rSolid name="FBCM_SensorCol07"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol08" category="unspecified">
+    <rSolid name="FBCM_SensorCol08"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+
+  <!--Ring1 -->
+  <LogicalPart name="FBCM_SiliconDie11" category="unspecified">
+    <rSolid name="FBCM_SiliconDie11"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie12" category="unspecified">
+    <rSolid name="FBCM_SiliconDie12"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie13" category="unspecified">
+    <rSolid name="FBCM_SiliconDie13"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie14" category="unspecified">
+    <rSolid name="FBCM_SiliconDie14"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie15" category="unspecified">
+    <rSolid name="FBCM_SiliconDie15"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie16" category="unspecified">
+    <rSolid name="FBCM_SiliconDie16"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie17" category="unspecified">
+    <rSolid name="FBCM_SiliconDie17"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie18" category="unspecified">
+    <rSolid name="FBCM_SiliconDie18"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+   
+  <LogicalPart name="FBCM_SensorCol11" category="unspecified">
+    <rSolid name="FBCM_SensorCol11"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol12" category="unspecified">
+    <rSolid name="FBCM_SensorCol12"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol13" category="unspecified">
+    <rSolid name="FBCM_SensorCol13"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol14" category="unspecified">
+    <rSolid name="FBCM_SensorCol14"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol15" category="unspecified">
+    <rSolid name="FBCM_SensorCol15"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol16" category="unspecified">
+    <rSolid name="FBCM_SensorCol16"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol17" category="unspecified">
+    <rSolid name="FBCM_SensorCol17"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol18" category="unspecified">
+    <rSolid name="FBCM_SensorCol18"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  
+  <!--Ring2 -->
+  <LogicalPart name="FBCM_SiliconDie21" category="unspecified">
+    <rSolid name="FBCM_SiliconDie21"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie22" category="unspecified">
+    <rSolid name="FBCM_SiliconDie22"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie23" category="unspecified">
+    <rSolid name="FBCM_SiliconDie23"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie24" category="unspecified">
+    <rSolid name="FBCM_SiliconDie24"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie25" category="unspecified">
+    <rSolid name="FBCM_SiliconDie25"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie26" category="unspecified">
+    <rSolid name="FBCM_SiliconDie26"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie27" category="unspecified">
+    <rSolid name="FBCM_SiliconDie27"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie28" category="unspecified">
+    <rSolid name="FBCM_SiliconDie28"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+   
+  <LogicalPart name="FBCM_SensorCol21" category="unspecified">
+    <rSolid name="FBCM_SensorCol21"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol22" category="unspecified">
+    <rSolid name="FBCM_SensorCol22"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol23" category="unspecified">
+    <rSolid name="FBCM_SensorCol23"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol24" category="unspecified">
+    <rSolid name="FBCM_SensorCol24"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol25" category="unspecified">
+    <rSolid name="FBCM_SensorCol25"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol26" category="unspecified">
+    <rSolid name="FBCM_SensorCol26"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol27" category="unspecified">
+    <rSolid name="FBCM_SensorCol27"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol28" category="unspecified">
+    <rSolid name="FBCM_SensorCol28"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  
+  <!--Ring3 -->
+  <LogicalPart name="FBCM_SiliconDie31" category="unspecified">
+    <rSolid name="FBCM_SiliconDie31"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie32" category="unspecified">
+    <rSolid name="FBCM_SiliconDie32"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie33" category="unspecified">
+    <rSolid name="FBCM_SiliconDie33"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie34" category="unspecified">
+    <rSolid name="FBCM_SiliconDie34"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie35" category="unspecified">
+    <rSolid name="FBCM_SiliconDie35"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie36" category="unspecified">
+    <rSolid name="FBCM_SiliconDie36"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie37" category="unspecified">
+    <rSolid name="FBCM_SiliconDie37"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie38" category="unspecified">
+    <rSolid name="FBCM_SiliconDie38"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+   
+  <LogicalPart name="FBCM_SensorCol31" category="unspecified">
+    <rSolid name="FBCM_SensorCol31"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol32" category="unspecified">
+    <rSolid name="FBCM_SensorCol32"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol33" category="unspecified">
+    <rSolid name="FBCM_SensorCol33"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol34" category="unspecified">
+    <rSolid name="FBCM_SensorCol34"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol35" category="unspecified">
+    <rSolid name="FBCM_SensorCol35"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol36" category="unspecified">
+    <rSolid name="FBCM_SensorCol36"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol37" category="unspecified">
+    <rSolid name="FBCM_SensorCol37"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol38" category="unspecified">
+    <rSolid name="FBCM_SensorCol38"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  
+  <!--Ring4 -->
+  <LogicalPart name="FBCM_SiliconDie41" category="unspecified">
+    <rSolid name="FBCM_SiliconDie41"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie42" category="unspecified">
+    <rSolid name="FBCM_SiliconDie42"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie43" category="unspecified">
+    <rSolid name="FBCM_SiliconDie43"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie44" category="unspecified">
+    <rSolid name="FBCM_SiliconDie44"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie45" category="unspecified">
+    <rSolid name="FBCM_SiliconDie45"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie46" category="unspecified">
+    <rSolid name="FBCM_SiliconDie46"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie47" category="unspecified">
+    <rSolid name="FBCM_SiliconDie47"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SiliconDie48" category="unspecified">
+    <rSolid name="FBCM_SiliconDie48"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+   
+  <LogicalPart name="FBCM_SensorCol41" category="unspecified">
+    <rSolid name="FBCM_SensorCol41"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol42" category="unspecified">
+    <rSolid name="FBCM_SensorCol42"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol43" category="unspecified">
+    <rSolid name="FBCM_SensorCol43"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol44" category="unspecified">
+    <rSolid name="FBCM_SensorCol44"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol45" category="unspecified">
+    <rSolid name="FBCM_SensorCol45"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol46" category="unspecified">
+    <rSolid name="FBCM_SensorCol46"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol47" category="unspecified">
+    <rSolid name="FBCM_SensorCol47"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+  <LogicalPart name="FBCM_SensorCol48" category="unspecified">
+    <rSolid name="FBCM_SensorCol48"/>
+    <rMaterial name="materials:Silicon"/>
+  </LogicalPart>
+</LogicalPartSection>
+ 
+<!-- Position --> 
+<PosPartSection label="fbcm"><!--FBCM as a child of Tracker:Pixel:Service-->
+ 
+  <PosPart copyNumber="1">
+    <rParent name="cmsFbcm:FbcmVolume"/>
+    <rChild name="FBCM"></rChild>
+    <rRotation name="rotations:000D"/>
+    <Translation x="0*fm" y="0*fm" z="[FBCM_ModuleZ]"/>
+  </PosPart>
+  
+  <PosPart copyNumber="2">
+    <rParent name="cmsFbcm:FbcmVolume"/>
+    <rChild name="FBCM"></rChild>
+    <rRotation name="rotations:180D"/>
+    <Translation x="0*fm" y="0*fm" z="-[FBCM_ModuleZ]"/>
+  </PosPart>
+  
+  <!--Ring0 - Making SiliconDie-->
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol01"/>
+    <String name="ChildName" value="FBCM_SensorPad1"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfRowsR0]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen1]*[SiDie1_NumOfRowsR0])/2.+[SiCellLen1]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie01"/>
+    <String name="ChildName" value="FBCM_SensorCol01"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen1]*[SiDie1_NumOfCols])/2.+[SiCellLen1]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol02"/>
+    <String name="ChildName" value="FBCM_SensorPad2"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfRowsR0]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen2]*[SiDie2_NumOfRowsR0])/2.+[SiCellLen2]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie02"/>
+    <String name="ChildName" value="FBCM_SensorCol02"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen2]*[SiDie2_NumOfCols])/2.+[SiCellLen2]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol03"/>
+    <String name="ChildName" value="FBCM_SensorPad3"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfRowsR0]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen3]*[SiDie3_NumOfRowsR0])/2.+[SiCellLen3]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie03"/>
+    <String name="ChildName" value="FBCM_SensorCol03"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen3]*[SiDie3_NumOfCols])/2.+[SiCellLen3]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol04"/>
+    <String name="ChildName" value="FBCM_SensorPad4"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfRowsR0]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen4]*[SiDie4_NumOfRowsR0])/2.+[SiCellLen4]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie04"/>
+    <String name="ChildName" value="FBCM_SensorCol04"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen4]*[SiDie4_NumOfCols])/2.+[SiCellLen4]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol05"/>
+    <String name="ChildName" value="FBCM_SensorPad5"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfRowsR0]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen5]*[SiDie5_NumOfRowsR0])/2.+[SiCellLen5]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie05"/>
+    <String name="ChildName" value="FBCM_SensorCol05"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen5]*[SiDie5_NumOfCols])/2.+[SiCellLen5]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol06"/>
+    <String name="ChildName" value="FBCM_SensorPad6"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfRowsR0]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen6]*[SiDie6_NumOfRowsR0])/2.+[SiCellLen6]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie06"/>
+    <String name="ChildName" value="FBCM_SensorCol06"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen6]*[SiDie6_NumOfCols])/2.+[SiCellLen6]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol07"/>
+    <String name="ChildName" value="FBCM_SensorPad7"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfRowsR0]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen7]*[SiDie7_NumOfRowsR0])/2.+[SiCellLen7]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie07"/>
+    <String name="ChildName" value="FBCM_SensorCol07"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen7]*[SiDie7_NumOfCols])/2.+[SiCellLen7]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol08"/>
+    <String name="ChildName" value="FBCM_SensorPad8"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfRowsR0]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen8]*[SiDie8_NumOfRowsR0])/2.+[SiCellLen8]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie08"/>
+    <String name="ChildName" value="FBCM_SensorCol08"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen8]*[SiDie8_NumOfCols])/2.+[SiCellLen8]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  <!--End of Ring0-Making SiliconDie-->
+
+  <!--Ring1 - Making SiliconDie-->
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol11"/>
+    <String name="ChildName" value="FBCM_SensorPad1"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfRowsR1]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen1]*[SiDie1_NumOfRowsR1])/2.+[SiCellLen1]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie11"/>
+    <String name="ChildName" value="FBCM_SensorCol11"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen1]*[SiDie1_NumOfCols])/2.+[SiCellLen1]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol12"/>
+    <String name="ChildName" value="FBCM_SensorPad2"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfRowsR1]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen2]*[SiDie2_NumOfRowsR1])/2.+[SiCellLen2]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie12"/>
+    <String name="ChildName" value="FBCM_SensorCol12"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen2]*[SiDie2_NumOfCols])/2.+[SiCellLen2]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol13"/>
+    <String name="ChildName" value="FBCM_SensorPad3"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfRowsR1]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen3]*[SiDie3_NumOfRowsR1])/2.+[SiCellLen3]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie13"/>
+    <String name="ChildName" value="FBCM_SensorCol13"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen3]*[SiDie3_NumOfCols])/2.+[SiCellLen3]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol14"/>
+    <String name="ChildName" value="FBCM_SensorPad4"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfRowsR1]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen4]*[SiDie4_NumOfRowsR1])/2.+[SiCellLen4]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie14"/>
+    <String name="ChildName" value="FBCM_SensorCol14"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen4]*[SiDie4_NumOfCols])/2.+[SiCellLen4]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol15"/>
+    <String name="ChildName" value="FBCM_SensorPad5"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfRowsR1]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen5]*[SiDie5_NumOfRowsR1])/2.+[SiCellLen5]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie15"/>
+    <String name="ChildName" value="FBCM_SensorCol15"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen5]*[SiDie5_NumOfCols])/2.+[SiCellLen5]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol16"/>
+    <String name="ChildName" value="FBCM_SensorPad6"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfRowsR1]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen6]*[SiDie6_NumOfRowsR1])/2.+[SiCellLen6]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie16"/>
+    <String name="ChildName" value="FBCM_SensorCol16"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen6]*[SiDie6_NumOfCols])/2.+[SiCellLen6]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol17"/>
+    <String name="ChildName" value="FBCM_SensorPad7"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfRowsR1]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen7]*[SiDie7_NumOfRowsR1])/2.+[SiCellLen7]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie17"/>
+    <String name="ChildName" value="FBCM_SensorCol17"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen7]*[SiDie7_NumOfCols])/2.+[SiCellLen7]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol18"/>
+    <String name="ChildName" value="FBCM_SensorPad8"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfRowsR1]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen8]*[SiDie8_NumOfRowsR1])/2.+[SiCellLen8]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie18"/>
+    <String name="ChildName" value="FBCM_SensorCol18"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen8]*[SiDie8_NumOfCols])/2.+[SiCellLen8]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  <!--End of Ring1-Making SiliconDie-->
+  
+  <!--Ring2 - Making SiliconDie-->
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol21"/>
+    <String name="ChildName" value="FBCM_SensorPad1"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfRowsR2]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen1]*[SiDie1_NumOfRowsR2])/2.+[SiCellLen1]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie21"/>
+    <String name="ChildName" value="FBCM_SensorCol21"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen1]*[SiDie1_NumOfCols])/2.+[SiCellLen1]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol22"/>
+    <String name="ChildName" value="FBCM_SensorPad2"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfRowsR2]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen2]*[SiDie2_NumOfRowsR2])/2.+[SiCellLen2]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie22"/>
+    <String name="ChildName" value="FBCM_SensorCol22"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen2]*[SiDie2_NumOfCols])/2.+[SiCellLen2]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol23"/>
+    <String name="ChildName" value="FBCM_SensorPad3"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfRowsR2]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen3]*[SiDie3_NumOfRowsR2])/2.+[SiCellLen3]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie23"/>
+    <String name="ChildName" value="FBCM_SensorCol23"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen3]*[SiDie3_NumOfCols])/2.+[SiCellLen3]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol24"/>
+    <String name="ChildName" value="FBCM_SensorPad4"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfRowsR2]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen4]*[SiDie4_NumOfRowsR2])/2.+[SiCellLen4]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie24"/>
+    <String name="ChildName" value="FBCM_SensorCol24"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen4]*[SiDie4_NumOfCols])/2.+[SiCellLen4]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol25"/>
+    <String name="ChildName" value="FBCM_SensorPad5"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfRowsR2]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen5]*[SiDie5_NumOfRowsR2])/2.+[SiCellLen5]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie25"/>
+    <String name="ChildName" value="FBCM_SensorCol25"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen5]*[SiDie5_NumOfCols])/2.+[SiCellLen5]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol26"/>
+    <String name="ChildName" value="FBCM_SensorPad6"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfRowsR2]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen6]*[SiDie6_NumOfRowsR2])/2.+[SiCellLen6]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie26"/>
+    <String name="ChildName" value="FBCM_SensorCol26"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen6]*[SiDie6_NumOfCols])/2.+[SiCellLen6]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol27"/>
+    <String name="ChildName" value="FBCM_SensorPad7"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfRowsR2]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen7]*[SiDie7_NumOfRowsR2])/2.+[SiCellLen7]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie27"/>
+    <String name="ChildName" value="FBCM_SensorCol27"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen7]*[SiDie7_NumOfCols])/2.+[SiCellLen7]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol28"/>
+    <String name="ChildName" value="FBCM_SensorPad8"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfRowsR2]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen8]*[SiDie8_NumOfRowsR2])/2.+[SiCellLen8]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie28"/>
+    <String name="ChildName" value="FBCM_SensorCol28"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen8]*[SiDie8_NumOfCols])/2.+[SiCellLen8]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  <!--End of Ring2-Making SiliconDie-->
+  
+  <!--Ring3 - Making SiliconDie-->
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol31"/>
+    <String name="ChildName" value="FBCM_SensorPad1"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfRowsR3]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen1]*[SiDie1_NumOfRowsR3])/2.+[SiCellLen1]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie31"/>
+    <String name="ChildName" value="FBCM_SensorCol31"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen1]*[SiDie1_NumOfCols])/2.+[SiCellLen1]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol32"/>
+    <String name="ChildName" value="FBCM_SensorPad2"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfRowsR3]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen2]*[SiDie2_NumOfRowsR3])/2.+[SiCellLen2]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie32"/>
+    <String name="ChildName" value="FBCM_SensorCol32"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen2]*[SiDie2_NumOfCols])/2.+[SiCellLen2]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol33"/>
+    <String name="ChildName" value="FBCM_SensorPad3"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfRowsR3]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen3]*[SiDie3_NumOfRowsR3])/2.+[SiCellLen3]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie33"/>
+    <String name="ChildName" value="FBCM_SensorCol33"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen3]*[SiDie3_NumOfCols])/2.+[SiCellLen3]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol34"/>
+    <String name="ChildName" value="FBCM_SensorPad4"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfRowsR3]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen4]*[SiDie4_NumOfRowsR3])/2.+[SiCellLen4]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie34"/>
+    <String name="ChildName" value="FBCM_SensorCol34"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen4]*[SiDie4_NumOfCols])/2.+[SiCellLen4]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol35"/>
+    <String name="ChildName" value="FBCM_SensorPad5"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfRowsR3]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen5]*[SiDie5_NumOfRowsR3])/2.+[SiCellLen5]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie35"/>
+    <String name="ChildName" value="FBCM_SensorCol35"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen5]*[SiDie5_NumOfCols])/2.+[SiCellLen5]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol36"/>
+    <String name="ChildName" value="FBCM_SensorPad6"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfRowsR3]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen6]*[SiDie6_NumOfRowsR3])/2.+[SiCellLen6]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie36"/>
+    <String name="ChildName" value="FBCM_SensorCol36"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen6]*[SiDie6_NumOfCols])/2.+[SiCellLen6]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol37"/>
+    <String name="ChildName" value="FBCM_SensorPad7"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfRowsR3]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen7]*[SiDie7_NumOfRowsR3])/2.+[SiCellLen7]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie37"/>
+    <String name="ChildName" value="FBCM_SensorCol37"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen7]*[SiDie7_NumOfCols])/2.+[SiCellLen7]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol38"/>
+    <String name="ChildName" value="FBCM_SensorPad8"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfRowsR3]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen8]*[SiDie8_NumOfRowsR3])/2.+[SiCellLen8]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie38"/>
+    <String name="ChildName" value="FBCM_SensorCol38"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen8]*[SiDie8_NumOfCols])/2.+[SiCellLen8]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  <!--End of Ring3-Making SiliconDie-->
+
+  <!--Ring4 - Making SiliconDie-->
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol41"/>
+    <String name="ChildName" value="FBCM_SensorPad1"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfRowsR4]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen1]*[SiDie1_NumOfRowsR4])/2.+[SiCellLen1]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie41"/>
+    <String name="ChildName" value="FBCM_SensorCol41"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie1_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen1]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen1]*[SiDie1_NumOfCols])/2.+[SiCellLen1]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol42"/>
+    <String name="ChildName" value="FBCM_SensorPad2"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfRowsR4]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen2]*[SiDie2_NumOfRowsR4])/2.+[SiCellLen2]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie42"/>
+    <String name="ChildName" value="FBCM_SensorCol42"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie2_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen2]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen2]*[SiDie2_NumOfCols])/2.+[SiCellLen2]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol43"/>
+    <String name="ChildName" value="FBCM_SensorPad3"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfRowsR4]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen3]*[SiDie3_NumOfRowsR4])/2.+[SiCellLen3]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie43"/>
+    <String name="ChildName" value="FBCM_SensorCol43"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie3_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen3]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen3]*[SiDie3_NumOfCols])/2.+[SiCellLen3]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol44"/>
+    <String name="ChildName" value="FBCM_SensorPad4"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfRowsR4]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen4]*[SiDie4_NumOfRowsR4])/2.+[SiCellLen4]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie44"/>
+    <String name="ChildName" value="FBCM_SensorCol44"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie4_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen4]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen4]*[SiDie4_NumOfCols])/2.+[SiCellLen4]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol45"/>
+    <String name="ChildName" value="FBCM_SensorPad5"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfRowsR4]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen5]*[SiDie5_NumOfRowsR4])/2.+[SiCellLen5]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie45"/>
+    <String name="ChildName" value="FBCM_SensorCol45"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie5_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen5]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen5]*[SiDie5_NumOfCols])/2.+[SiCellLen5]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol46"/>
+    <String name="ChildName" value="FBCM_SensorPad6"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfRowsR4]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen6]*[SiDie6_NumOfRowsR4])/2.+[SiCellLen6]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie46"/>
+    <String name="ChildName" value="FBCM_SensorCol46"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie6_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen6]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen6]*[SiDie6_NumOfCols])/2.+[SiCellLen6]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol47"/>
+    <String name="ChildName" value="FBCM_SensorPad7"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfRowsR4]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen7]*[SiDie7_NumOfRowsR4])/2.+[SiCellLen7]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie47"/>
+    <String name="ChildName" value="FBCM_SensorCol47"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie7_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen7]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen7]*[SiDie7_NumOfCols])/2.+[SiCellLen7]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SensorCol48"/>
+    <String name="ChildName" value="FBCM_SensorPad8"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfRowsR4]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">0.*mm,-([SiCellLen8]*[SiDie8_NumOfRowsR4])/2.+[SiCellLen8]/2.,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="90.*deg"/>
+  </Algorithm>
+  <Algorithm name="global:DDLinear">
+    <rParent name="FBCM_SiliconDie48"/>
+    <String name="ChildName" value="FBCM_SensorCol48"/>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[SiDie8_NumOfCols]"/>
+    <Numeric name="Delta" value="[SiCellLen8]"/>
+    <Vector name="Base" type="numeric" nEntries="3">-([SiCellLen8]*[SiDie8_NumOfCols])/2.+[SiCellLen8]/2.,0.*mm,0.*mm</Vector>
+    <Numeric name="Theta" value="90.*deg"/>
+    <Numeric name="Phi" value="0.*deg"/>
+  </Algorithm>
+  <!--End of Ring4-Making SiliconDie-->
+        
+  <!--Ring0 - Placement of SiliconDies in the station -->
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie01"></String>
+    <Numeric name="StartCopyNo" value="0+0*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R0]"/>
+    <Numeric name="StartAngle" value="0*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+    
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie02"></String>
+    <Numeric name="StartCopyNo" value="1+0*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R0]"/>
+    <Numeric name="StartAngle" value="1*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie03"></String>
+    <Numeric name="StartCopyNo" value="2+0*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R0]"/>
+    <Numeric name="StartAngle" value="2*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie04"></String>
+    <Numeric name="StartCopyNo" value="3+0*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R0]"/>
+    <Numeric name="StartAngle" value="3*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie05"></String>
+    <Numeric name="StartCopyNo" value="4+0*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R0]"/>
+    <Numeric name="StartAngle" value="4*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie06"></String>
+    <Numeric name="StartCopyNo" value="5+0*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R0]"/>
+    <Numeric name="StartAngle" value="5*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie07"></String>
+    <Numeric name="StartCopyNo" value="6+0*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R0]"/>
+    <Numeric name="StartAngle" value="6*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>      
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie08"></String>
+    <Numeric name="StartCopyNo" value="7+0*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R0]"/>
+    <Numeric name="StartAngle" value="7*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+  <!--Ring0 - end of placement of SiliconDies in the station -->
+      
+  <!--Ring1 - Placement of SiliconDies in the station -->
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie11"></String>
+    <Numeric name="StartCopyNo" value="0+1*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R1]"/>
+    <Numeric name="StartAngle" value="0*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+    
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie12"></String>
+    <Numeric name="StartCopyNo" value="1+1*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R1]"/>
+    <Numeric name="StartAngle" value="1*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie13"></String>
+    <Numeric name="StartCopyNo" value="2+1*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R1]"/>
+    <Numeric name="StartAngle" value="2*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie14"></String>
+    <Numeric name="StartCopyNo" value="3+1*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R1]"/>
+    <Numeric name="StartAngle" value="3*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie15"></String>
+    <Numeric name="StartCopyNo" value="4+1*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R1]"/>
+    <Numeric name="StartAngle" value="4*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie16"></String>
+    <Numeric name="StartCopyNo" value="5+1*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R1]"/>
+    <Numeric name="StartAngle" value="5*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie17"></String>
+    <Numeric name="StartCopyNo" value="6+1*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R1]"/>
+    <Numeric name="StartAngle" value="6*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>      
+
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie18"></String>
+    <Numeric name="StartCopyNo" value="7+1*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R1]"/>
+    <Numeric name="StartAngle" value="7*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+  <!--Ring1 - end of placement of SiliconDies in the station -->
+      
+  <!--Ring2 - Placement of SiliconDies in the station -->
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie21"></String>
+    <Numeric name="StartCopyNo" value="0+2*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R2]"/>
+    <Numeric name="StartAngle" value="0*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+    
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie22"></String>
+    <Numeric name="StartCopyNo" value="1+2*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R2]"/>
+    <Numeric name="StartAngle" value="1*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie23"></String>
+    <Numeric name="StartCopyNo" value="2+2*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R2]"/>
+    <Numeric name="StartAngle" value="2*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie24"></String>
+    <Numeric name="StartCopyNo" value="3+2*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R2]"/>
+    <Numeric name="StartAngle" value="3*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie25"></String>
+    <Numeric name="StartCopyNo" value="4+2*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R2]"/>
+    <Numeric name="StartAngle" value="4*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie26"></String>
+    <Numeric name="StartCopyNo" value="5+2*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R2]"/>
+    <Numeric name="StartAngle" value="5*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+    
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie27"></String>
+    <Numeric name="StartCopyNo" value="6+2*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R2]"/>
+    <Numeric name="StartAngle" value="6*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>      
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie28"></String>
+    <Numeric name="StartCopyNo" value="7+2*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R2]"/>
+    <Numeric name="StartAngle" value="7*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+  <!--Ring2 - end of placement of SiliconDies in the station -->
+          
+  <!--Ring3 - Placement of SiliconDies in the station -->
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie31"></String>
+    <Numeric name="StartCopyNo" value="0+3*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R3]"/>
+    <Numeric name="StartAngle" value="0*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+    
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie32"></String>
+    <Numeric name="StartCopyNo" value="1+3*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R3]"/>
+    <Numeric name="StartAngle" value="1*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie33"></String>
+    <Numeric name="StartCopyNo" value="2+3*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R3]"/>
+    <Numeric name="StartAngle" value="2*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie34"></String>
+    <Numeric name="StartCopyNo" value="3+3*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R3]"/>
+    <Numeric name="StartAngle" value="3*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie35"></String>
+    <Numeric name="StartCopyNo" value="4+3*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R3]"/>
+    <Numeric name="StartAngle" value="4*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie36"></String>
+    <Numeric name="StartCopyNo" value="5+3*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R3]"/>
+    <Numeric name="StartAngle" value="5*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie37"></String>
+    <Numeric name="StartCopyNo" value="6+3*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R3]"/>
+    <Numeric name="StartAngle" value="6*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>      
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie38"></String>
+    <Numeric name="StartCopyNo" value="7+3*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R3]"/>
+    <Numeric name="StartAngle" value="7*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+  <!--Ring3 - end of placement of SiliconDies in the station -->
+          
+  <!--Ring4 - Placement of SiliconDies in the station -->
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie41"></String>
+    <Numeric name="StartCopyNo" value="0+4*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R4]"/>
+    <Numeric name="StartAngle" value="0*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+    
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie42"></String>
+    <Numeric name="StartCopyNo" value="1+4*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R4]"/>
+    <Numeric name="StartAngle" value="1*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie43"></String>
+    <Numeric name="StartCopyNo" value="2+4*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R4]"/>
+    <Numeric name="StartAngle" value="2*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie44"></String>
+    <Numeric name="StartCopyNo" value="3+4*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R4]"/>
+    <Numeric name="StartAngle" value="3*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie45"></String>
+    <Numeric name="StartCopyNo" value="4+4*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R4]"/>
+    <Numeric name="StartAngle" value="4*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie46"></String>
+    <Numeric name="StartCopyNo" value="5+4*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R4]"/>
+    <Numeric name="StartAngle" value="5*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+    
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie47"></String>
+    <Numeric name="StartCopyNo" value="6+4*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R4]"/>
+    <Numeric name="StartAngle" value="6*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>      
+
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM_Station"/>
+    <String name="ChildName" value="FBCM_SiliconDie48"></String>
+    <Numeric name="StartCopyNo" value="7+4*[NumOfSiDiesPerStationPerRing]"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="1"/>
+    <Numeric name="Radius" value="[SiliconDieRing_R4]"/>
+    <Numeric name="StartAngle" value="7*[IncrementRotAngle]+[IncrementRotAngle]/2.+[StationStartPhi]"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3">
+      0.*deg, 0.*deg, 0.*deg </Vector>
+  </Algorithm>
+  <!--Ring4 - end of placement of SiliconDies in the station -->
+      
+  <Algorithm name="global:DDAngular">
+    <rParent name="FBCM"/>
+    <String name="ChildName" value="FBCM_Station"></String>
+    <Numeric name="StartCopyNo" value="0"/>
+    <Numeric name="IncrCopyNo" value="1"/>
+    <Numeric name="N" value="[NumOfStations]"/>
+    <Numeric name="Radius" value="0.*fm"/>
+    <Numeric name="StartAngle" value="0.*deg"/>
+    <Numeric name="RangeAngle" value="360*deg"/>
+    <Vector name="Center" type="numeric" nEntries="3">0, 0, 0</Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="[NumOfStations]*3">
+      0.*deg, 0.*deg, 0.*deg, 0.*deg,
+      0.*deg, 0.*deg, 0.*deg, 0.*deg,
+      0.*deg, 0.*deg, 0.*deg, 0.*deg
+    </Vector>
+  </Algorithm>
+    
+</PosPartSection>
+
+</DDDefinition>

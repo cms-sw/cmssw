@@ -13,7 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <ext/algorithm>
+#include <algorithm>
 
 namespace sistrip {
 

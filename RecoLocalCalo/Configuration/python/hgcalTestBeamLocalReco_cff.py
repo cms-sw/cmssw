@@ -19,10 +19,8 @@ def setupLocalInputsForRelVal(local_daq : str = 'local_daq'):
         os.system(f'xrdcp --silent -f root://cms-xrd-global.cern.ch//{inputdir}/{f} {localdir}')
 
 
-def runRecoForSep2024TB(process):
+def setupConditionsForSep2024TB(process):
 
-    local_daq = setupLocalInputsForRelVal()
-    
     process.load('Configuration.StandardSequences.Accelerators_cff')
 
     process.load(f"Configuration.Geometry.GeometryExtendedRun4D104Reco_cff")
@@ -30,7 +28,26 @@ def runRecoForSep2024TB(process):
     from Geometry.HGCalMapping.hgcalmapping_cff import customise_hgcalmapper
     process = customise_hgcalmapper(
         process, modules='Geometry/HGCalMapping/data/ModuleMaps/modulelocator_P5v1.txt')
+
+    process.hgcalConfigESProducer = cms.ESSource(
+        "HGCalConfigurationESProducer", bePassthroughMode=cms.int32(-1),
+        cbHeaderMarker=cms.int32(-1),
+        charMode=cms.int32(-1),
+        econdHeaderMarker=cms.int32(-1),
+        fedjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/data/testbeam/config_feds_v1.json'),
+        indexSource=cms.ESInputTag("hgCalMappingESProducer", ""),
+        modjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/data/testbeam//config_econds_v1.json'),
+        slinkHeaderMarker=cms.int32(-1))
+
+    return process
+
+
+def runRecoForSep2024TB(process):
+
+    local_daq = setupLocalInputsForRelVal()
     
+    process = setupConditionsForSep2024TB(process)
+
     process.EvFDaqDirector = cms.Service("EvFDaqDirector",
                                          baseDir=cms.untracked.string('local_daq/fu'),
                                          buBaseDir=cms.untracked.string('local_daq/ramdisk'),
@@ -62,16 +79,6 @@ def runRecoForSep2024TB(process):
     process.FastMonitoringService = cms.Service("FastMonitoringService",
                                                 sleepTime=cms.untracked.int32(1)
                                                 )
-
-    process.hgcalConfigESProducer = cms.ESSource(
-        "HGCalConfigurationESProducer", bePassthroughMode=cms.int32(-1),
-        cbHeaderMarker=cms.int32(-1),
-        charMode=cms.int32(-1),
-        econdHeaderMarker=cms.int32(-1),
-        fedjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/data/testbeam/config_feds_v1.json'),
-        indexSource=cms.ESInputTag("hgCalMappingESProducer", ""),
-        modjson=cms.FileInPath('RecoLocalCalo/HGCalRecProducers/data/testbeam//config_econds_v1.json'),
-        slinkHeaderMarker=cms.int32(-1))
 
     # Setup HGCal unpacker
     process.hgcalDigis = cms.EDProducer("HGCalRawToDigi",
@@ -122,6 +129,18 @@ def runRecoForSep2024TB(process):
     )
     process.hgcalTestBeamLocalRecoSequence = cms.Path(process.reco_task)
     process.schedule.insert(0, process.hgcalTestBeamLocalRecoSequence)
+
+    # HGCal DQM clients, saved as DQMIO
+    process.load('DQMServices.Core.DQMStore_cfi')
+    process.load('DQM.HGCAL.hgcalDQM_cff')
+    process.hgcalrechitdqm.RecHits = 'hgcalSoARecHits'
+    process.hgcallayerclusterdqm.RecHits = 'hgcalSoARecHits'
+    process.hgcalTestBeamDQMPath = cms.Path(process.hgcalDQMSources + process.hgcalRecoDQMSources)
+    process.schedule.insert(1, process.hgcalTestBeamDQMPath)
+    process.DQMoutput = cms.OutputModule('DQMRootOutputModule',
+                                         fileName=cms.untracked.string('step1_inDQM.root'))
+    process.DQMoutput_step = cms.EndPath(process.DQMoutput)
+    process.schedule.append(process.DQMoutput_step)
 
     # Keep HGCal output
     process.FEVTDEBUGoutput.outputCommands = ['keep *_hgcal*_*_*']

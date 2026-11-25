@@ -177,7 +177,7 @@ PixelFEDConfig::~PixelFEDConfig() {}
 void PixelFEDConfig::writeASCII(std::string dir) const {
   std::string mthn = "[PixelFEDConfig::writeASCII()]\t\t\t\t    ";
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
   string filename = dir + "fedconfig.dat";
 
   ofstream out(filename.c_str());

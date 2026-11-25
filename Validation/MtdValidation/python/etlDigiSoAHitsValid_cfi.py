@@ -1,0 +1,3 @@
+import FWCore.ParameterSet.Config as cms
+from Validation.MtdValidation.etlDigiSoAHitsDefaultValid_cfi import etlDigiSoAHitsDefaultValid as _etlDigiSoAHitsDefaultValid
+etlDigiSoAHitsValid = _etlDigiSoAHitsDefaultValid.clone()

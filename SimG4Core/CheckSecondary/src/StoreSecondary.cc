@@ -18,6 +18,7 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 
 StoreSecondary::StoreSecondary(const edm::ParameterSet &p) {
   edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("StoreSecondary");
@@ -34,11 +35,12 @@ StoreSecondary::StoreSecondary(const edm::ParameterSet &p) {
 StoreSecondary::~StoreSecondary() { delete treatSecondary; }
 
 void StoreSecondary::produce(edm::Event &e, const edm::EventSetup &) {
-  std::unique_ptr<std::vector<math::XYZTLorentzVector>> secMom(new std::vector<math::XYZTLorentzVector>);
+  std::unique_ptr<std::vector<math::XYZTLorentzVector>> secMom =
+      std::make_unique<std::vector<math::XYZTLorentzVector>>();
   *secMom = secondaries;
   e.put(std::move(secMom), "SecondaryMomenta");
 
-  std::unique_ptr<std::vector<int>> secNumber(new std::vector<int>);
+  std::unique_ptr<std::vector<int>> secNumber = std::make_unique<std::vector<int>>();
   *secNumber = nsecs;
   e.put(std::move(secNumber), "SecondaryParticles");
 

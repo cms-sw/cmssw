@@ -98,7 +98,7 @@ void L1TMuonLegacyConverter::produce(edm::Event& iEvent, const edm::EventSetup& 
   // ~~~~~~~~~~~~~~~~~~~~ Muons ~~~~~~~~~~~~~~~~~~~~
   // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  std::unique_ptr<MuonBxCollection> imdMuonsLegacy(new MuonBxCollection());
+  std::unique_ptr<MuonBxCollection> imdMuonsLegacy = std::make_unique<MuonBxCollection>();
 
   LogDebug("L1TMuonLegacyConverter") << "\nWarning: L1MuGMTReadoutCollection with " << muonSource_InputTag
                                      << "\nrequested in configuration, but not found in the event." << std::endl;

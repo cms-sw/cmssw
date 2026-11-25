@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from Validation.TICLValidation.ticlDumper_cfi import ticlDumper as ticlDumper_
 
-from Configuration.ProcessModifiers.ticl_superclustering_mustache_pf_cff import ticl_superclustering_mustache_pf
-from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
 
 from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet, associatorsInstances
@@ -42,9 +40,6 @@ ticlDumper = ticlDumper_.clone(
     saveSuperclustering = cms.bool(True)
 )
 
-
-ticl_superclustering_mustache_pf.toModify(ticlDumper, saveSuperclustering=False, recoSuperClusters_sourceTracksterCollection=cms.InputTag("ticlTrackstersCLUE3DHigh"))
-
 simTrackstersBarrelCollections = ["ticlSimTrackstersBarrel", "ticlSimTrackstersBarrelfromCPs"]
 ticlBarrelIterLabels = ["ticlTrackstersCLUE3DBarrel"]
 dumperAssociatorsBarrel = []
@@ -65,7 +60,7 @@ dumperAssociators+=dumperAssociatorsBarrel
 
 ticl_barrel.toModify(ticlDumper,
                      tracksterCollections = [*[cms.PSet(treeName=cms.string(label), inputTag=cms.InputTag(label)) for label in ticlIterLabelsPSet.labels+ticlBarrelIterLabels],
-                        cms.PSet(                                                        
+                        cms.PSet(
                             treeName=cms.string("simtrackstersSC"),
                             inputTag=cms.InputTag("ticlSimTracksters"),
                             tracksterType=cms.string("SimTracksterSC")

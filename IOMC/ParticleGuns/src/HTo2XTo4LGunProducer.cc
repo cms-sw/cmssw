@@ -9,6 +9,7 @@
  * Contact Osvaldo Miguel Colin
  ***************************************/
 
+#include <memory>
 #include <ostream>
 
 #include "Math/LorentzVector.h"
@@ -218,10 +219,10 @@ namespace edm {
       fEvt->print();
     }
 
-    std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct(fEvt));
+    std::unique_ptr<HepMCProduct> BProduct = std::make_unique<HepMCProduct>(fEvt);
     evt.put(std::move(BProduct), "unsmeared");
 
-    std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+    std::unique_ptr<GenEventInfoProduct> genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
     evt.put(std::move(genEventInfo));
 
     if (fVerbosity > 0) {

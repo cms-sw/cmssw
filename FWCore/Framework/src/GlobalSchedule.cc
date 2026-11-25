@@ -180,7 +180,7 @@ namespace edm {
   }
 
   void GlobalSchedule::handleException(GlobalContext const* globalContext,
-                                       ServiceWeakToken const& weakToken,
+                                       ServiceToken const& token,
                                        bool cleaningUpAfterException,
                                        std::exception_ptr& excpt) {
     //add context information to the exception and print message
@@ -193,7 +193,7 @@ namespace edm {
       if (ex.context().empty()) {
         exceptionContext(ost, *globalContext);
       }
-      ServiceRegistry::Operate op(weakToken.lock());
+      ServiceRegistry::Operate op(token);
       addContextAndPrintException(ost.str().c_str(), ex, cleaningUpAfterException);
       excpt = std::current_exception();
     }
@@ -201,7 +201,7 @@ namespace edm {
     // if this signal results in another exception being thrown.
     CMS_SA_ALLOW try {
       if (actReg_) {
-        ServiceRegistry::Operate op(weakToken.lock());
+        ServiceRegistry::Operate op(token);
         actReg_->preGlobalEarlyTerminationSignal_.emit(*globalContext, TerminationOrigin::ExceptionFromThisContext);
       }
     } catch (...) {

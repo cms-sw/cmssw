@@ -209,9 +209,9 @@ namespace edm {
 
   void DataMixingEMWorker::putEM(edm::Event &e) {
     // collection of rechits to put in the event
-    std::unique_ptr<EBRecHitCollection> EBrechits(new EBRecHitCollection);
-    std::unique_ptr<EERecHitCollection> EErechits(new EERecHitCollection);
-    std::unique_ptr<ESRecHitCollection> ESrechits(new ESRecHitCollection);
+    std::unique_ptr<EBRecHitCollection> EBrechits = std::make_unique<EBRecHitCollection>();
+    std::unique_ptr<EERecHitCollection> EErechits = std::make_unique<EERecHitCollection>();
+    std::unique_ptr<ESRecHitCollection> ESrechits = std::make_unique<ESRecHitCollection>();
 
     // loop over the maps we have, re-making individual hits or digis if
     // necessary.

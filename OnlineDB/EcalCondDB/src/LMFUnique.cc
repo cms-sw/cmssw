@@ -112,7 +112,7 @@ void LMFUnique::dump(int n) const {
   std::string m_trail = "";
   m_trail.resize(70 - 31 - n * 2, '#');
   m_indent.resize(n * 2, ' ');
-  m_indent += "|";
+  m_indent += '|';
   // start of object
   cout << m_indent << "#################" << setw(15) << m_className << " " << m_trail << endl;
   cout << m_indent << "Address: " << this << endl;

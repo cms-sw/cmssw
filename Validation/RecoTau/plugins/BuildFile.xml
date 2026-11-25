@@ -8,7 +8,14 @@
 <use name="DataFormats/JetReco"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/HLTReco"/>
+<use name="DataFormats/Math"/>
+<use name="HLTrigger/HLTcore"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="PhysicsTools/JetMCUtils"/>
+<use name="RecoTauTag/RecoTau"/>
+<use name="DataFormats/PatCandidates"/>
 <library file="*.cc" name="ValidationRecoTauPlugin">
   <flags EDM_PLUGIN="1"/>
 </library>

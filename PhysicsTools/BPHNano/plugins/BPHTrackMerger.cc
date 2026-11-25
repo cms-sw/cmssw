@@ -3,6 +3,8 @@
 // Takes Lost tracks and packed candidates filters them removes overlap and
 // appl// -ies dz cut wrt to a dilepton vertex. Also applies selection cuts
 
+#include <memory>
+
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -91,8 +93,8 @@ void BPHTrackMerger::produce(edm::StreamID, edm::Event &evt, edm::EventSetup con
   unsigned int totalTracks = nTracks + lostTracks->size();
 
   // ok this was CompositeCandidateCollection
-  std::unique_ptr<pat::CompositeCandidateCollection> tracks_out(new pat::CompositeCandidateCollection);
-  std::unique_ptr<TransientTrackCollection> trans_tracks_out(new TransientTrackCollection);
+  std::unique_ptr<pat::CompositeCandidateCollection> tracks_out = std::make_unique<pat::CompositeCandidateCollection>();
+  std::unique_ptr<TransientTrackCollection> trans_tracks_out = std::make_unique<TransientTrackCollection>();
 
   std::vector<std::pair<pat::CompositeCandidate, reco::TransientTrack>> vectrk_ttrk;
   // try topreserve same logic avoiding the copy of the full collection

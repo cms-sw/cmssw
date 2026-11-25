@@ -52,7 +52,7 @@ autoDQM = {'DQMMessageLogger': ['DQMMessageLoggerSeq',
                                   'PostDQMOffline',
                                   '@dcs+@DQMMessageLogger+@stripCommon+@pixel+@tracking+@hlt+@beam+@fed+dqmFastTimerServiceClient'],
 
-           'cosmics': ['DQMOfflineCosmics', 'PostDQMOffline', 'DQMOfflineCosmics'],
+           'cosmics': ['DQMOfflineCosmics', 'PostDQMOffline', 'dqmHarvestingFakeHLT'],
 
            'ctpps': ['DQMOfflineCTPPS', 'PostDQMOffline', 'DQMHarvestCTPPS'],
 

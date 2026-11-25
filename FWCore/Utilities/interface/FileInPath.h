@@ -54,8 +54,10 @@
 //     Therefore, any changes made to these variables externally during the lifetime of
 //     a FileInPath object will have no effect.
 
+#include <filesystem>
 #include <iosfwd>
 #include <string>
+#include <vector>
 
 namespace edm {
   class FileInPath {
@@ -115,12 +117,11 @@ namespace edm {
     std::string localTop_;
     std::string releaseTop_;
     std::string dataTop_;
-    std::string searchPath_;
 
     // Helper function for construction.
     void getEnvironment();
     void initialize_();
-    static std::string const& searchPath();
+    static std::vector<std::filesystem::path> const& searchPath();
   };
 
   // Free swap function

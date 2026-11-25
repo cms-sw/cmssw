@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltInitialStepTrackCandidatesMkFitFit = cms.EDProducer("MkFitFitProducer",
     config = cms.ESInputTag("","hltInitialStepTrackCandidatesMkFitConfig"),
     eventOfHits = cms.InputTag("hltMkFitEventOfHits"),
-    limitConcurrency = cms.untracked.bool(False),
+    limitConcurrency = cms.untracked.bool(True),
     mightGet = cms.optional.untracked.vstring,
     mkFitPixelHits = cms.InputTag("hltMkFitSiPixelHits"),
     mkFitSilent = cms.untracked.bool(True),
@@ -11,7 +11,11 @@ hltInitialStepTrackCandidatesMkFitFit = cms.EDProducer("MkFitFitProducer",
     tracks = cms.InputTag("hltInitialStepTrackCandidatesMkFit"),
     candCutSel = cms.bool(True),
     candMinNHitsCut = cms.int32(4),
-    candMinPtCut = cms.double(0.9),
+    candMinPtCut = cms.double(0.85),
     candMinPtRelaxedCut = cms.double(0.8),
-    candMinAbsEtaForRelaxedCut = cms.double(1.4)                                
+    candMinAbsEtaForRelaxedCut = cms.double(1.4),
+    storeHitStates = cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.mtd_at_hlt_cff import mtd_at_hlt
+mtd_at_hlt.toModify(hltInitialStepTrackCandidatesMkFitFit, storeHitStates = True)

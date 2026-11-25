@@ -703,7 +703,8 @@ void PreMixingSiStripWorker::put(edm::Event& e,
 
   // make new digi collection
 
-  std::unique_ptr<edm::DetSetVector<SiStripDigi>> MySiStripDigis(new edm::DetSetVector<SiStripDigi>(vSiStripDigi));
+  std::unique_ptr<edm::DetSetVector<SiStripDigi>> MySiStripDigis =
+      std::make_unique<edm::DetSetVector<SiStripDigi>>(vSiStripDigi);
 
   // put collection
 

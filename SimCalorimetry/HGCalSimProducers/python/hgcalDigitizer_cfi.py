@@ -40,7 +40,6 @@ HGCAL_noise_heback = cms.PSet(
     scaleByDoseAlgo = cms.uint32(0),
     scaleByDoseFactor = cms.double(1),
     doseMap = cms.string(""), #empty dose map at begin-of-life
-    sipmMap = cms.string(""), #if empty will prompt to use geometry-based definition
     referenceIdark = cms.double(-1),
     referenceXtalk = cms.double(-1),
     noise_MIP = cms.double(1./100.) #this is to be deprecated
@@ -271,7 +270,6 @@ def HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN(process,targetSN=7,re
     print('[HGCal_setRealisticStartupNoise_fixedSiPMTileAreasAndSN] for a target S/N={:3.2f} setting idark={:3.3f}nA'.format(targetSN,idark))
     process=HGCal_setRealisticNoiseSci(process,byDose=True,
                                        byDoseAlgo=2+4+8+16+64+128*ignorePedestal,
-                                       byDoseSipmMap=cms.string("SimCalorimetry/HGCalSimProducers/data/sipmParams_all4mm2.txt"),
                                        referenceIdark=idark,
                                        referenceXtalk=referenceXtalk)
     return process
@@ -362,7 +360,6 @@ def HGCal_setRealisticNoiseSci(process,
                                byDose=True,
                                byDoseAlgo=2,
                                byDoseMap=doseMap,
-                               byDoseSipmMap=cms.string("SimCalorimetry/HGCalSimProducers/data/sipmParams_geom-10.txt"),
                                byDoseFactor=1,
                                referenceIdark=0.25,
                                referenceXtalk=-1):
@@ -370,8 +367,7 @@ def HGCal_setRealisticNoiseSci(process,
         scaleByDose = cms.bool(byDose),
         scaleByDoseAlgo = cms.uint32(byDoseAlgo),
         scaleByDoseFactor = cms.double(byDoseFactor),
-        doseMap = byDoseMap,
-        sipmMap = byDoseSipmMap,
+        doseMap = byDoseMap,        
         referenceIdark = cms.double(referenceIdark),
         referenceXtalk = cms.double(referenceXtalk),
         noise_MIP = cms.double(1./5.), #this is to be deprecated (still needed for vanilla for the moment)

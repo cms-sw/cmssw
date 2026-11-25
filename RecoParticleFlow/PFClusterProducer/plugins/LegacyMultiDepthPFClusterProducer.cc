@@ -1,5 +1,3 @@
-#include <Eigen/Core>
-#include <Eigen/Dense>
 #include <algorithm>
 #include <cmath>
 #include <memory>

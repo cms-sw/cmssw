@@ -64,7 +64,7 @@ public:
         Ort::SessionOptions sess_opts;
         sess_opts = cms::Ort::ONNXRuntime::defaultSessionOptions();
         sess_opts.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL);
-        ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path, &sess_opts);
+        ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path, sess_opts);
       } else {
         ort_ = std::make_unique<cms::Ort::ONNXRuntime>(model_path);
       }
@@ -260,7 +260,7 @@ void BaseMVAValueMapProducer<T>::produce(edm::Event& iEvent, const edm::EventSet
 
   size_t k = 0;
   for (auto& m : mvaOut) {
-    std::unique_ptr<edm::ValueMap<float>> mvaV(new edm::ValueMap<float>());
+    std::unique_ptr<edm::ValueMap<float>> mvaV = std::make_unique<edm::ValueMap<float>>();
     edm::ValueMap<float>::Filler filler(*mvaV);
     filler.insert(src, m.begin(), m.end());
     filler.fill();

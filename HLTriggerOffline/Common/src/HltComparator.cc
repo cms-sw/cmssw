@@ -12,6 +12,7 @@
 
 #include <TH1.h>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -152,7 +153,7 @@ bool HltComparator::filter(edm::Event &event, const edm::EventSetup &iSetup) {
   event.getByToken(hltOnlineResults_, onlineResults);
   event.getByToken(hltOfflineResults_, offlineResults);
 
-  std::unique_ptr<StringCollection> resultDescription(new StringCollection);
+  std::unique_ptr<StringCollection> resultDescription = std::make_unique<StringCollection>();
 
   // Initialise comparator if required
   if (!init_) {

@@ -94,12 +94,23 @@ cosmicTrackSplitting = RecoTracker.FinalTrackSelectors.cosmicTrackSplitter_cfi.c
 )
 splittedTracksP5 = cosmictrackfinderCosmics.clone(src = "cosmicTrackSplitting")
 
-cosmictracksP5Task = cms.Task(cosmicseedfinderP5,
-                              cosmicCandidateFinderP5,
-                              cosmictrackfinderCosmics,
-                              cosmictrackfinderP5,
+# Phase-2: Seed the cosmic TF chain with 
+# the grid seeder 
+phase2_tracker.toModify(cosmicCandidateFinderP5,
+    cosmicSeeds   = 'cosmicGridTripletSeeds', 
+    matchedRecHits  =   '',
+    rphirecHits =   '',
+    stereorecHits   =   '')
+
+cosmictracksP5Task = cms.Task(cosmicseedfinderP5,       # phase-1 seeder, replaced for Phase 2 
+                              cosmicCandidateFinderP5,  # candidate finder
+                              cosmictrackfinderCosmics, # final refit
+                              cosmictrackfinderP5,      # track selection cuts
                               cosmicTrackSplitting,
                               splittedTracksP5)
+
+# Phase 2: cosmic seed finder decommissioned and replaced by grid seeder 
+phase2_tracker.toReplaceWith(cosmictracksP5Task,cosmictracksP5Task.copyAndExclude([cosmicseedfinderP5]))
 
 cosmictracksP5 = cms.Sequence(cosmictracksP5Task)
 
@@ -118,7 +129,7 @@ tracksP5Task = cms.Task(cosmictracksP5Task,
                             gridtracksP5Task,
                             doAllCosmicdEdXEstimatorsTask,
                             siPixelClusterShapeCache)
-phase2_tracker.toReplaceWith(tracksP5Task,tracksP5Task.copyAndExclude([cosmictracksP5Task, gridtracksP5Task, doAllCosmicdEdXEstimatorsTask, siPixelClusterShapeCache]))
+phase2_tracker.toReplaceWith(tracksP5Task,tracksP5Task.copyAndExclude([gridtracksP5Task, doAllCosmicdEdXEstimatorsTask, siPixelClusterShapeCache]))
 tracksP5 = cms.Sequence(tracksP5Task)
 tracksP5_wodEdX = tracksP5.copy()
 tracksP5_wodEdX.remove(doAllCosmicdEdXEstimators)

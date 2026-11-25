@@ -234,7 +234,7 @@ namespace cond {
             for (const auto& c : m_data->changes) {
               action += c;
               if (i == (m_data->changes.size() - 1))
-                action += ".";
+                action += '.';
               else
                 action += ", ";
               i++;

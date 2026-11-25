@@ -20,6 +20,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include <iostream>
+#include <memory>
 //
 // constructors and destructor
 //
@@ -27,7 +28,7 @@ HLTMuonPFIsoFilter::HLTMuonPFIsoFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
       candTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
       previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
-      depTag_(iConfig.getParameter<std::vector<edm::InputTag> >("DepTag")),
+      depTag_(iConfig.getParameter<std::vector<edm::InputTag>>("DepTag")),
       depToken_(),
       rhoTag_(iConfig.getParameter<edm::InputTag>("RhoTag")),
       maxIso_(iConfig.getParameter<double>("MaxIso")),
@@ -37,7 +38,7 @@ HLTMuonPFIsoFilter::HLTMuonPFIsoFilter(const edm::ParameterSet& iConfig)
       effArea_(iConfig.getParameter<double>("EffectiveArea")) {
   depToken_.reserve(depTag_.size());
   for (auto const& t : depTag_) {
-    depToken_.push_back(consumes<edm::ValueMap<double> >(t));
+    depToken_.push_back(consumes<edm::ValueMap<double>>(t));
   }
 
   candToken_ = consumes<reco::RecoChargedCandidateCollection>(candTag_);
@@ -52,7 +53,7 @@ HLTMuonPFIsoFilter::HLTMuonPFIsoFilter(const edm::ParameterSet& iConfig)
     }
     l << "  MinN : " << min_N_;
   });
-  produces<edm::ValueMap<bool> >();
+  produces<edm::ValueMap<bool>>();
 }
 
 HLTMuonPFIsoFilter::~HLTMuonPFIsoFilter() = default;
@@ -66,7 +67,7 @@ void HLTMuonPFIsoFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("CandTag", edm::InputTag("hltL3MuonCandidates"));
   desc.add<edm::InputTag>("PreviousCandTag", edm::InputTag(""));
   std::vector<edm::InputTag> depTag(1, edm::InputTag("hltMuPFIsoValueCharged03"));
-  desc.add<std::vector<edm::InputTag> >("DepTag", depTag);
+  desc.add<std::vector<edm::InputTag>>("DepTag", depTag);
   desc.add<edm::InputTag>("RhoTag", edm::InputTag("hltFixedGridRhoFastjetAllCaloForMuonsPF"));
   desc.add<double>("MaxIso", 1.);
   desc.add<int>("MinN", 1);
@@ -90,7 +91,7 @@ bool HLTMuonPFIsoFilter::hltFilter(edm::Event& iEvent,
   // this HLT filter, and place it in the Event.
 
   //the decision map
-  std::unique_ptr<edm::ValueMap<bool> > PFisoMap(new edm::ValueMap<bool>());
+  std::unique_ptr<edm::ValueMap<bool>> PFisoMap = std::make_unique<edm::ValueMap<bool>>();
 
   // get hold of trks
   Handle<RecoChargedCandidateCollection> mucands;
@@ -104,7 +105,7 @@ bool HLTMuonPFIsoFilter::hltFilter(edm::Event& iEvent,
 
   //get hold of energy deposition
   unsigned int nDep = depTag_.size();
-  std::vector<Handle<edm::ValueMap<double> > > depMap(nDep);
+  std::vector<Handle<edm::ValueMap<double>>> depMap(nDep);
 
   //get hold of rho of the event
   double Rho = 0;

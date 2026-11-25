@@ -192,12 +192,12 @@ L1TMuonProducer::~L1TMuonProducer() { m_debugOut.close(); }
 // ------------ method called to produce the data  ------------
 void L1TMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  std::unique_ptr<MuonBxCollection> outMuons(new MuonBxCollection());
-  std::unique_ptr<MuonBxCollection> imdMuonsBMTF(new MuonBxCollection());
-  std::unique_ptr<MuonBxCollection> imdMuonsEMTFPos(new MuonBxCollection());
-  std::unique_ptr<MuonBxCollection> imdMuonsEMTFNeg(new MuonBxCollection());
-  std::unique_ptr<MuonBxCollection> imdMuonsOMTFPos(new MuonBxCollection());
-  std::unique_ptr<MuonBxCollection> imdMuonsOMTFNeg(new MuonBxCollection());
+  std::unique_ptr<MuonBxCollection> outMuons = std::make_unique<MuonBxCollection>();
+  std::unique_ptr<MuonBxCollection> imdMuonsBMTF = std::make_unique<MuonBxCollection>();
+  std::unique_ptr<MuonBxCollection> imdMuonsEMTFPos = std::make_unique<MuonBxCollection>();
+  std::unique_ptr<MuonBxCollection> imdMuonsEMTFNeg = std::make_unique<MuonBxCollection>();
+  std::unique_ptr<MuonBxCollection> imdMuonsOMTFPos = std::make_unique<MuonBxCollection>();
+  std::unique_ptr<MuonBxCollection> imdMuonsOMTFNeg = std::make_unique<MuonBxCollection>();
 
   Handle<MicroGMTConfiguration::InputCollection> bmtfMuons;
   Handle<MicroGMTConfiguration::InputCollection> emtfMuons;
@@ -574,8 +574,8 @@ int L1TMuonProducer::computeMuonIdx(const RegionalMuonCand& mu, int currentLink,
 void L1TMuonProducer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
   edm::ESHandle<L1TMuonGlobalParams> microGMTParamsHandle = iSetup.getHandle(m_microGMTParamsToken);
 
-  std::unique_ptr<L1TMuonGlobalParams_PUBLIC> microGMTParams(
-      new L1TMuonGlobalParams_PUBLIC(cast_to_L1TMuonGlobalParams_PUBLIC(*microGMTParamsHandle.product())));
+  std::unique_ptr<L1TMuonGlobalParams_PUBLIC> microGMTParams =
+      std::make_unique<L1TMuonGlobalParams_PUBLIC>(cast_to_L1TMuonGlobalParams_PUBLIC(*microGMTParamsHandle.product()));
   if (microGMTParams->pnodes_.empty()) {
     edm::ESHandle<L1TMuonGlobalParams> o2oProtoHandle = iSetup.getHandle(m_o2oProtoToken);
     microGMTParamsHelper = std::make_unique<L1TMuonGlobalParamsHelper>(*o2oProtoHandle.product());

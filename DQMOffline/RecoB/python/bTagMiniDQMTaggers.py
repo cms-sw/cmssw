@@ -23,12 +23,15 @@ for meta_tagger in pfParticleNetFromMiniAODAK4PuppiForwardJetTagsMetaDiscr:
         numerator = cms.vstring(meta_tagger),
         denominator = cms.vstring(),
         discrCut = cms.double(0.3),#Dummy,
-        CTagPlots = cms.bool(False)
+        CTagPlots = cms.bool(False),
+        kinematicsTag = cms.string('ParticleNetForward'), # jet kinematics in ParticleNetForward_<region>
+        bookKinematics = cms.bool(discr == 'QvsG'),
     )
     if "QvsG" in discr:
         ParticleNetPuppiForwardDiscriminators[discr] = cms.PSet(
             commonTaggerConfig,
             qgTagGenericAnalysisBlock,
+            signalFlavour = cms.string('DUS'), # ROC x axis: light-quark efficiency
         )
 
 ############################################################
@@ -52,7 +55,9 @@ for meta_tagger in pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
         numerator = cms.vstring(meta_tagger),
         denominator = cms.vstring(),
         discrCut = cms.double(0.3),#Dummy,
-        CTagPlots = cms.bool(False)
+        CTagPlots = cms.bool(False),
+        kinematicsTag = cms.string('UParT'), # jet kinematics in UParT_<region>, booked once (same jets for all discriminators)
+        bookKinematics = cms.bool(discr == 'BvsAll'),
     )
     if "Bvs" in discr:
         UParTDiscriminators[discr] = cms.PSet(
@@ -68,12 +73,14 @@ for meta_tagger in pfUnifiedParticleTransformerAK4JetTagsMetaDiscrs:
     elif "QvsG" in discr:
         UParTDiscriminators[discr] = cms.PSet(
             commonTaggerConfig,
-            cTagGenericAnalysisBlock
+            cTagGenericAnalysisBlock,
+            signalFlavour = cms.string('DUS'), # ROC x axis: light-quark efficiency
         )
     elif "Svs" in discr:
         UParTDiscriminators[discr] = cms.PSet(
             commonTaggerConfig,
-            cTagGenericAnalysisBlock
+            cTagGenericAnalysisBlock,
+            signalFlavour = cms.string('S'), # ROC x axis: s-jet efficiency
         )
     elif "TauVs" in discr:
         UParTDiscriminators[discr] = cms.PSet(

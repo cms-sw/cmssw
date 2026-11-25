@@ -6,6 +6,8 @@
  *   \author  Benjamin Radburn-Smith, Santiago Folgueras - Purdue University
  */
 
+#include <memory>
+
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
@@ -73,7 +75,7 @@ void HLTMuonL2SelectorForL3IO::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(l3linkToken_, links);
 
   //	OUT:
-  std::unique_ptr<reco::TrackCollection> result(new reco::TrackCollection());
+  std::unique_ptr<reco::TrackCollection> result = std::make_unique<reco::TrackCollection>();
 
   for (unsigned int il2 = 0; il2 != l2muonH->size(); ++il2) {
     reco::TrackRef l2muRef(l2muonH, il2);

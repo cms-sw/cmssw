@@ -36,8 +36,8 @@ GsfEleDxyCut::GsfEleDxyCut(const edm::ParameterSet& c)
 }
 
 void GsfEleDxyCut::setConsumes(edm::ConsumesCollector& cc) {
-  auto vtcs = cc.mayConsume<reco::VertexCollection>(contentTags_["vertices"]);
-  auto vtcsMiniAOD = cc.mayConsume<reco::VertexCollection>(contentTags_["verticesMiniAOD"]);
+  auto vtcs = cc.consumes<reco::VertexCollection>(contentTags_["vertices"]);
+  auto vtcsMiniAOD = cc.consumes<reco::VertexCollection>(contentTags_["verticesMiniAOD"]);
   contentTokens_.emplace("vertices", vtcs);
   contentTokens_.emplace("verticesMiniAOD", vtcsMiniAOD);
 }

@@ -87,7 +87,8 @@ namespace edm {
       }
 
       if (not restoreStateTag_.label().empty()) {
-        restoreStateBeginLumiToken_ = consumes<RandomEngineStates, InLumi>(restoreStateBeginLumiTag_);
+        restoreStateBeginLumiToken_ =
+            consumes<RandomEngineStates, InLumi, edm::Transition::BeginLuminosityBlock>(restoreStateBeginLumiTag_);
         restoreStateToken_ = consumes<RandomEngineStates>(restoreStateTag_);
       }
 

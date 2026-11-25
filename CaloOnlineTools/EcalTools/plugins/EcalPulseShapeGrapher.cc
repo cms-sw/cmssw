@@ -18,6 +18,8 @@
 
 #include "CaloOnlineTools/EcalTools/plugins/EcalPulseShapeGrapher.h"
 
+#include <memory>
+
 //
 // constants, enums and typedefs
 //
@@ -91,7 +93,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
   const Handle<EBDigiCollection>& EBdigis = iEvent.getHandle(EBDigis_);
   const Handle<EEDigiCollection>& EEdigis = iEvent.getHandle(EEDigis_);
 
-  unique_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
+  unique_ptr<EcalElectronicsMapping> ecalElectronicsMap = std::make_unique<EcalElectronicsMapping>();
 
   // Loop over the hits
   for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBHits->begin(); hitItr != EBHits->end(); ++hitItr) {

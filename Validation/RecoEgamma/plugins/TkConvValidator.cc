@@ -2243,7 +2243,6 @@ math::XYZVector TkConvValidator::recalculateMomentumAtFittedVertex(const Magneti
                                                                    const TrackerGeometry& trackerGeom,
                                                                    const edm::RefToBase<reco::Track>& tk,
                                                                    const reco::Vertex& vtx) {
-  math::XYZVector result;
   Surface::RotationType rot;
   auto scp = new SimpleCylinderBounds(sqrt(vtx.position().perp2()) - 0.001f,
                                       sqrt(vtx.position().perp2()) + 0.001f,

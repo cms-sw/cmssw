@@ -108,9 +108,9 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig,
     sprintf(sladder, "Ladder_%02i", DBladder);
     hid = src.label() + "_" + sladder;
     if (isHalfModule)
-      hid += "H";
+      hid += 'H';
     else
-      hid += "F";
+      hid += 'F';
     // Number of digis
     meNDigisLad_ = iBooker.book1D("ndigis_" + hid, "Number of Digis", 25, 0., 25.);
     meNDigisLad_->setAxisTitle("Number of digis", 1);

@@ -15,6 +15,7 @@
 #include "G4Track.hh"
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -64,7 +65,7 @@ HGCalTBMBProducer::HGCalTBMBProducer(const edm::ParameterSet& p)
 }
 
 void HGCalTBMBProducer::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<MaterialAccountingCaloCollection> hgc(new MaterialAccountingCaloCollection);
+  std::unique_ptr<MaterialAccountingCaloCollection> hgc = std::make_unique<MaterialAccountingCaloCollection>();
   for (auto const& mbc : matcoll_) {
     hgc->emplace_back(mbc);
   }

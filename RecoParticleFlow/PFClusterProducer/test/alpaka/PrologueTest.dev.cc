@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <iostream>
 #include <cstdlib>
-#include <Eigen/Core>
-#include <Eigen/Dense>
 #include <alpaka/alpaka.hpp>
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"

@@ -110,9 +110,9 @@ namespace edm {
 
     template <typename T>
     std::vector<edm::ProductResolverIndexAndSkipBit> const& ProducingModuleAdaptorBase<T>::itemsToGetFrom(
-        BranchType iType) const {
+        Transition iTransition) const {
       assert(not m_streamModules.empty());
-      return m_streamModules[0]->itemsToGetFrom(iType);
+      return m_streamModules[0]->itemsToGetFrom(iTransition);
     }
 
     template <typename T>
@@ -199,7 +199,7 @@ namespace edm {
                                                          EventPrincipal const& iEvent,
                                                          ActivityRegistry*,
                                                          ModuleCallingContext iMCC,
-                                                         ServiceWeakToken const&) noexcept {}
+                                                         ServiceToken const&) noexcept {}
 
     template <typename T>
     void ProducingModuleAdaptorBase<T>::doBeginStream(StreamID id) {

@@ -15,10 +15,10 @@ public:
   SimTracksterTableProducer(const edm::ParameterSet& cfg)
       : tableName_(cfg.getParameter<std::string>("tableName")),
         skipNonExistingSrc_(cfg.getParameter<bool>("skipNonExistingSrc")),
-        simTrackstersToken_(mayConsume<std::vector<ticl::Trackster>>(cfg.getParameter<edm::InputTag>("simTracksters"))),
-        caloParticlesToken_(mayConsume<std::vector<CaloParticle>>(cfg.getParameter<edm::InputTag>("caloParticles"))),
-        simClustersToken_(mayConsume<std::vector<SimCluster>>(cfg.getParameter<edm::InputTag>("simClusters"))),
-        caloParticleToSimClustersMap_token_(mayConsume<std::map<uint, std::vector<uint>>>(
+        simTrackstersToken_(consumes<std::vector<ticl::Trackster>>(cfg.getParameter<edm::InputTag>("simTracksters"))),
+        caloParticlesToken_(consumes<std::vector<CaloParticle>>(cfg.getParameter<edm::InputTag>("caloParticles"))),
+        simClustersToken_(consumes<std::vector<SimCluster>>(cfg.getParameter<edm::InputTag>("simClusters"))),
+        caloParticleToSimClustersMap_token_(consumes<std::map<uint, std::vector<uint>>>(
             cfg.getParameter<edm::InputTag>("caloParticleToSimClustersMap"))),
         precision_(cfg.getParameter<int>("precision")) {
     produces<nanoaod::FlatTable>(tableName_);

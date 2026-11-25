@@ -5,7 +5,7 @@
 #include "Math/SMatrix.h"
 #include "Math/SVector.h"
 #include <memory>
-#include "FWCore/Utilities/interface/HRRealTime.h"
+#include <benchmark/benchmark.h>
 #include <iostream>
 
 typedef ROOT::Math::SMatrix<double, 2, 2, ROOT::Math::MatRepSym<double, 2> > Matrix2;
@@ -24,8 +24,25 @@ void finvert(Matrix2& mm) {
   m[2] = c2;
 }
 
-void st() {}
-void en() {}
+void BM_invertPosDefMatrix(benchmark::State& state) {
+  double v[3] = {1., -0.2, 0.5};
+  Matrix2 m(v, 3);
+  for (auto _ : state) {
+    invertPosDefMatrix(m);
+    benchmark::DoNotOptimize(m);
+  }
+}
+BENCHMARK(BM_invertPosDefMatrix);
+
+void BM_SMatrixInvert(benchmark::State& state) {
+  double v[3] = {1., -0.2, 0.5};
+  Matrix2 m(v, 3);
+  for (auto _ : state) {
+    m.Invert();
+    benchmark::DoNotOptimize(m);
+  }
+}
+BENCHMARK(BM_SMatrixInvert);
 
 int main(int argc, char* argv[]) {
   double v[3] = {1., -0.2, 0.5};
@@ -46,42 +63,8 @@ int main(int argc, char* argv[]) {
   finvert(m);
   std::cout << m << std::endl;
 
-  if (argc > 1) {
-    {
-      edm::HRTimeType s = edm::hrRealTime();
-      st();
-      invertPosDefMatrix(m);
-      en();
-      edm::HRTimeType e = edm::hrRealTime();
-      std::cout << e - s << std::endl;
-    }
-
-    {
-      edm::HRTimeType s = edm::hrRealTime();
-      st();
-      invertPosDefMatrix(m);
-      en();
-      edm::HRTimeType e = edm::hrRealTime();
-      std::cout << e - s << std::endl;
-    }
-  } else {
-    {
-      edm::HRTimeType s = edm::hrRealTime();
-      st();
-      m.Invert();
-      en();
-      edm::HRTimeType e = edm::hrRealTime();
-      std::cout << e - s << std::endl;
-    }
-
-    {
-      edm::HRTimeType s = edm::hrRealTime();
-      st();
-      m.Invert();
-      en();
-      edm::HRTimeType e = edm::hrRealTime();
-      std::cout << e - s << std::endl;
-    }
-  }
+  benchmark::Initialize(&argc, argv);
+  benchmark::RunSpecifiedBenchmarks();
+  benchmark::Shutdown();
   return 0;
 }

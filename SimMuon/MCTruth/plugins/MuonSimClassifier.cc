@@ -526,10 +526,10 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     edm::OrphanHandle<reco::GenParticleCollection> secHandle = iEvent.put(std::move(secondaries), "secondaries");
     edm::RefProd<reco::GenParticleCollection> priRP(genParticles);
     edm::RefProd<reco::GenParticleCollection> secRP(secHandle);
-    std::unique_ptr<edm::Association<reco::GenParticleCollection>> outPri(
-        new edm::Association<reco::GenParticleCollection>(priRP));
-    std::unique_ptr<edm::Association<reco::GenParticleCollection>> outSec(
-        new edm::Association<reco::GenParticleCollection>(secRP));
+    std::unique_ptr<edm::Association<reco::GenParticleCollection>> outPri =
+        std::make_unique<edm::Association<reco::GenParticleCollection>>(priRP);
+    std::unique_ptr<edm::Association<reco::GenParticleCollection>> outSec =
+        std::make_unique<edm::Association<reco::GenParticleCollection>>(secRP);
     edm::Association<reco::GenParticleCollection>::Filler fillPri(*outPri), fillSec(*outSec);
     fillPri.insert(muons, muToPrimary.begin(), muToPrimary.end());
     fillSec.insert(muons, muToSecondary.begin(), muToSecondary.end());

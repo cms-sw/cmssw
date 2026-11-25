@@ -113,6 +113,7 @@ private:
   std::unique_ptr<MahiFit> mahiOOTpuCorr_;
 
   HcalPulseShapes theHcalPulseShapes_;
+  bool firstInARun_;
 };
 
 #endif  // RecoLocalCalo_HcalRecAlgos_SimpleHBHEPhase1Algo_h_

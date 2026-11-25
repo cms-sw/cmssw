@@ -38,7 +38,7 @@ namespace edm {
   class GlobalSchedule;
   class ActivityRegistry;
   class EventForTransformer;
-  class ServiceWeakToken;
+  class ServiceToken;
 
   namespace maker {
     template <typename T>
@@ -52,9 +52,9 @@ namespace edm {
       template <typename T>
       friend class edm::maker::ModuleHolderT;
       template <typename T, typename TI, typename TP>
-      friend class edm::WorkerT;
+      friend class edm::ModuleTransitionWorker;
       template <typename T, typename TI, typename TP>
-      friend class edm::WorkerTBase;
+      friend class edm::ModuleTransitionWorkerBase;
       typedef EDProducerBase ModuleType;
 
       friend class edm::GlobalSchedule;
@@ -85,7 +85,7 @@ namespace edm {
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&) noexcept;
+                            ServiceToken const&) noexcept;
       void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
       void doEndJob();
@@ -160,7 +160,7 @@ namespace edm {
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
                                    edm::ActivityRegistry* iAct,
-                                   ServiceWeakToken const& iToken) const noexcept;
+                                   ServiceToken const& iToken) const noexcept;
 
       virtual void clearInputProcessBlockCaches();
       virtual bool hasAccumulator() const noexcept { return false; }

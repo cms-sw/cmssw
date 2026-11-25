@@ -75,18 +75,19 @@ from Validation.MtdValidation.MtdPostProcessor_cff import *
 
 postValidation_common = cms.Sequence()
 
-# Branch performance-plot harvesting (efficiency from the booked num/denom), gated by
-# enableTruth (Run4 .88 truth workflows). postValidation_common is the harvesting
-# member of the 'baseValidation' triplet that autoValidation['phase2Validation']
-# schedules - the counterpart of the baseCommon{PreValidation,Validation} hook in
-# globalValidation_cff. The .88 workflow variant therefore also applies enableTruth to
-# the HARVESTGlobal step (see Configuration/PyReleaseValidation), and the Run4 eras
-# apply it to every step of their workflows. Import * so the
-# harvester modules are labelled when the process loads this cff; reco-side
-# harvesters stay opt-in (see truthGraphDQMHarvester_cff).
+# Truth-graph harvesting, gated by enableTruth (Run4 .88 truth workflows).
+# postValidation_common is the harvesting member of the 'baseValidation' triplet that
+# autoValidation['phase2Validation'] schedules - the counterpart of the
+# baseCommon{PreValidation,Validation} hook in globalValidation_cff. The .88 workflow
+# variant therefore also applies enableTruth to the HARVESTGlobal step (see
+# Configuration/PyReleaseValidation), and the Run4 eras apply it to every step of their
+# workflows. Import * so the harvester modules are labelled when the process loads this
+# cff.
+# The association performance plots are not booked by default, so their harvesting is
+# not scheduled either. customiseTruthBranchValidation adds both.
 from Configuration.ProcessModifiers.enableTruth_cff import enableTruth
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-from PhysicsTools.TruthInfo.truthGraphDQMHarvester_cff import *
+from Validation.TruthInfo.truthGraphDQMHarvester_cff import *
 # premix_stage2 builds no truth products (see globalValidation_cff), so the harvesting
 # reverts to the truth-free sequence there; the later statement wins.
 _postValidationCommonNoTruth = postValidation_common.copy()

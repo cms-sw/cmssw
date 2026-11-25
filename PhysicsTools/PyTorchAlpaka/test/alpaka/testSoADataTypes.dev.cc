@@ -21,6 +21,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     CPPUNIT_TEST(testSingleElement);
     CPPUNIT_TEST(testNoElement);
     CPPUNIT_TEST(testEmptyMetadata);
+    CPPUNIT_TEST(testStorageOrder);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -29,6 +30,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     void testSingleElement();
     void testNoElement();
     void testEmptyMetadata();
+    void testStorageOrder();
   };
 
   CPPUNIT_TEST_SUITE_REGISTRATION(TestSOADataTypesAlpaka);
@@ -57,6 +59,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
   using SoAHostCollectionView = PortableHostCollection<SoA>::View;
 
   constexpr auto tol = 1.0e-5;
+
+  // Eigen columns with different storage orders
+  using Matrix23 = Eigen::Matrix<float, 2, 3>;
+  using RowMajorMatrix23 = Eigen::Matrix<float, 2, 3, Eigen::RowMajor>;
+  GENERATE_SOA_LAYOUT(StorageOrderTemplate,
+                      SOA_EIGEN_COLUMN(Matrix23, colMajor),
+                      SOA_EIGEN_COLUMN(RowMajorMatrix23, rowMajor),
+                      SOA_EIGEN_COLUMN(Eigen::RowVector3f, rowVector))
+  using StorageOrderSoA = StorageOrderTemplate<>;
+  using StorageOrderCollection = PortableCollection<Device, StorageOrderSoA>;
+  using StorageOrderHostCollection = PortableHostCollection<StorageOrderSoA>;
+
+  // true if TensorCollection::add() accepts the given column, without and with a TensorSlice
+  template <typename Column>
+  constexpr bool can_add = requires(cms::torch::alpakatools::TensorCollection<Queue> tensors, Column column) {
+    tensors.template add<StorageOrderSoA>(std::string(), column);
+  };
+  template <typename Column>
+  constexpr bool can_add_slice = requires(cms::torch::alpakatools::TensorCollection<Queue> tensors, Column column) {
+    tensors.template add<StorageOrderSoA>(std::string(), cms::torch::alpakatools::TensorSlice{}, column);
+  };
 
   class FillKernel {
   public:
@@ -207,7 +230,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     fill(queue, deviceCollection);
     auto records = deviceCollection.view().records();
 
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     input.add<SoA>("vector", records.a(), records.b());
     input.add<SoA>("single_vector", records.a());
     input.add<SoA>("matrix", records.c());
@@ -242,11 +265,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     fill(queue, deviceCollection);
 
     auto records = deviceCollection.view().records();
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     input.add<SoA>("x", records.x());
     input.add<SoA>("y", records.y());
 
-    cms::torch::alpakatools::TensorCollection<Queue> output(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> output;
     output.add<SoA>("v", records.v());
     output.add<SoA>("w", records.w());
 
@@ -272,7 +295,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     auto records = deviceCollection.view().records();
 
     // Run Converter for single tensor
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     input.add<SoA>("vector", records.a(), records.b());
     input.add<SoA>("single_vector", records.a(), records.b());
     input.add<SoA>("matrix", records.c());
@@ -281,7 +304,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     input.add<SoA>("scalar", records.type());
     input.change_order({"column", "scalar", "matrix", "vector", "single_column", "single_vector"});
 
-    cms::torch::alpakatools::TensorCollection<Queue> output(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> output;
     output.add<SoA>("result", records.v());
 
     std::vector<::torch::IValue> tensors = cms::torch::alpakatools::detail::convertInput(input, torchDevice);
@@ -307,7 +330,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     auto records = deviceCollection.view().records();
 
     // Run Converter
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
     input.add<SoA>("vector", records.a(), records.b());
     input.add<SoA>("matrix", records.c());
     input.add<SoA>("column", records.x(), records.y(), records.z());
@@ -338,12 +361,52 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest {
     fill(queue, deviceCollection);
 
     // Run Converter for empty metadata
-    cms::torch::alpakatools::TensorCollection<Queue> input(batch_size);
+    cms::torch::alpakatools::TensorCollection<Queue> input;
 
     std::vector<::torch::IValue> tensors = cms::torch::alpakatools::detail::convertInput(input, torchDevice);
 
     // Check if tensor list is empty
     CPPUNIT_ASSERT(tensors.size() == 0);
+  };
+
+  void TestSOADataTypesAlpaka::testStorageOrder() {
+    Platform platform;
+    std::vector<Device> alpakaDevices = ::alpaka::getDevs(platform);
+    CPPUNIT_ASSERT(alpakaDevices.size());
+    Queue queue(alpakaDevices[0]);
+    ::torch::Device torchDevice = cms::torch::alpakatools::getDevice(queue);
+
+    const int batch_size = 35;
+    StorageOrderCollection deviceCollection(queue, batch_size);
+    auto records = deviceCollection.view().records();
+
+    // column-major matrices and row vectors are accepted, row-major matrices are rejected at compile time
+    static_assert(can_add<decltype(records.colMajor())>);
+    static_assert(can_add_slice<decltype(records.colMajor())>);
+    static_assert(can_add<decltype(records.rowVector())>);
+    static_assert(can_add_slice<decltype(records.rowVector())>);
+    static_assert(not can_add<decltype(records.rowMajor())>);
+    static_assert(not can_add_slice<decltype(records.rowMajor())>);
+
+    // a row vector, stored in row-major order, is read correctly as a [batch, 1, 3] tensor
+    StorageOrderHostCollection hostCollection(queue, batch_size);
+    for (int i = 0; i < batch_size; ++i)
+      for (int c = 0; c < 3; ++c)
+        hostCollection.view()[i].rowVector()(c) = 10 * i + c;
+    alpaka::memcpy(queue, deviceCollection.buffer(), hostCollection.buffer());
+    alpaka::wait(queue);
+
+    cms::torch::alpakatools::TensorCollection<Queue> input;
+    input.add<StorageOrderSoA>("rowVector", records.rowVector());
+    std::vector<::torch::IValue> tensors = cms::torch::alpakatools::detail::convertInput(input, torchDevice);
+    auto tensor = tensors[0].toTensor().to(::torch::kCPU);
+
+    CPPUNIT_ASSERT_EQUAL(int64_t{batch_size}, tensor.size(0));
+    CPPUNIT_ASSERT_EQUAL(int64_t{1}, tensor.size(1));
+    CPPUNIT_ASSERT_EQUAL(int64_t{3}, tensor.size(2));
+    for (int i = 0; i < batch_size; ++i)
+      for (int c = 0; c < 3; ++c)
+        CPPUNIT_ASSERT_EQUAL(static_cast<float>(10 * i + c), tensor[i][0][c].item<float>());
   };
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE::torchtest

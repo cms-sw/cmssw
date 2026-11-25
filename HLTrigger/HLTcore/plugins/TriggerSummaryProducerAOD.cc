@@ -7,6 +7,7 @@
  *
  */
 
+#include <memory>
 #include <ostream>
 #include <algorithm>
 #include <memory>
@@ -395,7 +396,7 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
 
   ///
   /// construct single AOD product, reserving capacity
-  unique_ptr<TriggerEvent> product(new TriggerEvent(pn_, nk, no, nf));
+  unique_ptr<TriggerEvent> product = std::make_unique<TriggerEvent>(pn_, nk, no, nf);
 
   /// fill trigger object collection
   product->addCollections(tags, keys);

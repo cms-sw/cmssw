@@ -1,6 +1,8 @@
 #ifndef RecoTracker_LSTCore_src_alpaka_Triplet_h
 #define RecoTracker_LSTCore_src_alpaka_Triplet_h
 
+#include <limits>
+
 #include "HeterogeneousCore/AlpakaInterface/interface/workdivision.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
@@ -43,6 +45,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     float x3, y3, z3, rt3;
   };
 
+  // Triplet charge: the bending direction of the three anchor hits in the transverse plane.
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE short tripletCharge(T3HitCoords const& hitCoords) {
+    const float cross = (hitCoords.x2 - hitCoords.x1) * (hitCoords.y3 - hitCoords.y1) -
+                        (hitCoords.y2 - hitCoords.y1) * (hitCoords.x3 - hitCoords.x1);
+    return -1 * ((int)copysignf(1.0f, cross));
+  }
+
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE T3InnerSegData loadT3InnerSegData(TAcc const& acc,
                                                                    MiniDoubletsConst mds,
@@ -78,68 +87,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return d;
   }
 
-  // True if a flat-barrel mini-doublet's two-hit direction is off the triplet circle's tangent by 6 sigma or more.
-  template <alpaka::concepts::Acc TAcc>
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool t3MdDirectionFail(TAcc const& acc,
-                                                        ModulesConst modules,
-                                                        MiniDoubletsConst mds,
-                                                        const uint16_t* lowerModuleIndices,
-                                                        const unsigned int* mdIndices) {
-    float ax[Params_T3::kLayers], ay[Params_T3::kLayers];
-    for (int i = 0; i < Params_T3::kLayers; ++i) {
-      ax[i] = mds.anchorX()[mdIndices[i]];
-      ay[i] = mds.anchorY()[mdIndices[i]];
-    }
-    for (int i = 0; i < Params_T3::kLayers; ++i) {
-      const uint16_t lowerModuleIndex = lowerModuleIndices[i];
-      if (modules.subdets()[lowerModuleIndex] != Barrel || modules.sides()[lowerModuleIndex] != Center)
-        continue;
-      // Tangent at anchor i of the circle through the three anchors, by inversion about anchor i.
-      const int j = (i + 1) % Params_T3::kLayers, k = (i + 2) % Params_T3::kLayers;
-      const float ajx = ax[j] - ax[i], ajy = ay[j] - ay[i], akx = ax[k] - ax[i], aky = ay[k] - ay[i];
-      const float invj = 1.f / (ajx * ajx + ajy * ajy), invk = 1.f / (akx * akx + aky * aky);
-      const float tx = ajx * invj - akx * invk, ty = ajy * invj - aky * invk;
-      const float dx = mds.outerX()[mdIndices[i]] - ax[i];
-      const float dy = mds.outerY()[mdIndices[i]] - ay[i];
-      // Distance of the outer hit from the tangent line.
-      const float offset = alpaka::math::abs(acc, dx * ty - dy * tx) / alpaka::math::sqrt(acc, tx * tx + ty * ty);
-      const float width = (modules.moduleType()[lowerModuleIndex] == PS) ? kWidthPS : kWidth2S;
-      // Two-hit resolution: width * sqrt(2 / 12).
-      if (offset >= 6.f * width * 0.40824829f)
-        return true;
-    }
-    return false;
-  }
-
-  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(Triplets triplets,
-                                                         TripletsBySegment tripletsBySegment,
-                                                         TripletsByMD tripletsByMD,
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void addTripletToMemory(TripletsBuild triplets,
                                                          unsigned int innerSegmentIndex,
                                                          unsigned int outerSegmentIndex,
-                                                         uint16_t innerInnerLowerModuleIndex,
-                                                         uint16_t middleLowerModuleIndex,
-                                                         uint16_t outerOuterLowerModuleIndex,
                                                          float betaIn,
                                                          float betaInCut,
                                                          float circleRadius,
                                                          float circleCenterX,
                                                          float circleCenterY,
                                                          unsigned int tripletIndex,
-                                                         unsigned int tripletBySegmentIndex,
-                                                         unsigned int tripletByMDIndex,
                                                          float (&t3Scores)[dnn::t3dnn::kOutputFeatures],
                                                          short charge,
                                                          uint8_t flags) {
     triplets.segmentIndices()[tripletIndex][0] = innerSegmentIndex;
     triplets.segmentIndices()[tripletIndex][1] = outerSegmentIndex;
-    triplets.lowerModuleIndices()[tripletIndex][0] = innerInnerLowerModuleIndex;
-    triplets.lowerModuleIndices()[tripletIndex][1] = middleLowerModuleIndex;
-    triplets.lowerModuleIndices()[tripletIndex][2] = outerOuterLowerModuleIndex;
 
     triplets.radius()[tripletIndex] = circleRadius;
     triplets.centerX()[tripletIndex] = circleCenterX;
     triplets.centerY()[tripletIndex] = circleCenterY;
-    triplets.charge()[tripletIndex] = charge;
+    triplets.charge()[tripletIndex] = static_cast<int8_t>(charge);
     triplets.flags()[tripletIndex] = flags;
 #ifdef CUT_VALUE_DEBUG
     triplets.betaIn()[tripletIndex] = __F2H(betaIn);
@@ -149,10 +115,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     triplets.fakeScore()[tripletIndex] = t3Scores[0];
     triplets.promptScore()[tripletIndex] = t3Scores[1];
     triplets.displacedScore()[tripletIndex] = t3Scores[2];
-
-    //ordered cached data
-    tripletsBySegment.tripletIndex()[tripletBySegmentIndex] = tripletIndex;
-    tripletsByMD.tripletIndex()[tripletByMDIndex] = tripletIndex;
   }
 
   template <alpaka::concepts::Acc TAcc>
@@ -165,7 +127,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                                        float circleRadius,
                                                        float circleCenterX,
                                                        float circleCenterY,
-                                                       short& charge) {
+                                                       short& charge,
+                                                       const float cutScale = 1.f) {
     // Using lst_layer numbering convention defined in ModuleMethods.h
     const short layer1 = modules.lstLayers()[innerInnerLowerModuleIndex];
     const short layer2 = modules.lstLayers()[middleLowerModuleIndex];
@@ -193,26 +156,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     const float y2 = hitCoords.y2 / 100;
     const float y3 = hitCoords.y3 / 100;
 
-    float cross = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
-    charge = -1 * ((int)copysignf(1.0f, cross));
+    charge = tripletCharge(hitCoords);
 
     //region definitions: https://github.com/user-attachments/assets/2b3c1425-66eb-4524-83de-deb6f3b31f71
     if (layer1 == 1 && layer2 == 7) {
-      return residual < 0.01f;  // Region 9
+      return residual < 0.01f * cutScale;  // Region 9
     } else if (layer1 == 3 && layer2 == 4) {
       if (layer3 == 5) {
-        return residual < 0.037127972f;  // Region 20
+        return residual < 0.037127972f * cutScale;  // Region 20
       } else if (layer3 == 12) {
-        return residual < 0.05f;  // Region 21
+        return residual < 0.05f * cutScale;  // Region 21
       }
     } else if (layer1 == 4) {
       if (layer2 == 12) {
-        return residual < 0.063831687f;  // Region 22
+        return residual < 0.063831687f * cutScale;  // Region 22
       } else if (layer2 == 5) {
         if (layer3 == 6) {
-          return residual < 0.04362525f;  // Region 23
+          return residual < 0.04362525f * cutScale;  // Region 23
         } else if (layer3 == 12) {
-          return residual < 0.05f;  // Region 24
+          return residual < 0.05f * cutScale;  // Region 24
         }
       }
     }
@@ -331,6 +293,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     rzChiSquared = 12 * (residual * residual) / (error * error * projection_missing2);
 
+    // A loosened copy of this cut keeps every candidate whose helix residual is not finite.
+    if (cutScale > 1.f && edm::isNotFinite(rzChiSquared))
+      return true;
     //helix calculation returns NaN, use linear approximation
     if (edm::isNotFinite(rzChiSquared) || circleRadius < 0) {
       float slope = (z3 - z1) / (r3 - r1);
@@ -339,7 +304,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
       residual = (moduleType3 == 0) ? residual / 0.15f : residual / 5.0f;
 
       rzChiSquared = 12 * residual * residual;
-      return rzChiSquared < 2.8e-4;
+      return rzChiSquared < 2.8e-4 * cutScale;
     }
 
     //cuts for different regions
@@ -348,64 +313,64 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     if (layer1 == 7) {
       if (layer2 == 8) {
         if (layer3 == 9) {
-          return rzChiSquared < 65.47191f;  // Region 0
+          return rzChiSquared < 65.47191f * cutScale;  // Region 0
         } else if (layer3 == 14) {
-          return rzChiSquared < 3.3200853f;  // Region 1
+          return rzChiSquared < 3.3200853f * cutScale;  // Region 1
         }
       } else if (layer2 == 13) {
-        return rzChiSquared < 17.194584f;  // Region 2
+        return rzChiSquared < 17.194584f * cutScale;  // Region 2
       }
     } else if (layer1 == 8) {
       if (layer2 == 9) {
         if (layer3 == 10) {
-          return rzChiSquared < 114.91959f;  // Region 3
+          return rzChiSquared < 114.91959f * cutScale;  // Region 3
         } else if (layer3 == 15) {
-          return rzChiSquared < 3.4359624f;  // Region 4
+          return rzChiSquared < 3.4359624f * cutScale;  // Region 4
         }
       } else if (layer2 == 14) {
-        return rzChiSquared < 4.6487956f;  // Region 5
+        return rzChiSquared < 4.6487956f * cutScale;  // Region 5
       }
     } else if (layer1 == 9) {
       if (layer2 == 10) {
         if (layer3 == 11) {
-          return rzChiSquared < 97.34339f;  // Region 6
+          return rzChiSquared < 97.34339f * cutScale;  // Region 6
         } else if (layer3 == 16) {
-          return rzChiSquared < 3.095819f;  // Region 7
+          return rzChiSquared < 3.095819f * cutScale;  // Region 7
         }
       } else if (layer2 == 15) {
-        return rzChiSquared < 11.477617f;  // Region 8
+        return rzChiSquared < 11.477617f * cutScale;  // Region 8
       }
     } else if (layer1 == 1) {
       if (layer3 == 7) {
-        return rzChiSquared < 96.949936f;  // Region 10
+        return rzChiSquared < 96.949936f * cutScale;  // Region 10
       } else if (layer3 == 3) {
-        return rzChiSquared < 458.43982f;  // Region 11
+        return rzChiSquared < 458.43982f * cutScale;  // Region 11
       }
     } else if (layer1 == 2) {
       if (layer2 == 7) {
         if (layer3 == 8) {
-          return rzChiSquared < 218.82303f;  // Region 12
+          return rzChiSquared < 218.82303f * cutScale;  // Region 12
         } else if (layer3 == 13) {
-          return rzChiSquared < 3.155554f;  // Region 13
+          return rzChiSquared < 3.155554f * cutScale;  // Region 13
         }
       } else if (layer2 == 3) {
         if (layer3 == 7) {
-          return rzChiSquared < 235.5005f;  // Region 14
+          return rzChiSquared < 235.5005f * cutScale;  // Region 14
         } else if (layer3 == 12) {
-          return rzChiSquared < 3.8522234f;  // Region 15
+          return rzChiSquared < 3.8522234f * cutScale;  // Region 15
         } else if (layer3 == 4) {
-          return rzChiSquared < 3.5852437f;  // Region 16
+          return rzChiSquared < 3.5852437f * cutScale;  // Region 16
         }
       }
     } else if (layer1 == 3) {
       if (layer2 == 7) {
         if (layer3 == 8) {
-          return rzChiSquared < 42.68f;  // Region 17
+          return rzChiSquared < 42.68f * cutScale;  // Region 17
         } else if (layer3 == 13) {
-          return rzChiSquared < 3.853796f;  // Region 18
+          return rzChiSquared < 3.853796f * cutScale;  // Region 18
         }
       } else if (layer2 == 12) {
-        return rzChiSquared < 6.2774787f;  // Region 19
+        return rzChiSquared < 6.2774787f * cutScale;  // Region 19
       }
     }
     return false;
@@ -469,14 +434,54 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return (sinBetaInSq < sinBetaInCutSq * r2) ? 1 : 2;
   }
 
+  // The r-z cut of runTripletConstraintsAndAlgo (loosened by cutScale > 1 for the counting kernel).
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE bool passTripletRZCountCut(TAcc const& acc,
+                                                            ModulesConst modules,
+                                                            MiniDoubletsConst mds,
+                                                            SegmentsConst segments,
+                                                            uint16_t innerInnerLowerModuleIndex,
+                                                            uint16_t middleLowerModuleIndex,
+                                                            uint16_t outerOuterLowerModuleIndex,
+                                                            unsigned int innerSegmentIndex,
+                                                            unsigned int outerSegmentIndex,
+                                                            const float cutScale) {
+    const unsigned int firstMDIndex = segments.mdIndices()[innerSegmentIndex][0];
+    const unsigned int secondMDIndex = segments.mdIndices()[outerSegmentIndex][0];
+    const unsigned int thirdMDIndex = segments.mdIndices()[outerSegmentIndex][1];
+    T3HitCoords hitCoords;
+    hitCoords.x1 = mds.anchorX()[firstMDIndex];
+    hitCoords.y1 = mds.anchorY()[firstMDIndex];
+    hitCoords.z1 = mds.anchorZ()[firstMDIndex];
+    hitCoords.rt1 = mds.anchorRt()[firstMDIndex];
+    hitCoords.x2 = mds.anchorX()[secondMDIndex];
+    hitCoords.y2 = mds.anchorY()[secondMDIndex];
+    hitCoords.z2 = mds.anchorZ()[secondMDIndex];
+    hitCoords.rt2 = mds.anchorRt()[secondMDIndex];
+    hitCoords.x3 = mds.anchorX()[thirdMDIndex];
+    hitCoords.y3 = mds.anchorY()[thirdMDIndex];
+    hitCoords.z3 = mds.anchorZ()[thirdMDIndex];
+    hitCoords.rt3 = mds.anchorRt()[thirdMDIndex];
+    const auto [circleRadius, circleCenterX, circleCenterY] = computeRadiusFromThreeAnchorHits(
+        acc, hitCoords.x1, hitCoords.y1, hitCoords.x2, hitCoords.y2, hitCoords.x3, hitCoords.y3);
+    short charge;
+    return passRZConstraint(acc,
+                            modules,
+                            innerInnerLowerModuleIndex,
+                            middleLowerModuleIndex,
+                            outerOuterLowerModuleIndex,
+                            hitCoords,
+                            circleRadius,
+                            circleCenterX,
+                            circleCenterY,
+                            charge,
+                            cutScale);
+  }
+
   template <alpaka::concepts::Acc TAcc>
   ALPAKA_FN_ACC ALPAKA_FN_INLINE bool runTripletConstraintsAndAlgo(TAcc const& acc,
-                                                                   ModulesConst modules,
                                                                    MiniDoubletsConst mds,
                                                                    SegmentsConst segments,
-                                                                   uint16_t innerInnerLowerModuleIndex,
-                                                                   uint16_t middleLowerModuleIndex,
-                                                                   uint16_t outerOuterLowerModuleIndex,
                                                                    unsigned int innerSegmentIndex,
                                                                    unsigned int outerSegmentIndex,
                                                                    float& betaIn,
@@ -508,17 +513,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     std::tie(circleRadius, circleCenterX, circleCenterY) = computeRadiusFromThreeAnchorHits(
         acc, hitCoords.x1, hitCoords.y1, hitCoords.x2, hitCoords.y2, hitCoords.x3, hitCoords.y3);
 
-    if (not passRZConstraint(acc,
-                             modules,
-                             innerInnerLowerModuleIndex,
-                             middleLowerModuleIndex,
-                             outerOuterLowerModuleIndex,
-                             hitCoords,
-                             circleRadius,
-                             circleCenterX,
-                             circleCenterY,
-                             charge))
-      return false;
+    // The r-z cut (passRZConstraint) is applied before, in step 1 of CreateTriplets.
+    charge = tripletCharge(hitCoords);
 
     const float sdIn_alpha = __H2F(segments.dPhiChanges()[innerSegmentIndex]);
 
@@ -548,188 +544,183 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
     return true;
   }
 
-  template <bool ReduceMem>
-  struct CreateTripletsT {
-    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
+  // Segments by inner MD, one block per lower module: those starting at MD m are indexSegByMD[offsetSegByMD[m] + k],
+  // k < nSegByMD[m] (zeroed before), in ascending segment index on the serial backend. Optional: the triplet counts
+  // list only the segments that start a triplet (outer LS1 candidates of a T5), segInnerLowerModule gets their module.
+  struct FillSegmentsByInnerMD {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
-                                  MiniDoubletsConst mds,
                                   MiniDoubletsOccupancyConst mdOccupancy,
                                   SegmentsConst segments,
                                   SegmentsOccupancyConst segmentsOccupancy,
-                                  Triplets triplets,
-                                  TripletsOccupancy tripletsOccupancy,
-                                  TripletsBySegment tripletsBySegment,
-                                  TripletsRanges tripletsRangesBySegment,
-                                  TripletsByMD tripletsByMD,
-                                  TripletsRanges tripletsRangesByMD,
                                   ObjectRangesConst ranges,
-                                  uint16_t* index_gpu,
-                                  uint16_t nonZeroModules,
-                                  const float ptCut) const {
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
-                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
-
-      int& matchCount =
-          alpaka::declareSharedVar<int, __COUNTER__>(acc);  // AtomicAdd does not support uint16_t variable
-      const auto threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc);
-      const auto blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc);
-
-      const int threadIdX = threadIdx.x();
-      const int threadIdY = threadIdx.y();
-      const int blockSizeX = blockDim.x();
-      const int blockSizeY = blockDim.y();
-      const int blockSize = blockSizeX * blockSizeY;
-      const int flatThreadIdxXY = threadIdY * blockSizeX + threadIdX;
-      const int flatThreadExtent = blockSize;  // total threads per block
-
-      auto tryAddTriplet = [&](unsigned int innerSegmentIndex,
-                               unsigned int outerSegmentIndex,
-                               uint16_t innerInnerLowerModuleIndex,
-                               uint16_t middleLowerModuleIndex,
-                               uint16_t outerOuterLowerModuleIndex,
-                               bool loosePointing) {
-        float betaIn, betaInCut, circleRadius, circleCenterX, circleCenterY;
-        short charge;
-        float t3Scores[dnn::t3dnn::kOutputFeatures] = {0.f};
-
-        bool success = runTripletConstraintsAndAlgo(acc,
-                                                    modules,
-                                                    mds,
-                                                    segments,
-                                                    innerInnerLowerModuleIndex,
-                                                    middleLowerModuleIndex,
-                                                    outerOuterLowerModuleIndex,
-                                                    innerSegmentIndex,
-                                                    outerSegmentIndex,
-                                                    betaIn,
-                                                    betaInCut,
-                                                    circleRadius,
-                                                    circleCenterX,
-                                                    circleCenterY,
-                                                    ptCut,
-                                                    t3Scores,
-                                                    charge);
-        if (!success)
-          return;
-        unsigned int totOccupancyTriplets =
-            alpaka::atomicAdd(acc,
-                              &tripletsOccupancy.totOccupancyTriplets()[innerInnerLowerModuleIndex],
-                              1u,
-                              alpaka::hierarchy::Threads{});
-        if (static_cast<int>(totOccupancyTriplets) >= ranges.tripletModuleOccupancy()[innerInnerLowerModuleIndex]) {
-#ifdef WARNINGS
-          printf("Triplet excess alert! Module index = %d, Occupancy = %d\n",
-                 innerInnerLowerModuleIndex,
-                 totOccupancyTriplets);
-#endif
-          return;
-        }
-        const unsigned int tripletModuleIndex = alpaka::atomicAdd(
-            acc, &tripletsOccupancy.nTriplets()[innerInnerLowerModuleIndex], 1u, alpaka::hierarchy::Threads{});
-        const unsigned int tripletIndex =
-            ranges.tripletModuleIndices()[innerInnerLowerModuleIndex] + tripletModuleIndex;
-        const unsigned int tripletBySegmentIndex =
-            alpaka::atomicAdd(acc, &tripletsRangesBySegment.n()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{}) +
-            tripletsRangesBySegment.offset()[innerSegmentIndex];
-        auto const innerMDIndex = segments.mdIndices()[innerSegmentIndex][0];
-        const unsigned int tripletByMDIndex =
-            alpaka::atomicAdd(acc, &tripletsRangesByMD.n()[innerMDIndex], 1u, alpaka::hierarchy::Threads{}) +
-            tripletsRangesByMD.offset()[innerMDIndex];
-
-        const uint16_t lowerModuleIndices[] = {
-            innerInnerLowerModuleIndex, middleLowerModuleIndex, outerOuterLowerModuleIndex};
-        const unsigned int mdIndices[] = {segments.mdIndices()[innerSegmentIndex][0],
-                                          segments.mdIndices()[innerSegmentIndex][1],
-                                          segments.mdIndices()[outerSegmentIndex][1]};
-        uint8_t flags = loosePointing ? kT3LoosePointing : 0;
-        if (t3MdDirectionFail(acc, modules, mds, lowerModuleIndices, mdIndices))
-          flags |= kT3MdDirectionFail;
-        addTripletToMemory(triplets,
-                           tripletsBySegment,
-                           tripletsByMD,
-                           innerSegmentIndex,
-                           outerSegmentIndex,
-                           innerInnerLowerModuleIndex,
-                           middleLowerModuleIndex,
-                           outerOuterLowerModuleIndex,
-                           betaIn,
-                           betaInCut,
-                           circleRadius,
-                           circleCenterX,
-                           circleCenterY,
-                           tripletIndex,
-                           tripletBySegmentIndex,
-                           tripletByMDIndex,
-                           t3Scores,
-                           charge,
-                           flags);
-      };
-
-      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_groups_z(acc, nonZeroModules)) {
-        if (cms::alpakatools::once_per_block(acc)) {
-          matchCount = 0;
-        }
-
-        uint16_t innerInnerLowerModuleIndex = index_gpu[innerLowerModuleArrayIdx];
-        if (innerInnerLowerModuleIndex >= modules.nLowerModules())
+                                  const unsigned int* __restrict__ nTripletsByModule,
+                                  const uint32_t* __restrict__ nTripletsBySegment,
+                                  uint32_t* __restrict__ nSegByMD,
+                                  uint32_t* __restrict__ offsetSegByMD,
+                                  uint32_t* __restrict__ indexSegByMD,
+                                  uint16_t* __restrict__ segInnerLowerModule) const {
+      for (auto module : cms::alpakatools::independent_groups(acc, modules.nLowerModules())) {
+        const unsigned int nSegs = segmentsOccupancy.nSegments()[module];
+        if (nSegs == 0 || (nTripletsByModule != nullptr && nTripletsByModule[module] == 0))
           continue;
-
-        uint16_t nConnectedModules = modules.nConnectedModules()[innerInnerLowerModuleIndex];
-        if (nConnectedModules == 0)
-          continue;
-
-        unsigned int nInnerSegments = segmentsOccupancy.nSegments()[innerInnerLowerModuleIndex];
-        if (nInnerSegments == 0)
-          continue;
-        const auto innerSegmentOffset = ranges.segmentRanges()[innerInnerLowerModuleIndex][0];
-
-        if (cms::alpakatools::once_per_block(acc)) {
-          //the loops are probably too simple to parallelize with a needed atomicAdd for tripletOffset
-          {
-            auto tripletOffset = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex];
-            for (unsigned int idx = 0; idx < nInnerSegments; ++idx) {
-              unsigned int innerSegmentIndex = innerSegmentOffset + idx;
-              tripletsRangesBySegment.offset()[innerSegmentIndex] = tripletOffset;
-              tripletsRangesBySegment.n()[innerSegmentIndex] = 0;
-              tripletOffset += segments.connectedMax()[innerSegmentIndex];
-            }
-          }
-          {
-            auto tripletOffset = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex];
-            const auto innerMDOffset = ranges.mdRanges()[innerInnerLowerModuleIndex][0];
-            const auto nInnerMDs = mdOccupancy.nMDs()[innerInnerLowerModuleIndex];
-            for (unsigned int idx = 0; idx < nInnerMDs; ++idx) {
-              unsigned int innerMDIndex = innerMDOffset + idx;
-              tripletsRangesByMD.offset()[innerMDIndex] = tripletOffset;
-              tripletsRangesByMD.n()[innerMDIndex] = 0;
-              tripletOffset += mds.connectedT3sMax()[innerMDIndex];
-            }
-          }
+        const unsigned int firstSeg = ranges.segmentModuleIndices()[module];
+        for (auto k : cms::alpakatools::independent_group_elements(acc, nSegs)) {
+          const unsigned int seg = firstSeg + k;
+          if (nTripletsBySegment == nullptr || nTripletsBySegment[seg] > 0)
+            alpaka::atomicAdd(acc, &nSegByMD[segments.mdIndices()[seg][0]], 1u, alpaka::hierarchy::Threads{});
         }
-
         alpaka::syncBlockThreads(acc);
-
-        // Step 1: Make inner and outer SG pairs
-        for (unsigned int innerSegmentArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerSegments)) {
-          unsigned int innerSegmentIndex = innerSegmentOffset + innerSegmentArrayIndex;
-          if (segments.connectedMax()[innerSegmentIndex] == 0)
+        if (cms::alpakatools::once_per_block(acc)) {
+          unsigned int offset = firstSeg;
+          const unsigned int firstMD = ranges.mdRanges()[module][0];
+          const unsigned int nMDs = mdOccupancy.nMDs()[module];
+          for (unsigned int md = firstMD; md < firstMD + nMDs; ++md) {
+            offsetSegByMD[md] = offset;
+            offset += nSegByMD[md];
+            nSegByMD[md] = 0;
+          }
+        }
+        alpaka::syncBlockThreads(acc);
+        for (auto k : cms::alpakatools::independent_group_elements(acc, nSegs)) {
+          const unsigned int seg = firstSeg + k;
+          if (nTripletsBySegment != nullptr && nTripletsBySegment[seg] == 0)
             continue;
+          const unsigned int md = segments.mdIndices()[seg][0];
+          const unsigned int position = alpaka::atomicAdd(acc, &nSegByMD[md], 1u, alpaka::hierarchy::Threads{});
+          indexSegByMD[offsetSegByMD[md] + position] = seg;
+          if (segInnerLowerModule != nullptr)
+            segInnerLowerModule[seg] = module;
+        }
+        alpaka::syncBlockThreads(acc);
+      }
+    }
+  };
 
-          uint16_t middleLowerModuleIndex = segments.outerLowerModuleIndices()[innerSegmentIndex];
-          int middleMDIndexInner = segments.mdIndices()[innerSegmentIndex][1];
+  // Full T3 selection of one segment pair; a passing pair gets the next slot of the inner module's range and is
+  // counted per segment and per inner MD (callers run several blocks per module, hence the device-wide atomics).
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void tryAddTriplet(TAcc const& acc,
+                                                    MiniDoubletsConst mds,
+                                                    SegmentsConst segments,
+                                                    TripletsBuild triplets,
+                                                    TripletsOccupancy tripletsOccupancy,
+                                                    TripletsRanges tripletsRangesBySegment,
+                                                    TripletCounts tripletCountsByMD,
+                                                    ObjectRanges ranges,
+                                                    const float ptCut,
+                                                    unsigned int innerSegmentIndex,
+                                                    unsigned int outerSegmentIndex,
+                                                    uint16_t innerInnerLowerModuleIndex,
+                                                    bool loosePointing) {
+    float betaIn, betaInCut, circleRadius, circleCenterX, circleCenterY;
+    short charge;
+    float t3Scores[dnn::t3dnn::kOutputFeatures] = {0.f};
 
-          T3InnerSegData innerSegData = loadT3InnerSegData(
+    bool success = runTripletConstraintsAndAlgo(acc,
+                                                mds,
+                                                segments,
+                                                innerSegmentIndex,
+                                                outerSegmentIndex,
+                                                betaIn,
+                                                betaInCut,
+                                                circleRadius,
+                                                circleCenterX,
+                                                circleCenterY,
+                                                ptCut,
+                                                t3Scores,
+                                                charge);
+    if (!success)
+      return;
+    unsigned int totOccupancyTriplets = alpaka::atomicAdd(
+        acc, &tripletsOccupancy.totOccupancyTriplets()[innerInnerLowerModuleIndex], 1u, alpaka::hierarchy::Blocks{});
+    if (static_cast<int>(totOccupancyTriplets) >= ranges.tripletModuleOccupancy()[innerInnerLowerModuleIndex]) {
+      alpaka::atomicAdd(acc, &ranges.nTripletOverflows(), 1u, alpaka::hierarchy::Blocks{});
+#ifdef WARNINGS
+      printf("Triplet excess alert! Module index = %d, Occupancy = %d\n",
+             innerInnerLowerModuleIndex,
+             totOccupancyTriplets);
+#endif
+      return;
+    }
+    const unsigned int tripletModuleIndex = alpaka::atomicAdd(
+        acc, &tripletsOccupancy.nTriplets()[innerInnerLowerModuleIndex], 1u, alpaka::hierarchy::Blocks{});
+    const unsigned int tripletIndex = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex] + tripletModuleIndex;
+    // Only count here: CompactTriplets fills the by-segment lists; the by-MD counts are read by the DNN features.
+    alpaka::atomicAdd(acc, &tripletsRangesBySegment.n()[innerSegmentIndex], 1u, alpaka::hierarchy::Blocks{});
+    auto const innerMDIndex = segments.mdIndices()[innerSegmentIndex][0];
+    alpaka::atomicAdd(acc, &tripletCountsByMD.n()[innerMDIndex], 1u, alpaka::hierarchy::Blocks{});
+
+    const uint8_t flags = loosePointing ? kT3LoosePointing : 0;
+    addTripletToMemory(triplets,
+                       innerSegmentIndex,
+                       outerSegmentIndex,
+                       betaIn,
+                       betaInCut,
+                       circleRadius,
+                       circleCenterX,
+                       circleCenterY,
+                       tripletIndex,
+                       t3Scores,
+                       charge,
+                       flags);
+  }
+
+  using T3PassMaskType = uint32_t;
+  // Max length of outer LS pass bits CountSegmentConnections stores per inner segment (pass and loose-pointing masks)
+  constexpr unsigned int kT3PassMaskBits = std::numeric_limits<T3PassMaskType>::digits;
+
+  // Step 1 of the triplet creation, flat over the OT segments: the pairs passing the pointing and r-z cuts are stored
+  // per inner module in the creation buffer (in segment order on the serial backends, arrival order on GPU).
+  struct CreateTriplets {
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
+                                  ModulesConst modules,
+                                  MiniDoubletsConst mds,
+                                  SegmentsT3CountsConst segT3Counts,
+                                  SegmentsConst segments,
+                                  TripletsScratch scratch,
+                                  ObjectRanges ranges,
+                                  const float ptCut,
+                                  const uint32_t* __restrict__ nSegByMD,
+                                  const uint32_t* __restrict__ offsetSegByMD,
+                                  const uint32_t* __restrict__ indexSegByMD,
+                                  const uint16_t* __restrict__ segInnerLowerModule,
+                                  const unsigned int nSegments,
+                                  uint32_t* __restrict__ matchCount,  // per-module cursor of the stored pairs
+                                  const T3PassMaskType* __restrict__ t3PassMask,
+                                  const T3PassMaskType* __restrict__ t3LoosePointingMask) const {
+      for (unsigned int innerSegmentIndex : cms::alpakatools::uniform_elements_y(acc, nSegments)) {
+        if (segT3Counts.connectedMax()[innerSegmentIndex] == 0)
+          continue;
+
+        const uint16_t innerInnerLowerModuleIndex = segInnerLowerModule[innerSegmentIndex];
+        const uint16_t middleLowerModuleIndex = segments.outerLowerModuleIndices()[innerSegmentIndex];
+        const unsigned int middleMDIndex = segments.mdIndices()[innerSegmentIndex][1];
+
+        // Only the segments that start at the shared MD (in segment index order on the serial backends).
+        const unsigned int nOuterSegments = nSegByMD[middleMDIndex];
+        if (nOuterSegments == 0)
+          continue;
+        const unsigned int outerListOffset = offsetSegByMD[middleMDIndex];
+
+        // Needed only by the candidates the count did not decide.
+        T3InnerSegData innerSegData{};
+        if (nOuterSegments > kT3PassMaskBits)
+          innerSegData = loadT3InnerSegData(
               acc, mds, segments, modules, innerSegmentIndex, innerInnerLowerModuleIndex, middleLowerModuleIndex);
+        const T3PassMaskType passBits = t3PassMask[innerSegmentIndex];
+        const T3PassMaskType loosePointingBits = t3LoosePointingMask[innerSegmentIndex];
 
-          unsigned int nOuterSegments = segmentsOccupancy.nSegments()[middleLowerModuleIndex];
-          for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
-            unsigned int outerSegmentIndex = ranges.segmentRanges()[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
+        for (unsigned int outerListIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
+          const unsigned int outerSegmentIndex = indexSegByMD[outerListOffset + outerListIndex];
 
-            int middleMDIndexOuter = segments.mdIndices()[outerSegmentIndex][0];
-            if (middleMDIndexInner != middleMDIndexOuter)
+          uint16_t outerOuterLowerModuleIndex = segments.outerLowerModuleIndices()[outerSegmentIndex];
+          bool loosePointing;
+          if (outerListIndex < kT3PassMaskBits) {
+            if (!((passBits >> outerListIndex) & 1u))
               continue;
-
-            uint16_t outerOuterLowerModuleIndex = segments.outerLowerModuleIndices()[outerSegmentIndex];
+            loosePointing = (loosePointingBits >> outerListIndex) & 1u;
+          } else {
             unsigned int thirdMDIndex = segments.mdIndices()[outerSegmentIndex][1];
             float x3 = mds.anchorX()[thirdMDIndex];
             float y3 = mds.anchorY()[thirdMDIndex];
@@ -738,164 +729,160 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
             const int pointing = passPointingConstraint(acc, innerSegData, x3, y3, outerSubdet, ptCut);
             if (not pointing)
               continue;
-            const bool loosePointing = (pointing == 2);
-
-            if constexpr (ReduceMem) {
-              tryAddTriplet(innerSegmentIndex,
-                            outerSegmentIndex,
-                            innerInnerLowerModuleIndex,
-                            middleLowerModuleIndex,
-                            outerOuterLowerModuleIndex,
-                            loosePointing);
+            loosePointing = (pointing == 2);
+            // The r-z cut runs here instead of in step 2, so that step 1 keeps only what the counting kernel counted.
+            if (!passTripletRZCountCut(acc,
+                                       modules,
+                                       mds,
+                                       segments,
+                                       innerInnerLowerModuleIndex,
+                                       middleLowerModuleIndex,
+                                       outerOuterLowerModuleIndex,
+                                       innerSegmentIndex,
+                                       outerSegmentIndex,
+                                       1.f))
               continue;
-            }
-
-            // Match inner Sg and Outer Sg
-            int mIdx = alpaka::atomicAdd(acc, &matchCount, 1, alpaka::hierarchy::Threads{});
-
-            unsigned int tripletIndex = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex] + mIdx;
-
-#ifdef WARNINGS
-            const unsigned int rightBound =
-                static_cast<unsigned int>(ranges.tripletModuleIndices()[innerInnerLowerModuleIndex + 1]);
-            if (tripletIndex >= rightBound) {
-              printf(
-                  "Triplet module occupancy alert! module triplet starting index  = %d, Pair triplet index = "
-                  "%d, next module triplet starting index = %d\n",
-                  ranges.tripletModuleIndices()[innerInnerLowerModuleIndex],
-                  mIdx,
-                  ranges.tripletModuleIndices()[innerInnerLowerModuleIndex + 1]);
-            }
-#endif
-
-            triplets.preAllocatedSegmentIndices()[tripletIndex][0] = innerSegmentIndex;
-            triplets.preAllocatedSegmentIndices()[tripletIndex][1] = outerSegmentIndex;
-            triplets.flags()[tripletIndex] = loosePointing ? kT3LoosePointing : 0;
           }
-        }
 
-        if constexpr (ReduceMem)
-          continue;
+          // Match inner Sg and Outer Sg
+          const unsigned int mIdx =
+              alpaka::atomicAdd(acc, &matchCount[innerInnerLowerModuleIndex], 1u, alpaka::hierarchy::Blocks{});
+          if (static_cast<int>(mIdx) >= ranges.tripletModuleOccupancy()[innerInnerLowerModuleIndex]) {
+            alpaka::atomicAdd(acc, &ranges.nTripletOverflows(), 1u, alpaka::hierarchy::Blocks{});
+            continue;
+          }
 
-        alpaka::syncBlockThreads(acc);
-        if (matchCount == 0) {
-          continue;
-        }
-
-        // Step 2: Parallel processing of segment pairs
-        for (int i = flatThreadIdxXY; i < matchCount; i += flatThreadExtent) {
-          unsigned int tripletIndex = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex] + i;
-          unsigned int innerSegmentIndex = triplets.preAllocatedSegmentIndices()[tripletIndex][0];
-          unsigned int outerSegmentIndex = triplets.preAllocatedSegmentIndices()[tripletIndex][1];
-
-          uint16_t middleLowerModuleIndex = segments.outerLowerModuleIndices()[innerSegmentIndex];
-          uint16_t outerOuterLowerModuleIndex = segments.outerLowerModuleIndices()[outerSegmentIndex];
-          const bool loosePointing = triplets.flags()[tripletIndex] & kT3LoosePointing;
-
-          tryAddTriplet(innerSegmentIndex,
-                        outerSegmentIndex,
-                        innerInnerLowerModuleIndex,
-                        middleLowerModuleIndex,
-                        outerOuterLowerModuleIndex,
-                        loosePointing);
+          const unsigned int tripletIndex = ranges.tripletModuleIndices()[innerInnerLowerModuleIndex] + mIdx;
+          scratch.segmentIndices()[tripletIndex][0] = innerSegmentIndex;
+          scratch.segmentIndices()[tripletIndex][1] = outerSegmentIndex;
+          scratch.flags()[tripletIndex] = loosePointing ? kT3LoosePointing : 0;
         }
       }
     }
   };
 
-  using CreateTriplets = CreateTripletsT<false>;
-  using CreateTripletsReduceMem = CreateTripletsT<true>;
+  // Flag of the creation-buffer slots that hold no match (memset before CreateTriplets).
+  constexpr uint8_t kT3EmptySlot = 0xFF;
 
-  template <bool ReduceMem>
-  struct CountSegmentConnectionsT {
-    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
-                                  ModulesConst modules,
-                                  MiniDoublets mds,
-                                  Segments segments,
-                                  SegmentsOccupancyConst segOcc,
-                                  ObjectRangesConst ranges,
+  // Step 2 of the triplet creation: the full selection of every match stored by CreateTriplets, flat over the
+  // creation buffer (unused slots keep flags == kT3EmptySlot). Slot order = the per-module order of step 1.
+  struct CreateTripletsFromMatches {
+    ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                  MiniDoubletsConst mds,
+                                  SegmentsConst segments,
+                                  TripletsBuild triplets,
+                                  TripletsOccupancy tripletsOccupancy,
+                                  TripletsScratch scratch,
+                                  TripletsRanges tripletsRangesBySegment,
+                                  TripletCounts tripletCountsByMD,
+                                  ObjectRanges ranges,
+                                  const uint16_t* __restrict__ segInnerLowerModule,
+                                  const unsigned int nSlots,
                                   const float ptCut) const {
-      // The atomicAdd below with hierarchy::Threads{} requires one block in x, y dimensions.
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
-                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
+      for (unsigned int slot : cms::alpakatools::uniform_elements(acc, nSlots)) {
+        const uint8_t flags = scratch.flags()[slot];
+        if (flags == kT3EmptySlot)
+          continue;
+        const unsigned int innerSegmentIndex = scratch.segmentIndices()[slot][0];
+        const unsigned int outerSegmentIndex = scratch.segmentIndices()[slot][1];
+        tryAddTriplet(acc,
+                      mds,
+                      segments,
+                      triplets,
+                      tripletsOccupancy,
+                      tripletsRangesBySegment,
+                      tripletCountsByMD,
+                      ranges,
+                      ptCut,
+                      innerSegmentIndex,
+                      outerSegmentIndex,
+                      segInnerLowerModule[innerSegmentIndex],
+                      flags & kT3LoosePointing);
+      }
+    }
+  };
+
+  struct CountSegmentConnections {
+    ALPAKA_FN_ACC void operator()(Acc2D const& acc,
+                                  ModulesConst modules,
+                                  MiniDoubletsConst mds,
+                                  SegmentsT3Counts segT3Counts,
+                                  Segments segments,
+                                  const float ptCut,
+                                  const uint32_t* __restrict__ nSegByMD,
+                                  const uint32_t* __restrict__ offsetSegByMD,
+                                  const uint32_t* __restrict__ indexSegByMD,
+                                  const uint16_t* __restrict__ segInnerLowerModule,
+                                  const unsigned int nSegments,
+                                  T3PassMaskType* __restrict__ t3PassMask,
+                                  T3PassMaskType* __restrict__ t3LoosePointingMask) const {
+      // Flat over the OT segments, each one handled by the threads of one block: the atomicAdd below with
+      // hierarchy::Threads{} requires one block in x.
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1));
       const auto& mdIndices = segments.mdIndices();
       const auto& outerLowerModuleIndices = segments.outerLowerModuleIndices();
-      const auto& segmentRanges = ranges.segmentRanges();
 
-      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_groups_z(acc, modules.nLowerModules())) {
-        const unsigned int nInnerSegments = segOcc.nSegments()[innerLowerModuleArrayIdx];
-        if (nInnerSegments == 0)
+      for (unsigned int innerSegmentIndex : cms::alpakatools::uniform_elements_y(acc, nSegments)) {
+        const uint16_t innerInnerLowerModuleIndex = segInnerLowerModule[innerSegmentIndex];
+        const uint16_t middleLowerModuleIndex = outerLowerModuleIndices[innerSegmentIndex];
+        const unsigned int middleMDIndex = mdIndices[innerSegmentIndex][1];
+
+        // Only the segments that start at the shared MD.
+        const unsigned int nOuterSegments = nSegByMD[middleMDIndex];
+        if (nOuterSegments == 0)
           continue;
+        const unsigned int outerListOffset = offsetSegByMD[middleMDIndex];
 
-        for (unsigned int innerSegmentArrayIndex : cms::alpakatools::uniform_elements_y(acc, nInnerSegments)) {
-          const unsigned int innerSegmentIndex = segmentRanges[innerLowerModuleArrayIdx][0] + innerSegmentArrayIndex;
-          const uint16_t middleLowerModuleIndex = outerLowerModuleIndices[innerSegmentIndex];
-          const unsigned int mdShared = mdIndices[innerSegmentIndex][1];
+        T3InnerSegData innerSegData = loadT3InnerSegData(
+            acc, mds, segments, modules, innerSegmentIndex, innerInnerLowerModuleIndex, middleLowerModuleIndex);
 
-          const unsigned int nOuterSegments = segOcc.nSegments()[middleLowerModuleIndex];
-          if (nOuterSegments == 0)
+        for (unsigned int outerListIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
+          const unsigned int outerSegmentIndex = indexSegByMD[outerListOffset + outerListIndex];
+
+          unsigned int thirdMDIndex = mdIndices[outerSegmentIndex][1];
+          uint16_t outerOuterLowerModuleIndex = outerLowerModuleIndices[outerSegmentIndex];
+          float x3 = mds.anchorX()[thirdMDIndex];
+          float y3 = mds.anchorY()[thirdMDIndex];
+          short outerSubdet = modules.subdets()[outerOuterLowerModuleIndex];
+
+          const int pointing = passPointingConstraint(acc, innerSegData, x3, y3, outerSubdet, ptCut);
+          if (not pointing)
             continue;
 
-          T3InnerSegData innerSegData = loadT3InnerSegData(
-              acc, mds, segments, modules, innerSegmentIndex, innerLowerModuleArrayIdx, middleLowerModuleIndex);
-
-          for (unsigned int outerSegmentArrayIndex : cms::alpakatools::uniform_elements_x(acc, nOuterSegments)) {
-            const unsigned int outerSegmentIndex = segmentRanges[middleLowerModuleIndex][0] + outerSegmentArrayIndex;
-
-            if (mdIndices[outerSegmentIndex][0] != mdShared)
-              continue;
-
-            unsigned int thirdMDIndex = mdIndices[outerSegmentIndex][1];
-            uint16_t outerOuterLowerModuleIndex = outerLowerModuleIndices[outerSegmentIndex];
-            float x3 = mds.anchorX()[thirdMDIndex];
-            float y3 = mds.anchorY()[thirdMDIndex];
-            short outerSubdet = modules.subdets()[outerOuterLowerModuleIndex];
-
-            if (not passPointingConstraint(acc, innerSegData, x3, y3, outerSubdet, ptCut))
-              continue;
-
-            bool counts = true;
-            if constexpr (ReduceMem) {
-              float betaIn, betaInCut, circleRadius, circleCenterX, circleCenterY;
-              short charge;
-              float t3Scores[dnn::t3dnn::kOutputFeatures] = {0.f};
-              counts = runTripletConstraintsAndAlgo(acc,
+          // Candidates in the pass mask: the exact step-1 decision, stored; the others: a superset of step 1.
+          const bool inPassMask = outerListIndex < kT3PassMaskBits;
+          const bool passRZ = passTripletRZCountCut(acc,
                                                     modules,
                                                     mds,
                                                     segments,
-                                                    innerLowerModuleArrayIdx,
+                                                    innerInnerLowerModuleIndex,
                                                     middleLowerModuleIndex,
                                                     outerOuterLowerModuleIndex,
                                                     innerSegmentIndex,
                                                     outerSegmentIndex,
-                                                    betaIn,
-                                                    betaInCut,
-                                                    circleRadius,
-                                                    circleCenterX,
-                                                    circleCenterY,
-                                                    ptCut,
-                                                    t3Scores,
-                                                    charge);
-            }
-            if (counts) {
-              alpaka::atomicAdd(acc, &segments.connectedMax()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
-              auto const innerMDIndex = mdIndices[innerSegmentIndex][0];
-              alpaka::atomicAdd(acc, &mds.connectedT3sMax()[innerMDIndex], 1u, alpaka::hierarchy::Threads{});
-            }
+                                                    inPassMask ? 1.f : kCountCutSlack);
+          if (passRZ && inPassMask) {
+            alpaka::atomicOr(
+                acc, &t3PassMask[innerSegmentIndex], T3PassMaskType(1) << outerListIndex, alpaka::hierarchy::Threads{});
+            if (pointing == 2)
+              alpaka::atomicOr(acc,
+                               &t3LoosePointingMask[innerSegmentIndex],
+                               T3PassMaskType(1) << outerListIndex,
+                               alpaka::hierarchy::Threads{});
+          }
+          if (passRZ) {
+            alpaka::atomicAdd(acc, &segT3Counts.connectedMax()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
           }
         }
       }
     }
   };
-
-  using CountSegmentConnections = CountSegmentConnectionsT<false>;
-  using CountSegmentConnectionsReduceMem = CountSegmentConnectionsT<true>;
 
   struct CreateTripletArrayRanges {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   ObjectRanges ranges,
-                                  SegmentsConst segments,
+                                  SegmentsT3CountsConst segT3Counts,
                                   SegmentsOccupancyConst segOcc) const {
       // 1-block kernel
       ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
@@ -917,7 +904,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
         const unsigned int firstSegIdx = ranges.segmentRanges()[innerLowerModuleArrayIdx][0];
         int dynamicCount = 0;
         for (unsigned int s = 0; s < nInnerSegments; ++s) {
-          dynamicCount += segments.connectedMax()[firstSegIdx + s];
+          dynamicCount += segT3Counts.connectedMax()[firstSegIdx + s];
         }
 
         ranges.tripletModuleOccupancy()[innerLowerModuleArrayIdx] = dynamicCount;
@@ -927,26 +914,144 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
       // Wait for all threads to finish before reporting final values
       alpaka::syncBlockThreads(acc);
-      if (cms::alpakatools::once_per_block(acc))
+      if (cms::alpakatools::once_per_block(acc)) {
         ranges.nTotalTrips() = nTotalTriplets;
+        ranges.nTripletOverflows() = 0;
+      }
     }
   };
 
-  struct AddTripletRangesToEventExplicit {
+  // Lays the created triplets out densely, module by module: module m gets [compact offset, + nTriplets[m]), with
+  // the offsets from CompactModuleOffsetsKernel. Saves the creation-time module offsets in looseModuleIndices for
+  // CompactTriplets.
+  struct SetCompactTripletModuleIndices {
     ALPAKA_FN_ACC void operator()(Acc1D const& acc,
                                   ModulesConst modules,
                                   TripletsOccupancyConst tripletsOccupancy,
-                                  ObjectRanges ranges) const {
-      // implementation is 1D with a single block
-      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0] == 1));
-
+                                  const int* compactModuleIndices,
+                                  ObjectRanges ranges,
+                                  int* looseModuleIndices) const {
       for (uint16_t i : cms::alpakatools::uniform_elements(acc, modules.nLowerModules())) {
-        if (tripletsOccupancy.nTriplets()[i] == 0) {
-          ranges.tripletRanges()[i][0] = -1;
-          ranges.tripletRanges()[i][1] = -1;
-        } else {
-          ranges.tripletRanges()[i][0] = ranges.tripletModuleIndices()[i];
-          ranges.tripletRanges()[i][1] = ranges.tripletModuleIndices()[i] + tripletsOccupancy.nTriplets()[i] - 1;
+        looseModuleIndices[i] = ranges.tripletModuleIndices()[i];
+        ranges.tripletModuleIndices()[i] = compactModuleIndices[i];
+        ranges.tripletModuleOccupancy()[i] = tripletsOccupancy.nTriplets()[i];
+      }
+      if (cms::alpakatools::once_per_grid(acc))
+        ranges.nTotalTrips() = compactModuleIndices[modules.nLowerModules()];
+    }
+  };
+
+  // Exclusive prefix sum of n()[first, first + count) from base into offset() by the threads of the block, one
+  // contiguous chunk each (chunkSums: one entry per thread); n() is reset as the fill cursor.
+  template <alpaka::concepts::Acc TAcc>
+  ALPAKA_FN_ACC ALPAKA_FN_INLINE void setTripletRangeOffsets(TAcc const& acc,
+                                                             TripletsRanges tripletsRanges,
+                                                             unsigned int first,
+                                                             unsigned int count,
+                                                             unsigned int base,
+                                                             unsigned int flatThreadIdx,
+                                                             unsigned int flatThreadExtent,
+                                                             unsigned int* chunkSums) {
+    const unsigned int chunk = cms::alpakatools::divide_up_by(count, flatThreadExtent);
+    const unsigned int begin = cms::alpakatools::idx_min(flatThreadIdx * chunk, count);
+    const unsigned int end = cms::alpakatools::idx_min(begin + chunk, count);
+    unsigned int sum = 0;
+    for (unsigned int i = begin; i < end; ++i)
+      sum += tripletsRanges.n()[first + i];
+    chunkSums[flatThreadIdx] = sum;
+    alpaka::syncBlockThreads(acc);
+    if (cms::alpakatools::once_per_block(acc)) {
+      unsigned int total = base;
+      // Only the threads with a non-empty chunk.
+      const unsigned int nUsedChunks = chunk == 0 ? 0 : cms::alpakatools::divide_up_by(count, chunk);
+      for (unsigned int chunkIndex = 0; chunkIndex < nUsedChunks; ++chunkIndex) {
+        const unsigned int chunkSum = chunkSums[chunkIndex];
+        chunkSums[chunkIndex] = total;
+        total += chunkSum;
+      }
+    }
+    alpaka::syncBlockThreads(acc);
+    unsigned int offset = chunkSums[flatThreadIdx];
+    for (unsigned int i = begin; i < end; ++i) {
+      tripletsRanges.offset()[first + i] = offset;
+      offset += tripletsRanges.n()[first + i];
+      tripletsRanges.n()[first + i] = 0;
+    }
+    alpaka::syncBlockThreads(acc);
+  }
+
+  // Copies the triplets of each module from the creation buffer into the exact-size one (initializing the
+  // columns filled by later stages) and fills the by-segment lists, whose counts come from creation.
+  struct CompactTriplets {
+    ALPAKA_FN_ACC void operator()(Acc3D const& acc,
+                                  SegmentsConst segments,
+                                  SegmentsOccupancyConst segmentsOccupancy,
+                                  TripletsBuildConst looseTriplets,
+                                  TripletsOccupancyConst tripletsOccupancy,
+                                  Triplets triplets,
+                                  TripletsBySegment tripletsBySegment,
+                                  TripletsRanges tripletsRangesBySegment,
+                                  ObjectRangesConst ranges,
+                                  const int* looseModuleIndices,
+                                  const uint16_t* index_gpu,
+                                  uint16_t nonZeroModules) const {
+      ALPAKA_ASSERT_ACC((alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[1] == 1) &&
+                        (alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[2] == 1));
+
+      const auto threadIdx = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc);
+      const auto blockDim = alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc);
+      const int flatThreadIdxXY = threadIdx.y() * blockDim.x() + threadIdx.x();
+      const int flatThreadExtent = blockDim.x() * blockDim.y();
+
+      constexpr int kMaxThreads = 1024;
+      ALPAKA_ASSERT_ACC(flatThreadExtent <= kMaxThreads);
+      auto& chunkSums = alpaka::declareSharedVar<unsigned int[kMaxThreads], __COUNTER__>(acc);
+
+      for (uint16_t innerLowerModuleArrayIdx : cms::alpakatools::uniform_groups_z(acc, nonZeroModules)) {
+        const uint16_t lowerModuleIndex = index_gpu[innerLowerModuleArrayIdx];
+        const unsigned int compactOffset = ranges.tripletModuleIndices()[lowerModuleIndex];
+
+        setTripletRangeOffsets(acc,
+                               tripletsRangesBySegment,
+                               ranges.segmentRanges()[lowerModuleIndex][0],
+                               segmentsOccupancy.nSegments()[lowerModuleIndex],
+                               compactOffset,
+                               flatThreadIdxXY,
+                               flatThreadExtent,
+                               chunkSums);
+
+        const unsigned int looseOffset = looseModuleIndices[lowerModuleIndex];
+        const unsigned int nTriplets = tripletsOccupancy.nTriplets()[lowerModuleIndex];
+        for (unsigned int i = flatThreadIdxXY; i < nTriplets; i += flatThreadExtent) {
+          const unsigned int src = looseOffset + i;
+          const unsigned int dst = compactOffset + i;
+          const unsigned int innerSegmentIndex = looseTriplets.segmentIndices()[src][0];
+          const unsigned int outerSegmentIndex = looseTriplets.segmentIndices()[src][1];
+          triplets.segmentIndices()[dst][0] = innerSegmentIndex;
+          triplets.segmentIndices()[dst][1] = outerSegmentIndex;
+          triplets.lowerModuleIndices()[dst][0] = lowerModuleIndex;
+          triplets.lowerModuleIndices()[dst][1] = segments.outerLowerModuleIndices()[innerSegmentIndex];
+          triplets.lowerModuleIndices()[dst][2] = segments.outerLowerModuleIndices()[outerSegmentIndex];
+          triplets.centerX()[dst] = looseTriplets.centerX()[src];
+          triplets.centerY()[dst] = looseTriplets.centerY()[src];
+          triplets.radius()[dst] = looseTriplets.radius()[src];
+          triplets.fakeScore()[dst] = looseTriplets.fakeScore()[src];
+          triplets.promptScore()[dst] = looseTriplets.promptScore()[src];
+          triplets.displacedScore()[dst] = looseTriplets.displacedScore()[src];
+          triplets.charge()[dst] = looseTriplets.charge()[src];
+          triplets.flags()[dst] = looseTriplets.flags()[src];
+          triplets.partOfPT5()[dst] = false;
+          triplets.partOfT5()[dst] = false;
+          triplets.partOfPT3()[dst] = false;
+#ifdef CUT_VALUE_DEBUG
+          triplets.betaIn()[dst] = looseTriplets.betaIn()[src];
+          triplets.betaInCut()[dst] = looseTriplets.betaInCut()[src];
+#endif
+
+          const unsigned int bySegmentIndex =
+              tripletsRangesBySegment.offset()[innerSegmentIndex] +
+              alpaka::atomicAdd(acc, &tripletsRangesBySegment.n()[innerSegmentIndex], 1u, alpaka::hierarchy::Threads{});
+          tripletsBySegment.tripletIndex()[bySegmentIndex] = dst;
         }
       }
     }

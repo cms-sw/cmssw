@@ -13,6 +13,7 @@
 #include "DataFormats/ProtonReco/interface/ForwardProton.h"
 #include "DataFormats/ProtonReco/interface/ForwardProtonFwd.h"
 
+#include <memory>
 #include <ostream>
 
 //----------------------------------------------------------------------------------------------------
@@ -178,7 +179,7 @@ void PPSFilteredProtonProducer::produce(edm::Event &iEvent, const edm::EventSetu
   // process single-RP protons
   if (protons_single_rp_include_) {
     reco::ForwardProtonCollection const &hInputProtons = iEvent.get(protons_single_rp_input_token_);
-    std::unique_ptr<reco::ForwardProtonCollection> pOutputProtons(new reco::ForwardProtonCollection);
+    std::unique_ptr<reco::ForwardProtonCollection> pOutputProtons = std::make_unique<reco::ForwardProtonCollection>();
 
     for (const auto &proton : hInputProtons) {
       bool keep = true;
@@ -210,7 +211,7 @@ void PPSFilteredProtonProducer::produce(edm::Event &iEvent, const edm::EventSetu
   // process multi-RP protons
   if (protons_multi_rp_include_) {
     reco::ForwardProtonCollection const &hInputProtons = iEvent.get(protons_multi_rp_input_token_);
-    std::unique_ptr<reco::ForwardProtonCollection> pOutputProtons(new reco::ForwardProtonCollection);
+    std::unique_ptr<reco::ForwardProtonCollection> pOutputProtons = std::make_unique<reco::ForwardProtonCollection>();
 
     for (const auto &proton : hInputProtons) {
       bool keep = true;

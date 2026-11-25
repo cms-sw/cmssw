@@ -214,7 +214,7 @@ int main(int argc, char* argv[]) {
         unsigned int const EDMFILEUTILADLERBUFSIZE = 10 * 1024 * 1024;  // 10MB buffer
         static char buffer[EDMFILEUTILADLERBUFSIZE];
         size_t bufToRead = EDMFILEUTILADLERBUFSIZE;
-        uint32_t a = 1, b = 0;
+        uint32_t adler32sum = cms::adler32_init;
         size_t fileSize = tfile->GetSize();
         tfile->Seek(0, TFile::kBeg);
 
@@ -223,9 +223,8 @@ int main(int argc, char* argv[]) {
           if (fileSize - offset < EDMFILEUTILADLERBUFSIZE)
             bufToRead = fileSize - offset;
           tfile->ReadBuffer((char*)buffer, bufToRead);
-          cms::Adler32(buffer, bufToRead, a, b);
+          adler32sum = cms::adler32(buffer, bufToRead, adler32sum);
         }
-        uint32_t adler32sum = (b << 16) | a;
         if (json) {
           auout << ",\"adler32sum\":" << adler32sum;
         } else {
@@ -283,7 +282,12 @@ int main(int argc, char* argv[]) {
         }
         auto* printRNTuple = tfile->Get<ROOT::RNTuple>(selectedTree.c_str());
         if (printRNTuple) {
-          auto reader = ROOT::RNTupleReader::Open(*printRNTuple);
+          ROOT::RNTupleReadOptions options;
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6, 41, 0)
+          //Needed for the GetActiveClusterIterable to work
+          options.SetMetadataMode(ROOT::RNTupleReadOptions::EMetadataMode::kEager);
+#endif
+          auto reader = ROOT::RNTupleReader::Open(*printRNTuple, options);
           if (print) {
             edm::rntuple_temp::printFieldNames(*reader);
           }

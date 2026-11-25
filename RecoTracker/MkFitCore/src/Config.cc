@@ -7,6 +7,17 @@ namespace mkfit {
     bool usePropToPlane = false;
     bool usePtMultScat = false;
 
+    // track building: the constants of CMSSW's ParabolicMf (portableParabolicMagneticField::Parameters)
+    float mag_c1 = 3.8114;
+    float mag_b0 = -3.94991e-06;
+    float mag_b1 = 7.53701e-06;
+    float mag_a = 2.43878e-11;
+    // final fit: fitted to the CMS field map over the tracker volume
+    float mag_fit_c1 = 3.81036;
+    float mag_fit_b0 = -2.03767e-06;
+    float mag_fit_b1 = 7.34495e-06;
+    float mag_fit_a = 3.01291e-07;
+
     // Multi threading configuration
 #if defined(MKFIT_STANDALONE)
     int numThreadsFinder = 1;
@@ -29,6 +40,12 @@ namespace mkfit {
     const float maxdcth = 0.37;    //comparisons
     const float maxcth_ob = 1.99;  //eta 1.44
     const float maxcth_fw = 6.05;  //eta 2.5
+
+    // Phase-2 pT-adaptive cleaner: the cot(theta) window converted to eta, maxdcth / cosh(eta), but at least mindeta_p2
+    // (looser in the forward region), and the tracker eta region boundaries
+    const float mindeta_p2 = 0.1;
+    const float maxeta_ob_p2 = 1.0;
+    const float maxeta_fw_p2 = 2.4;
 
 #ifdef CONFIG_PhiQArrays
     bool usePhiQArrays = true;

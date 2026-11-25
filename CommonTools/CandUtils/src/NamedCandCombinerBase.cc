@@ -1,4 +1,5 @@
 #include "CommonTools/CandUtils/interface/NamedCandCombinerBase.h"
+#include <memory>
 #include <utility>
 using namespace std;
 using namespace reco;
@@ -69,7 +70,7 @@ unique_ptr<NamedCompositeCandidateCollection> NamedCandCombinerBase::combine(con
     throw edm::Exception(edm::errors::Configuration)
         << "NamedCandCombiner: need to add 2 names, but size is " << names.size();
 
-  unique_ptr<NamedCompositeCandidateCollection> comps(new NamedCompositeCandidateCollection);
+  unique_ptr<NamedCompositeCandidateCollection> comps = std::make_unique<NamedCompositeCandidateCollection>();
   if (srcSize == 2) {
     CandidatePtrVector src1 = src[0], src2 = src[1];
     if (src1 == src2) {
@@ -121,7 +122,7 @@ unique_ptr<NamedCompositeCandidateCollection> NamedCandCombinerBase::combine(con
     throw edm::Exception(edm::errors::Configuration)
         << "NamedCandCombiner: need to add 2 names, but size is " << names.size();
 
-  unique_ptr<NamedCompositeCandidateCollection> comps(new NamedCompositeCandidateCollection);
+  unique_ptr<NamedCompositeCandidateCollection> comps = std::make_unique<NamedCompositeCandidateCollection>();
   const int n = src.size();
   for (int i1 = 0; i1 < n; ++i1) {
     const Candidate& c1 = *(src[i1]);

@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from FastSimulation.Event.ParticleFilter_cfi import  ParticleFilterBlock
 from FastSimulation.SimplifiedGeometryPropagator.TrackerMaterial_cfi import TrackerMaterialBlock
+from FastSimulation.SimplifiedGeometryPropagator.MTDMaterial_cfi import MTDMaterialBlock
 from FastSimulation.SimplifiedGeometryPropagator.CaloMaterial_cfi import CaloMaterialBlock # Hack to interface "old" calorimetry with "new" propagation in tracker
 from FastSimulation.Calorimetry.Calorimetry_cff import *
 from FastSimulation.MaterialEffects.MaterialEffects_cfi import *
@@ -11,6 +12,10 @@ fastSimProducer = cms.EDProducer(
     src = cms.InputTag("generatorSmeared"),
     particleFilter =  ParticleFilterBlock.ParticleFilter,
     trackerDefinition = TrackerMaterialBlock.TrackerMaterial,
+    mtdDefinition = cms.PSet(
+        BarrelLayers = cms.VPSet(),
+        EndcapLayers = cms.VPSet(),
+    ),
     simulateCalorimetry = cms.bool(True),
     simulateMuons = cms.bool(True),
     useFastSimDecayer = cms.bool(False),
@@ -79,7 +84,7 @@ fastSimProducer = cms.EDProducer(
                 className = cms.string("fastsim::TrackerSimHitProducer"),
                 minMomentumCut = cms.double(0.1),
                 doHitsFromInboundParticles = cms.bool(False), # Track reconstruction not possible for those particles so hits do not have to be simulated
-                ),    
+                ),
         ),
     Calorimetry = FamosCalorimetryBlock.Calorimetry,
     MaterialEffectsForMuonsInECAL = MaterialEffectsForMuonsInECALBlock.MaterialEffectsForMuonsInECAL,
@@ -89,3 +94,80 @@ fastSimProducer = cms.EDProducer(
 
 from Configuration.Eras.Modifier_phase2_fastSim_cff import phase2_fastSim
 phase2_fastSim.toModify(fastSimProducer, simulateCalorimetry = False)
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(fastSimProducer,
+    mtdDefinition = MTDMaterialBlock.MTDMaterial,
+)
+phase2_timing_layer.toModify(fastSimProducer.interactionModels,
+    mtdSimHits = cms.PSet(
+        className     = cms.string("fastsim::MTDSimHitProducer"),
+        btlRadius     = cms.double(115.8),
+        btlHalfLength = cms.double(260.),
+        etlRMin       = cms.double(31.),
+        etlRMax       = cms.double(120.),
+    ),
+
+    # BTL (LYSO: Lu2SiO5 crystal)
+    pairProductionBTL = cms.PSet(
+        className       = cms.string("fastsim::PairProduction"),
+        Z               = cms.double(54.0),
+        photonEnergyCut = cms.double(0.1),
+    ),
+    nuclearInteractionBTL = cms.PSet(
+        className    = cms.string("fastsim::NuclearInteraction"),
+        distCut      = cms.double(0.020),
+        hadronEnergy = cms.double(0.2),
+        saveOutput   = cms.untracked.bool(False),
+    ),
+    bremsstrahlungBTL = cms.PSet(
+        className               = cms.string("fastsim::Bremsstrahlung"),
+        Z                       = cms.double(54.0),
+        minPhotonEnergy         = cms.double(0.1),
+        minPhotonEnergyFraction = cms.double(0.005),
+    ),
+    energyLossBTL = cms.PSet(
+        className      = cms.string("fastsim::EnergyLoss"),
+        minMomentumCut = cms.double(0.1),
+        A              = cms.double(175.94),
+        Z              = cms.double(54.0),
+        density        = cms.double(7.4),
+        radLen         = cms.double(1.14),
+    ),
+    multipleScatteringBTL = cms.PSet(
+        className = cms.string("fastsim::MultipleScattering"),
+        minPt     = cms.double(0.2),
+        radLen    = cms.double(1.14),
+    ),
+    # ETL (Silicon LGAD sensor)
+    pairProductionETL = cms.PSet(
+        className       = cms.string("fastsim::PairProduction"),
+        Z               = cms.double(14.0),
+        photonEnergyCut = cms.double(0.1),
+    ),
+    nuclearInteractionETL = cms.PSet(
+        className    = cms.string("fastsim::NuclearInteraction"),
+        distCut      = cms.double(0.020),
+        hadronEnergy = cms.double(0.2),
+        saveOutput   = cms.untracked.bool(False),
+    ),
+    bremsstrahlungETL = cms.PSet(
+        className               = cms.string("fastsim::Bremsstrahlung"),
+        Z                       = cms.double(14.0),
+        minPhotonEnergy         = cms.double(0.1),
+        minPhotonEnergyFraction = cms.double(0.005),
+    ),
+    energyLossETL = cms.PSet(
+        className      = cms.string("fastsim::EnergyLoss"),
+        minMomentumCut = cms.double(0.1),
+        A              = cms.double(28.0855),
+        Z              = cms.double(14.0),
+        density        = cms.double(2.329),
+        radLen         = cms.double(9.36),
+    ),
+    multipleScatteringETL = cms.PSet(
+        className = cms.string("fastsim::MultipleScattering"),
+        minPt     = cms.double(0.2),
+        radLen    = cms.double(9.36),
+    ),
+)

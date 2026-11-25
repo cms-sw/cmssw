@@ -15,8 +15,6 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, ed
     : HGCalRecHitWorkerBaseClass(ps, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       ticlGeomToken_(iC.esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(iC.esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(iC.esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
       ee_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
       hef_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
       hfnose_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))) {
@@ -106,8 +104,8 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, ed
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
-  tools_->setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
-  rechitMaker_->set(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  tools_->setGeometry(es.getData(ticlGeomToken_));
+  rechitMaker_->set(es.getData(ticlGeomToken_));
   if (hgcEE_isSiFE_) {
     const HGCalGeometry& hgceeGeoHandle = es.getData(ee_geometry_token_);
     ddds_[0] = &(hgceeGeoHandle.topology().dddConstants());
@@ -161,19 +159,6 @@ void HGCalRecHitWorkerSimple::run(const edm::Event& evt,
         break;
       default:
         switch (detid.subdetId()) {
-          case HGCEE:
-            idtype = hgcee;
-            thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
-            break;
-          case HGCHEF:
-            idtype = hgcfh;
-            thickness = ddds_[detid.subdetId() - 3]->waferTypeL(HGCalDetId(detid).wafer());
-            break;
-          case HcalEndcap:
-            [[fallthrough]];
-          case HGCHEB:
-            idtype = hgcbh;
-            break;
           case HFNose:
             idtype = hgchfnose;
             thickness = 1 + HFNoseDetId(detid).type();

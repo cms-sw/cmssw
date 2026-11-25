@@ -72,7 +72,8 @@ class TestTruthGraphSelections(unittest.TestCase):
     def test_associated_higgs_vh(self):
         # WH / ZH / VH / WWH / ZZH (and HZJ/HWJ orderings): seed the Higgs and keep
         # the recoiling vector boson as a production sibling.
-        for frag in ["WH_HToBB_WToLNu", "ZH_HToBB_ZToLL", "WWH_3l", "ZZH", "HZJ_Hee_CT10_13TeV"]:
+        for frag in ["WH_HToBB_WToLNu", "ZH_HToBB_ZToLL", "WWH_3l", "ZZH", "HZJ_Hee_CT10_13TeV", "WplusH_HToBB",
+                     "WminusHToTauTau"]:
             self.assertEqual(tgs.templateForFragment(frag)[0], "vh", frag)
             self.assertEqual(tgs.selectionForFragment(frag)["seedPdgIds"], [25], frag)
             self.assertTrue(tgs.selectionForFragment(frag)["keepProductionSiblings"], frag)
@@ -84,7 +85,8 @@ class TestTruthGraphSelections(unittest.TestCase):
             self.assertEqual(tgs.selectionForFragment(frag)["seedPdgIds"], [25], frag)
 
     def test_diboson(self):
-        for frag in ["WWTo2L2Nu", "WZTo3LNu", "ZZTo4L", "VBS_OSWW_LL_noTop", "WWJJ_SS", "VVTo2L2Nu"]:
+        for frag in ["WWTo2L2Nu", "WZTo3LNu", "ZZTo4L", "VBS_OSWW_LL_noTop", "WWJJ_SS", "VVTo2L2Nu", "ZZZ_TuneCP5",
+                     "WWZTo4L2Nu", "WWW_4F"]:
             self.assertEqual(tgs.templateForFragment(frag)[0], "diboson", frag)
         self.assertEqual(tgs.selectionForFragment("WZTo3LNu")["seedPdgIds"], [23, 24, -24])
         self.assertTrue(tgs.selectionForFragment("VBS_OSWW")["keepProductionSiblings"])
@@ -110,6 +112,14 @@ class TestTruthGraphSelections(unittest.TestCase):
     def test_heavy_flavor(self):
         self.assertEqual(tgs.selectionForFragment("BsToMuMu")["seedHadronFlavors"], [5])
         self.assertEqual(tgs.selectionForFragment("JpsiMM")["seedHadronFlavors"], [4])
+        # A B hadron decaying to charmonium is a b sample, and bottomonium is b.
+        for frag in ["BsToJpsiPhi_mumuKK_14TeV", "BuToJpsiK", "B0ToJpsiK0s", "LbToJpsiLambda",
+                     "Upsilon1SToMuMu_forSTEAM_14TeV_TuneCP5", "Chib1PToUpsilon1SGamma", "EtaBToJpsiJpsi"]:
+            self.assertEqual(tgs.selectionForFragment(frag)["seedHadronFlavors"], [5], frag)
+
+    def test_wprime(self):
+        self.assertEqual(tgs.selectionForFragment("WprimeToLNu_M2000_14TeV_TuneCP5_pythia8_cfi")["seedPdgIds"],
+                         [34, -34])
         # Heavy flavor seeds by flavor content, not PDG -> the dumper must not pass -s.
         self.assertNotIn("-s", tgs.dumperArgs("BsToMuMu"))
         self.assertIn("-f", tgs.dumperArgs("BsToMuMu"))

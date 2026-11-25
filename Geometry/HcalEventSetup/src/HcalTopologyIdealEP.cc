@@ -16,6 +16,8 @@
 //
 //
 
+#include <memory>
+
 #include "Geometry/HcalEventSetup/interface/HcalTopologyIdealEP.h"
 #include "Geometry/CaloTopology/interface/HcalTopologyRestrictionParser.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -58,7 +60,7 @@ HcalTopologyIdealEP::ReturnType HcalTopologyIdealEP::produce(const HcalRecNumber
   edm::LogInfo("HCAL") << "mode = " << hdc.getTopoMode() << ", maxDepthHB = " << hdc.getMaxDepth(0)
                        << ", maxDepthHE = " << hdc.getMaxDepth(1) << ", maxDepthHF = " << hdc.getMaxDepth(2);
 #endif
-  ReturnType myTopo(new HcalTopology(&hdc, m_mergePosition));
+  ReturnType myTopo = std::make_unique<HcalTopology>(&hdc, m_mergePosition);
 
   HcalTopologyRestrictionParser parser(*myTopo);
   if (!m_restrictions.empty()) {

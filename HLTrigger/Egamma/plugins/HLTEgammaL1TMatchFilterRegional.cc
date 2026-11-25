@@ -30,6 +30,8 @@ HLTEgammaL1TMatchFilterRegional::HLTEgammaL1TMatchFilterRegional(const edm::Para
       iConfig.getParameter<edm::InputTag>("l1TausTag");  //will be renamed l1JetsTag for step 2 of the new L1 migration
   ncandcut_ = iConfig.getParameter<int>("ncandcut");
   doIsolated_ = iConfig.getParameter<bool>("doIsolated");
+  matchToL1Jets_ = iConfig.getParameter<bool>("matchToL1Jets");
+  matchToL1Taus_ = iConfig.getParameter<bool>("matchToL1Taus");
   region_eta_size_ = iConfig.getParameter<double>("region_eta_size");
   region_eta_size_ecap_ = iConfig.getParameter<double>("region_eta_size_ecap");
   region_phi_size_ = iConfig.getParameter<double>("region_phi_size");
@@ -58,11 +60,16 @@ void HLTEgammaL1TMatchFilterRegional::fillDescriptions(edm::ConfigurationDescrip
   desc.add<edm::InputTag>("l1TausTag", edm::InputTag("hltCaloStage2Digis", "Tau"));  //rename for step 2 of L1 migration
   desc.add<int>("ncandcut", 1);
   desc.add<bool>("doIsolated", true);
-  desc.add<double>("region_eta_size", 0.522);
-  desc.add<double>("region_eta_size_ecap", 1.0);
-  desc.add<double>("region_phi_size", 1.044);
-  desc.add<double>("barrel_end", 1.4791);
-  desc.add<double>("endcap_end", 2.65);
+  desc.add<bool>("matchToL1Jets", true)->setComment("Also match to the L1T jets of the seed (Run-3 behaviour)");
+  desc.add<bool>("matchToL1Taus", true)->setComment("Also match to the L1T taus of the seed (Run-3 behaviour)");
+  // Matching regions: full widths of the eta/phi window around each L1T object. These values were tuned for
+  // the Run-3 (Stage-2) L1T calo granularity. Phase-2 configurations currently reuse them; they need to be
+  // updated for the Phase-2 L1T e/gamma position resolution (crystal-level barrel, HGCAL endcap).
+  desc.add<double>("region_eta_size", 0.522)->setComment("Full eta width of the matching region in the barrel");
+  desc.add<double>("region_eta_size_ecap", 1.0)->setComment("Full eta width of the matching region in the endcap");
+  desc.add<double>("region_phi_size", 1.044)->setComment("Full phi width of the matching region");
+  desc.add<double>("barrel_end", 1.4791)->setComment("|eta| of the HLT candidate separating barrel and endcap");
+  desc.add<double>("endcap_end", 2.65)->setComment("Maximum |eta| of the HLT candidates");
   descriptions.add("HLTEgammaL1TMatchFilterRegional", desc);
 }
 
@@ -99,14 +106,11 @@ bool HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent,
   edm::Handle<trigger::TriggerFilterObjectWithRefs> L1SeedOutput;
   iEvent.getByToken(L1SeedFilterToken_, L1SeedOutput);
 
-  std::vector<l1t::EGammaRef> l1EGs;
-  L1SeedOutput->getObjects(TriggerL1EG, l1EGs);
-
-  std::vector<l1t::JetRef> l1Jets;
-  L1SeedOutput->getObjects(TriggerL1Jet, l1Jets);
-
-  std::vector<l1t::TauRef> l1Taus;
-  L1SeedOutput->getObjects(TriggerL1Tau, l1Taus);
+  // L1T objects of the seed: Run-3 (l1t::EGamma, l1t::Jet, l1t::Tau) or Phase-2 (l1t::P2GTCandidate)
+  // refs, see hlt::getL1TCandidates
+  auto const l1EGs = ::hlt::getL1TEGammas(*L1SeedOutput);
+  auto const l1Jets = matchToL1Jets_ ? ::hlt::getL1TJets(*L1SeedOutput) : std::vector<reco::Candidate const*>();
+  auto const l1Taus = matchToL1Taus_ ? ::hlt::getL1TTaus(*L1SeedOutput) : std::vector<reco::Candidate const*>();
 
   for (auto recoecalcand = recoIsolecalcands->begin(); recoecalcand != recoIsolecalcands->end(); recoecalcand++) {
     if (std::abs(recoecalcand->eta()) < endcap_end_) {
@@ -161,69 +165,10 @@ bool HLTEgammaL1TMatchFilterRegional::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
-bool HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::EGammaRef>& l1Cands,
+bool HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<reco::Candidate const*>& l1Cands,
                                                       const float scEta,
                                                       const float scPhi) const {
-  for (auto const& l1Cand : l1Cands) {
-    //ORCA matching method
-    double etaBinLow = 0.;
-    double etaBinHigh = 0.;
-    if (std::abs(scEta) < barrel_end_) {
-      etaBinLow = l1Cand->eta() - region_eta_size_ / 2.;
-      etaBinHigh = etaBinLow + region_eta_size_;
-    } else {
-      etaBinLow = l1Cand->eta() - region_eta_size_ecap_ / 2.;
-      etaBinHigh = etaBinLow + region_eta_size_ecap_;
-    }
-
-    float deltaphi = std::abs(scPhi - l1Cand->phi());
-    if (deltaphi > TWOPI)
-      deltaphi -= TWOPI;
-    if (deltaphi > TWOPI / 2.)
-      deltaphi = TWOPI - deltaphi;
-
-    if (scEta < etaBinHigh && scEta > etaBinLow && deltaphi < region_phi_size_ / 2.) {
-      return true;
-    }
-  }
-  return false;
-}
-
-bool
-//HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1extra::L1JetParticleRef >& l1Cands,const float scEta,const float scPhi) const
-HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::JetRef>& l1Cands,
-                                                 const float scEta,
-                                                 const float scPhi) const {
-  for (auto const& l1Cand : l1Cands) {
-    //ORCA matching method
-    double etaBinLow = 0.;
-    double etaBinHigh = 0.;
-    if (std::abs(scEta) < barrel_end_) {
-      etaBinLow = l1Cand->eta() - region_eta_size_ / 2.;
-      etaBinHigh = etaBinLow + region_eta_size_;
-    } else {
-      etaBinLow = l1Cand->eta() - region_eta_size_ecap_ / 2.;
-      etaBinHigh = etaBinLow + region_eta_size_ecap_;
-    }
-
-    float deltaphi = std::abs(scPhi - l1Cand->phi());
-    if (deltaphi > TWOPI)
-      deltaphi -= TWOPI;
-    if (deltaphi > TWOPI / 2.)
-      deltaphi = TWOPI - deltaphi;
-
-    if (scEta < etaBinHigh && scEta > etaBinLow && deltaphi < region_phi_size_ / 2.) {
-      return true;
-    }
-  }
-  return false;
-}
-bool
-//HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1extra::L1JetParticleRef >& l1Cands,const float scEta,const float scPhi) const
-HLTEgammaL1TMatchFilterRegional::matchedToL1Cand(const std::vector<l1t::TauRef>& l1Cands,
-                                                 const float scEta,
-                                                 const float scPhi) const {
-  for (auto const& l1Cand : l1Cands) {
+  for (auto const* l1Cand : l1Cands) {
     //ORCA matching method
     double etaBinLow = 0.;
     double etaBinHigh = 0.;

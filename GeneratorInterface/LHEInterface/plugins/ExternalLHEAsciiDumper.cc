@@ -48,7 +48,7 @@ private:
 ExternalLHEAsciiDumper::ExternalLHEAsciiDumper(const edm::ParameterSet& ps)
     : lheProduct_(ps.getParameter<edm::InputTag>("lheProduct")),
       lheFileName_(ps.getParameter<std::string>("lheFileName")),
-      LHEAsciiToken_(consumes<LHEXMLStringProduct, edm::InRun>(edm::InputTag(lheProduct_))) {}
+      LHEAsciiToken_(consumes<LHEXMLStringProduct, edm::InRun, edm::Transition::EndRun>(edm::InputTag(lheProduct_))) {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 

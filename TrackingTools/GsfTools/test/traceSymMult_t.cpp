@@ -12,11 +12,7 @@
 
 #include "TrackingTools/GsfTools/interface/GsfMatrixTools.h"
 
-#include "FWCore/Utilities/interface/HRRealTime.h"
 #include <iostream>
-
-void st() {}
-void en() {}
 
 typedef DistanceBetweenComponents<5> Distance;
 typedef KullbackLeiblerDistance<5> KDistance;
@@ -67,13 +63,9 @@ int main(int args, char** argv) {
   std::cout << one << " " << two << " " << one - two << std::endl;
 
   if (args == 1) {
-    st();
     one = GsfMatrixTools::trace(cov2, cov1);
-    en();
   } else {
-    st();
     two = GsfMatrixTools::trace<double, 5>(cov2 * cov1);
-    en();
   }
 
   if (fabs(one - two) > 1.e-15)

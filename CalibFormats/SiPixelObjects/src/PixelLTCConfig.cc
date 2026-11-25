@@ -77,7 +77,7 @@ PixelLTCConfig::PixelLTCConfig(std::string filename) : PixelConfigBase(" ", " ",
 
 void PixelLTCConfig::writeASCII(std::string dir) const {
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
   std::string filename = dir + "LTCConfiguration.txt";
   std::ofstream out(filename.c_str());
 

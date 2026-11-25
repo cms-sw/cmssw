@@ -7,7 +7,9 @@
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using PixelTrackScoresOnDevice = PortableCollection<PixelTrackScoresSoA>;
-  using PixelTrackFeaturesOnDevice = PortableCollection<PixelTrackFeaturesSoA>;
+  // Two-block features collection, constructed with the per-block sizes (nFit, nHit): the hit
+  // block is sized 0 when no model consumes it and then costs no memory.
+  using PixelTrackFeaturesOnDevice = PortableCollection<PixelTrackFeaturesBlocksSoA>;
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
 
 #endif

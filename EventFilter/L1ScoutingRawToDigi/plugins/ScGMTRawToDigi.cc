@@ -1,4 +1,6 @@
 #include "EventFilter/L1ScoutingRawToDigi/plugins/ScGMTRawToDigi.h"
+
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ScGMTRawToDigi::ScGMTRawToDigi(const edm::ParameterSet& iConfig) {
@@ -25,7 +27,8 @@ void ScGMTRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   const FEDRawData& sourceRawData = ScoutingRawDataCollection->FEDData(SDSNumbering::GmtSDSID);
   size_t orbitSize = sourceRawData.size();
 
-  std::unique_ptr<l1ScoutingRun3::MuonOrbitCollection> unpackedMuons(new l1ScoutingRun3::MuonOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::MuonOrbitCollection> unpackedMuons =
+      std::make_unique<l1ScoutingRun3::MuonOrbitCollection>();
 
   if (sourceRawData.size() == 0) {
     LogDebug("L1Scout") << "No raw data for GMT FED\n";

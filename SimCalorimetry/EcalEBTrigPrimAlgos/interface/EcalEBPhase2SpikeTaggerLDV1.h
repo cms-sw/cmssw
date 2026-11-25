@@ -14,20 +14,20 @@ class EcalEBPhase2SpikeTaggerLDV1 : public EcalEBPhase2SpikeTagger {
 public:
   EcalEBPhase2SpikeTaggerLDV1(edm::ConsumesCollector& cc, bool debug);
 
-  bool process(const std::vector<int>& linInput) override;
+  void process(const std::vector<int>& linInput, std::vector<bool>& spikeTags) override;
   void getRecords(edm::EventSetup const& setup) override;
   void setParameters(EBDetId id, const EcalTPGCrystalStatus* ecaltpBadX) override;
 
 private:
   edm::ESGetToken<EcalEBPhase2TPGSpikeTaggerParams, EcalEBPhase2TPGSpikeTaggerParamsRcd> spikeTaggerParamsToken_;
-  unsigned int peakIdx_;
+  unsigned int bx0PeakIdx_;
   float spikeThreshold_;
   std::vector<double> weights_;
 
   std::shared_ptr<EcalEBPhase2TPGSpikeTaggerParamsHelper> spikeTaggerParamsHelper_;
 
-  float calcLD(std::vector<int> const& linInput) const;
-  float calcRMinus1Poly(std::vector<int> const& linInput, float sMax) const;
+  float calcLD(std::vector<int> const& linInput, unsigned int peakIdx) const;
+  float calcRMinus1Poly(std::vector<int> const& linInput, float sMax, unsigned int peakIdx) const;
 };
 
 #endif

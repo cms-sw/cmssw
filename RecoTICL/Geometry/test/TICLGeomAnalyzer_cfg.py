@@ -5,14 +5,16 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 
 options = VarParsing('analysis')
 options.register('geometry',
-                 'Run4D121',
+                 'Run4D127',
                  VarParsing.multiplicity.singleton,
                  VarParsing.varType.string,
-                 'Geometry to test: Run4D121 or Run4D122')
+                 'Geometry to test: Run4D127, Run4D121 or Run4D122')
 options.parseArguments()
 
 # geometry -> (geometry cff, era, GlobalTag), following upgradeWorkflowComponents
 GEOMETRIES = {
+    'Run4D127': ('Configuration.Geometry.GeometryExtendedRun4D127Reco_cff', 'Phase2C26I13M9',
+                 'auto:phase2_realistic_T35'),
     'Run4D121': ('Configuration.Geometry.GeometryExtendedRun4D121Reco_cff', 'Phase2C22I13M9',
                  'auto:phase2_realistic_T35'),
     'Run4D122': ('Configuration.Geometry.GeometryExtendedRun4D122Reco_cff', 'Phase2C26I13M9',
@@ -40,15 +42,21 @@ process.source = cms.Source("EmptySource")
 process.ticlGeomAnalyzerHGCal = cms.EDAnalyzer("TICLGeomAnalyzer", label = cms.string(""))
 process.ticlGeomAnalyzerECAL = cms.EDAnalyzer("TICLGeomAnalyzer", label = cms.string("ECAL"))
 process.ticlGeomAnalyzerHCAL = cms.EDAnalyzer("TICLGeomAnalyzer", label = cms.string("HCAL"))
+process.ticlGeomAnalyzerWithBarrel = cms.EDAnalyzer("TICLGeomAnalyzer", label = cms.string("withBarrel"))
 
 # Device-side lookup test on the alpaka backend (automatic host to device copy)
 process.ticlGeomDeviceTest = cms.EDProducer("TICLGeomDeviceTest@alpaka",
     src = cms.ESInputTag("", "")
 )
+process.ticlGeomDeviceTestECAL = process.ticlGeomDeviceTest.clone(src = ("", "ECAL"))
+process.ticlGeomDeviceTestWithBarrel = process.ticlGeomDeviceTest.clone(src = ("", "withBarrel"))
 
 process.p = cms.Path(
     process.ticlGeomAnalyzerHGCal +
     process.ticlGeomAnalyzerECAL +
     process.ticlGeomAnalyzerHCAL +
-    process.ticlGeomDeviceTest
+    process.ticlGeomAnalyzerWithBarrel +
+    process.ticlGeomDeviceTest +
+    process.ticlGeomDeviceTestECAL +
+    process.ticlGeomDeviceTestWithBarrel
 )

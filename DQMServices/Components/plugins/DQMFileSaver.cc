@@ -64,8 +64,8 @@ private:
   // needed only for the harvesting step when saving in the endJob
   int irun_;
 
-  edm::GetterOfProducts<DQMToken> jobmegetter_;
-  edm::GetterOfProducts<DQMToken> runmegetter_;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndProcessBlock> jobmegetter_;
+  edm::GetterOfProducts<DQMToken, edm::Transition::EndRun> runmegetter_;
 };
 
 //--------------------------------------------------------
@@ -154,8 +154,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       nrun_(0),
       irun_(0),
       // Abuse ProcessMatch as a "match all".
-      jobmegetter_(edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InProcess)),
-      runmegetter_(edm::GetterOfProducts<DQMToken>(edm::ProcessMatch("*"), this, edm::InRun)) {
+      jobmegetter_(edm::ProcessMatch("*"), this, edm::InProcess),
+      runmegetter_(edm::ProcessMatch("*"), this, edm::InRun) {
   callWhenNewProductsRegistered([this](edm::ProductDescription const &bd) {
     this->jobmegetter_(bd);
     this->runmegetter_(bd);

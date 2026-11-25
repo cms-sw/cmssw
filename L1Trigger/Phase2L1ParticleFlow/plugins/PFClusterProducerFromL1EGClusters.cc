@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -59,8 +61,8 @@ l1tpf::PFClusterProducerFromL1EGClusters::PFClusterProducerFromL1EGClusters(cons
 }
 
 void l1tpf::PFClusterProducerFromL1EGClusters::produce(edm::Event &iEvent, const edm::EventSetup &) {
-  std::unique_ptr<l1t::PFClusterCollection> out(new l1t::PFClusterCollection());
-  std::unique_ptr<l1t::PFClusterCollection> out_sel(new l1t::PFClusterCollection());
+  std::unique_ptr<l1t::PFClusterCollection> out = std::make_unique<l1t::PFClusterCollection>();
+  std::unique_ptr<l1t::PFClusterCollection> out_sel = std::make_unique<l1t::PFClusterCollection>();
   edm::Handle<l1tp2::CaloCrystalClusterCollection> clusters;
   edm::Handle<l1tp2::DigitizedClusterCorrelatorCollection> digi_clusters;
   iEvent.getByToken(src_, clusters);

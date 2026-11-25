@@ -54,7 +54,6 @@
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -390,7 +389,7 @@ namespace edm {
 
       ev.put(std::move(genEventInfo));
 
-      std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
+      std::unique_ptr<HepMCProduct> bare_product = std::make_unique<HepMCProduct>();
       bare_product->addHepMCData(event.release());
       ev.put(std::move(bare_product), "unsmeared");
     } else if (ivhepmc_ == 3) {
@@ -402,7 +401,7 @@ namespace edm {
 
       ev.put(std::move(genEventInfo3));
 
-      std::unique_ptr<HepMC3Product> bare_product(new HepMC3Product());
+      std::unique_ptr<HepMC3Product> bare_product = std::make_unique<HepMC3Product>();
       bare_product->addHepMCData(*event3);
       ev.put(std::move(bare_product), "unsmeared");
     }
@@ -544,7 +543,7 @@ namespace edm {
     GenRunInfoProduct& genRunInfo = cache->hadronizer_.getGenRunInfo();
     GenRunInfoProduct* expect = nullptr;
 
-    std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(genRunInfo));
+    std::unique_ptr<GenRunInfoProduct> griproduct = std::make_unique<GenRunInfoProduct>(genRunInfo);
     // All the GenRunInfoProducts for all streams shoule be identical, therefore we only need one
     if (rCache->product_.compare_exchange_strong(expect, griproduct.get())) {
       griproduct.release();

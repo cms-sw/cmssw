@@ -84,7 +84,7 @@ private:
 
 PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
   tokenPFCandidates_ = consumes<PFCollection>(iConfig.getParameter<InputTag>("PFCandidates"));
-  tokenPFCandidatesView_ = mayConsume<PFView>(iConfig.getParameter<InputTag>("PFCandidates"));
+  tokenPFCandidatesView_ = consumes<PFView>(iConfig.getParameter<InputTag>("PFCandidates"));
 
   tokenVertices_ = consumes<VertexCollection>(iConfig.getParameter<InputTag>("Vertices"));
 
@@ -123,9 +123,9 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
 
   // get PFCandidates
 
-  unique_ptr<PFCollection> pOutput(new PFCollection);
+  unique_ptr<PFCollection> pOutput = std::make_unique<PFCollection>();
 
-  unique_ptr<PFCollectionByValue> pOutputByValue(new PFCollectionByValue);
+  unique_ptr<PFCollectionByValue> pOutputByValue = std::make_unique<PFCollectionByValue>();
 
   if (enable_) {
     // get vertices

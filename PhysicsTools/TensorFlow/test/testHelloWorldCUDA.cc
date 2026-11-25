@@ -33,7 +33,7 @@ void testHelloWorldCUDA::test() {
     return;
 
   std::vector<edm::ParameterSet> psets;
-  edm::ServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
+  edm::OwningServiceToken serviceToken = edm::ServiceRegistry::createSet(psets);
   edm::ServiceRegistry::Operate operate(serviceToken);
 
   // Setup the CUDA Service
@@ -46,7 +46,7 @@ process.add_(cms.Service('CUDAService'))
 )_";
   std::unique_ptr<edm::ParameterSet> params;
   edm::makeParameterSets(config, params);
-  edm::ServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
+  edm::OwningServiceToken tempToken(edm::ServiceRegistry::createServicesFromConfig(std::move(params)));
   edm::ServiceRegistry::Operate operate2(tempToken);
   edm::Service<CUDAInterface> cuda;
   std::cout << "CUDA service enabled: " << cuda->enabled() << std::endl;

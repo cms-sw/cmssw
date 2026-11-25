@@ -124,9 +124,11 @@ namespace ngt {
     }
   };
 
-  // Specialisation for vectors of arithmetic types
+  // Specialisation for vectors of trivially copyable types, except for std::vector<bool>.
+  // The elements must not hold pointers or references to other data.
   template <typename T>
-    requires(std::is_arithmetic_v<T> and not std::is_same_v<T, bool>)
+    requires(std::is_trivially_copyable_v<T> and std::is_default_constructible_v<T> and not std::is_array_v<T> and
+             not std::is_pointer_v<T> and not std::is_member_pointer_v<T> and not std::is_same_v<T, bool>)
   struct MemoryCopyTraits<std::vector<T>> {
     using Properties = std::vector<T>::size_type;
 

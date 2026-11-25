@@ -40,6 +40,7 @@
 
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
+#include <memory>
 #include <string>
 #include <type_traits>
 
@@ -82,8 +83,8 @@ public:
     offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
     jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");        //for MC
     jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes");  //for data
-    jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
-    jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
+    jetCorrToken_ = consumes<reco::JetCorrector>(jetCorrLabel_);
+    jetCorrResToken_ = consumes<reco::JetCorrector>(jetCorrLabelRes_);
 
     jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax");
 
@@ -147,7 +148,7 @@ public:
 
 private:
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
-    std::unique_ptr<CorrMETData> type1Correction(new CorrMETData());
+    std::unique_ptr<CorrMETData> type1Correction = std::make_unique<CorrMETData>();
     for (typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
          type2BinningEntry != type2Binning_.end();
          ++type2BinningEntry) {

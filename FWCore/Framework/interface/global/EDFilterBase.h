@@ -37,7 +37,7 @@ namespace edm {
   class StreamID;
   class ActivityRegistry;
   class EventForTransformer;
-  class ServiceWeakToken;
+  class ServiceToken;
   class SignallingProductRegistryFiller;
 
   namespace maker {
@@ -52,9 +52,9 @@ namespace edm {
       template <typename T>
       friend class edm::maker::ModuleHolderT;
       template <typename T, typename TI, typename TP>
-      friend class edm::WorkerT;
+      friend class edm::ModuleTransitionWorker;
       template <typename T, typename TI, typename TP>
-      friend class edm::WorkerTBase;
+      friend class edm::ModuleTransitionWorkerBase;
       typedef EDFilterBase ModuleType;
 
       EDFilterBase();
@@ -83,7 +83,7 @@ namespace edm {
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&) noexcept;
+                            ServiceToken const&) noexcept;
       //For now this is a placeholder
       /*virtual*/ void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                                     ModuleCallingContext const& iModuleCallingContext,
@@ -158,7 +158,7 @@ namespace edm {
                                    std::size_t iIndex,
                                    edm::EventForTransformer& iEvent,
                                    edm::ActivityRegistry* iAct,
-                                   ServiceWeakToken const& iToken) const noexcept;
+                                   ServiceToken const& iToken) const noexcept;
 
       virtual void clearInputProcessBlockCaches();
       virtual bool hasAcquire() const noexcept { return false; }

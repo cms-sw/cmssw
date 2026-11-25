@@ -14,11 +14,12 @@ hltInitialStepSeeds = cms.EDProducer("SeedGeneratorFromProtoTracksEDProducer",
     TTRHBuilder = cms.string('hltESPTTRHBuilderWithTrackAngle'),
     usePV = cms.bool(False),
     includeFourthHit = cms.bool(True),
-    removeOTRechits = cms.bool(False),
+    removeOTRechits = cms.bool(True),
     produceComplement = cms.bool(False)
 )
 
 from Configuration.ProcessModifiers.hltPhase2LegacyTracking_cff import hltPhase2LegacyTracking
 hltPhase2LegacyTracking.toModify(hltInitialStepSeeds,
+    removeOTRechits = False,
     includeFourthHit = False
 )

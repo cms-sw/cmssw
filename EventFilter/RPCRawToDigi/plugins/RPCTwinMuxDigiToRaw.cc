@@ -75,7 +75,7 @@ void RPCTwinMuxDigiToRaw::produce(edm::Event& event, edm::EventSetup const& setu
   event.getByToken(digi_token_, digi_collection);
 
   // Create output
-  std::unique_ptr<FEDRawDataCollection> data_collection(new FEDRawDataCollection());
+  std::unique_ptr<FEDRawDataCollection> data_collection = std::make_unique<FEDRawDataCollection>();
 
   std::map<RPCAMCLink, std::vector<std::pair<int, rpctwinmux::RPCRecord> > > amc_bx_tmrecord;
   RPCTwinMuxPacker::getRPCTwinMuxRecords(*es_lb_link_map,

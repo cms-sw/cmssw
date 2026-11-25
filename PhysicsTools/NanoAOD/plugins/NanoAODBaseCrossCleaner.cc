@@ -29,7 +29,7 @@ NanoAODBaseCrossCleaner::NanoAODBaseCrossCleaner(const edm::ParameterSet& params
       muons_(consumes<edm::View<pat::Muon>>(params.getParameter<edm::InputTag>("muons"))),
       electrons_(consumes<edm::View<pat::Electron>>(params.getParameter<edm::InputTag>("electrons"))),
       lowPtElectronsTag_(params.getParameter<edm::InputTag>("lowPtElectrons")),
-      lowPtElectrons_(mayConsume<edm::View<pat::Electron>>(lowPtElectronsTag_)),
+      lowPtElectrons_(consumes<edm::View<pat::Electron>>(lowPtElectronsTag_)),
       taus_(consumes<edm::View<pat::Tau>>(params.getParameter<edm::InputTag>("taus"))),
       photons_(consumes<edm::View<pat::Photon>>(params.getParameter<edm::InputTag>("photons"))),
       jetSel_(params.getParameter<std::string>("jetSel")),

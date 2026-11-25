@@ -8,6 +8,7 @@ class TrackerGeometry;
 class DTGeometry;
 class CSCGeometry;
 class GEMGeometry;
+class MTDGeometry;
 
 /// Allows conversion between type and name, and vice-versa
 class AlignableObjectId {
@@ -16,6 +17,7 @@ public:
   enum class Geometry { RunI, PhaseI, PhaseII, General, Unspecified };
 
   AlignableObjectId(Geometry);
+  AlignableObjectId(const TrackerGeometry*, const MTDGeometry*);
   AlignableObjectId(const TrackerGeometry*, const DTGeometry*, const CSCGeometry*, const GEMGeometry*);
   AlignableObjectId(const AlignableObjectId&) = default;
   AlignableObjectId& operator=(const AlignableObjectId&) = default;
@@ -44,6 +46,7 @@ public:
 
 private:
   static Geometry trackerGeometry(const TrackerGeometry*);
+  static Geometry mtdGeometry(const MTDGeometry*);
   static Geometry muonGeometry(const DTGeometry*, const CSCGeometry*, const GEMGeometry*);
 
   const entry* entries_{nullptr};

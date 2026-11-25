@@ -23,6 +23,8 @@
  * authors: Sven Dildick (TAMU), Tao Huang (TAMU)
  */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -259,17 +261,19 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev, const edm::EventSetup
 
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
-  std::unique_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
-  std::unique_ptr<CSCCLCTDigiCollection> oc_clct(new CSCCLCTDigiCollection);
-  std::unique_ptr<CSCCLCTPreTriggerDigiCollection> oc_clctpretrigger(new CSCCLCTPreTriggerDigiCollection);
-  std::unique_ptr<CSCALCTPreTriggerDigiCollection> oc_alctpretrigger(new CSCALCTPreTriggerDigiCollection);
-  std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
-  std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
-  std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
-  std::unique_ptr<CSCShowerDigiCollection> oc_shower(new CSCShowerDigiCollection);
-  std::unique_ptr<CSCShowerDigiCollection> oc_shower_anode(new CSCShowerDigiCollection);
-  std::unique_ptr<CSCShowerDigiCollection> oc_shower_cathode(new CSCShowerDigiCollection);
-  std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad(new GEMCoPadDigiCollection);
+  std::unique_ptr<CSCALCTDigiCollection> oc_alct = std::make_unique<CSCALCTDigiCollection>();
+  std::unique_ptr<CSCCLCTDigiCollection> oc_clct = std::make_unique<CSCCLCTDigiCollection>();
+  std::unique_ptr<CSCCLCTPreTriggerDigiCollection> oc_clctpretrigger =
+      std::make_unique<CSCCLCTPreTriggerDigiCollection>();
+  std::unique_ptr<CSCALCTPreTriggerDigiCollection> oc_alctpretrigger =
+      std::make_unique<CSCALCTPreTriggerDigiCollection>();
+  std::unique_ptr<CSCCLCTPreTriggerCollection> oc_pretrig = std::make_unique<CSCCLCTPreTriggerCollection>();
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_lct = std::make_unique<CSCCorrelatedLCTDigiCollection>();
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct = std::make_unique<CSCCorrelatedLCTDigiCollection>();
+  std::unique_ptr<CSCShowerDigiCollection> oc_shower = std::make_unique<CSCShowerDigiCollection>();
+  std::unique_ptr<CSCShowerDigiCollection> oc_shower_anode = std::make_unique<CSCShowerDigiCollection>();
+  std::unique_ptr<CSCShowerDigiCollection> oc_shower_cathode = std::make_unique<CSCShowerDigiCollection>();
+  std::unique_ptr<GEMCoPadDigiCollection> oc_gemcopad = std::make_unique<GEMCoPadDigiCollection>();
 
   if (!wireDigis.isValid()) {
     edm::LogWarning("CSCTriggerPrimitivesProducer|NoInputCollection")

@@ -30,10 +30,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           dEdXweights_(config.getParameter<std::vector<float>>("dEdXweights")),
           thicknessCorrection_(config.getParameter<std::vector<float>>("thicknessCorrection")),
           ticlGeomToken_(consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-          ticlGeomLookupToken_(
-              consumesCollector().esConsumes<TICLGeomLookupHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
-          ticlGeomLayersToken_(
-              consumesCollector().esConsumes<TICLGeomLayersHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
           hits_token_(consumes<HGCRecHitCollection>(config.getParameter<edm::InputTag>("recHits"))),
           deviceToken_{produces()} {}
 
@@ -42,8 +38,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     void produce(device::Event& iEvent, device::EventSetup const& iSetup) override {
       edm::Handle<HGCRecHitCollection> hits_h;
 
-      rhtools_.setGeometry(
-          iSetup.getData(ticlGeomToken_), iSetup.getData(ticlGeomLookupToken_), iSetup.getData(ticlGeomLayersToken_));
+      rhtools_.setGeometry(iSetup.getData(ticlGeomToken_));
       maxlayer_ = rhtools_.lastLayer(isNose_);
 
       hits_h = iEvent.getHandle(hits_token_);
@@ -172,8 +167,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     ticlgeom::Tools rhtools_;
     edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-    edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-    edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
     edm::EDGetTokenT<HGCRecHitCollection> hits_token_;
     device::EDPutToken<HGCalSoARecHitsDeviceCollection> const deviceToken_;
 

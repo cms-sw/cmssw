@@ -22,6 +22,7 @@
 
 #include "TMatrixD.h"
 #include <iostream>
+#include <memory>
 
 using namespace edm;
 using namespace std;
@@ -164,7 +165,7 @@ void MixEvtVtxGenerator::produce(Event& evt, const EventSetup&) {
         << "Signal HepMCProduct is not compatible for embedding - it's vertex is already smeared." << std::endl;
   // Copy the HepMC::GenEvent
   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
-  std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt = std::make_unique<edm::HepMCProduct>(genevt);
   // generate new vertex & apply the shift
   //
   HepMCEvt->applyVtxGen(useRecVertex ? getRecVertex(evt) : getVertex(evt));

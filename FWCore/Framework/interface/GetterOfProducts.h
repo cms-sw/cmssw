@@ -107,6 +107,7 @@ There are some variants for special cases
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/WillGetIfMatch.h"
 #include "FWCore/Utilities/interface/BranchType.h"
+#include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
@@ -146,14 +147,14 @@ namespace edm {
     static constexpr BranchType branchType = InProcess;
   };
 
-  template <typename T>
+  template <typename T, edm::Transition Tr = edm::Transition::Event>
   class GetterOfProducts {
   public:
     GetterOfProducts() : branchType_(edm::InEvent) {}
 
     template <typename U, typename M>
     GetterOfProducts(U const& match, M* module, edm::BranchType branchType = edm::InEvent)
-        : matcher_(WillGetIfMatch<T>(match, module)),
+        : matcher_(WillGetIfMatch<T, Tr>(match, module)),
           tokens_(new std::vector<edm::EDGetTokenT<T>>),
           branchType_(branchType) {}
 

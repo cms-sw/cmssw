@@ -4,4 +4,5 @@
 <use name="boost"/>
 <use name="rootmath"/>
 <bin file="GsfMaterialEffectsUpdator_t.cpp">
+  <use name="google-benchmark"/>
 </bin>

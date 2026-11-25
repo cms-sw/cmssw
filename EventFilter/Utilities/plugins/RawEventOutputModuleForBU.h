@@ -17,7 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 

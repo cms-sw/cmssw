@@ -41,9 +41,9 @@ L1GtVhdlWriter::L1GtVhdlWriter(const edm::ParameterSet& parSet) {
   menuToken_ = esConsumes();
 
   if (vhdlDir_[vhdlDir_.length() - 1] != '/')
-    vhdlDir_ += "/";
+    vhdlDir_ += '/';
   if (outputDir_[outputDir_.length() - 1] != '/')
-    outputDir_ += "/";
+    outputDir_ += '/';
 
   //    // def.xml file
   //    std::string defXmlFileName = parSet.getParameter<std::string>("DefXmlFile");

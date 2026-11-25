@@ -54,7 +54,7 @@ namespace edm {
   class ProductResolverIndexAndSkipBit;
   class ActivityRegistry;
   class WaitingTaskHolder;
-  class ServiceWeakToken;
+  class ServiceToken;
   class SignallingProductRegistryFiller;
   struct ModuleConsumesMinimalESInfo;
 
@@ -73,9 +73,9 @@ namespace edm {
     class ProducingModuleAdaptorBase {
     public:
       template <typename U, typename TI, typename TP>
-      friend class edm::WorkerT;
+      friend class edm::ModuleTransitionWorker;
       template <typename U, typename TI, typename TP>
-      friend class edm::WorkerTBase;
+      friend class edm::ModuleTransitionWorkerBase;
       template <typename U>
       friend class edm::maker::ModuleHolderT;
 
@@ -105,7 +105,7 @@ namespace edm {
 
       void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
       void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
-      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
+      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition) const;
 
       std::vector<ESResolverIndex> const& esGetTokenIndicesVector(edm::Transition iTrans) const;
       std::vector<ESRecordIndex> const& esGetTokenRecordIndicesVector(edm::Transition iTrans) const;
@@ -136,7 +136,7 @@ namespace edm {
                             EventPrincipal const& iEvent,
                             ActivityRegistry*,
                             ModuleCallingContext,
-                            ServiceWeakToken const&) noexcept;
+                            ServiceToken const&) noexcept;
 
     protected:
       template <typename F>

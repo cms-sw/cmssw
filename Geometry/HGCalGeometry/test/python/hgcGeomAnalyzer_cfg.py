@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun hgcGeomAnalyzer_cfg.py geom=v17
+#   cmsRun hgcGeomAnalyzer_cfg.py geom=V17
 #
-#   Options for geom v16, v17, v18, V19
+#   Options for geom V17, v18, V19, V20
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -12,9 +12,9 @@ from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
 options = VarParsing()
 options.register ("geom",
-                  "v17",
+                  "V19",
                   VarParsing.multiplicity.singleton, VarParsing.varType.string,
-                  "geom of operations: v16, v17, v18, V19")
+                  "geom of operations: V17, V18, V19, V20")
 
 options.parseArguments()
 

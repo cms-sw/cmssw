@@ -104,7 +104,7 @@ private:
 HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfig)
     :
 
-      srcToken_(mayConsume<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("src"))),
+      srcToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("src"))),
       particlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("particles"))),
       partonMode_(iConfig.getParameter<std::string>("partonMode")),
       fullChainPhysPartons_(iConfig.getParameter<bool>("fullChainPhysPartons"))

@@ -161,8 +161,8 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
     edm::LogInfo("EcalDetailedTimeRecHitInfo") << "total # eeTimeDigis: " << eeTimeDigis->size();
   }
   // collection of rechits to put in the event
-  std::unique_ptr<EBRecHitCollection> EBDetailedTimeRecHits(new EBRecHitCollection);
-  std::unique_ptr<EERecHitCollection> EEDetailedTimeRecHits(new EERecHitCollection);
+  std::unique_ptr<EBRecHitCollection> EBDetailedTimeRecHits = std::make_unique<EBRecHitCollection>();
+  std::unique_ptr<EERecHitCollection> EEDetailedTimeRecHits = std::make_unique<EERecHitCollection>();
 
   std::unique_ptr<GlobalPoint> vertex;
 

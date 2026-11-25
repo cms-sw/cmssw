@@ -5,6 +5,7 @@
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/interface/TrackStructures.h"
 #include "RecoTracker/MkFitCore/interface/MkJob.h"
+#include "RecoTracker/MkFitCore/interface/HitStateOnTrack.h"
 
 #include <atomic>
 #include <functional>
@@ -65,7 +66,8 @@ namespace mkfit {
       m_event_of_comb_cands.compactifyHitStorageForBestCand(remove_seed_hits, backward_fit_min_hits);
     }
 
-    void beginBkwSearch() { m_event_of_comb_cands.beginBkwSearch(); }
+    void beginBkwSearch();
+    void gateBkwSearch() { m_event_of_comb_cands.gateBkwSearch(m_job->m_trk_info); }
     void endBkwSearch() { m_event_of_comb_cands.endBkwSearch(); }
 
     // MIMI hack to export tracks for BH
@@ -128,6 +130,10 @@ namespace mkfit {
                     std::map<int, std::vector<int>> *remap = nullptr);
     void check_tracks(std::vector<int> inds, int start_trk, int end_trk);
 
+    // Per-hit states of the final fit (fittracks): when set, the states of every track of ref_tracks(), indexed by
+    // track and HitOnTrack position.  nullptr (the default) stores nothing.
+    void set_hit_states_output(FinalFitHitStates *hs) { m_hsOut = hs; }
+
   private:
     void fit_one_seed_set(TrackVec &simtracks, int itrack, int end, MkFitter *mkfttr, const bool is_brl[]);
 
@@ -150,6 +156,8 @@ namespace mkfit {
     std::atomic<int> m_nan_n_silly_per_layer_count;
 
     bool m_silent;
+
+    FinalFitHitStates *m_hsOut = nullptr;
   };
 
 }  // end namespace mkfit

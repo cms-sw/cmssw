@@ -14,5 +14,7 @@ hltParticleTransformerDiscriminatorsJetTags = cms.EDProducer("BTagProbabilityToD
             'hltParticleTransformerONNXJetTags:probuds'
         )
       )
-    )
+    ),
+    produceValueMap = cms.untracked.bool(True),
+    jets = cms.InputTag("hltAK4PFPuppiJets")
 )

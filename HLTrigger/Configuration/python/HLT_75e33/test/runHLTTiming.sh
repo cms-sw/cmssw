@@ -11,7 +11,7 @@ set -o pipefail
 ############################
 
 FOLDER_FILES="/data/user/${USER}/"
-DATASET="/RelValTTbar_14TeV/CMSSW_20_0_0_pre1-PU_150X_mcRun4_realistic_v1_STD_D121_RegeneratedGS_PU-v1/GEN-SIM-DIGI-RAW"
+DATASET="/RelValTTbar_14TeV/CMSSW_20_1_0_pre4-PU_200X_mcRun4_realistic_v1_STD_D128_RegeneratedGS_PU_20261012_192421_RV32-v1/GEN-SIM-DIGI-RAW"
 
 EVENTS=1000
 THREADS=4
@@ -112,8 +112,8 @@ run_cmsdriver() {
         -s ${menu} \
         --processName=${process} \
         --conditions auto:phase2_realistic_T35 \
-        --geometry ExtendedRun4D121 \
-        --era Phase2C22I13M9 \
+        --geometry ExtendedRun4D128 \
+        --era Phase2C26I13M9 \
         --customise SLHCUpgradeSimulations/Configuration/aging.customise_aging_1000 \
         --eventcontent FEVTDEBUGHLT \
         --filein="${ALL_FILES}" \
@@ -148,7 +148,9 @@ run_benchmark() {
         -j 8 -t 16 -s 16 \
         -e ${EVENTS} \
         --no-input-benchmark \
-        --slot "numa=0-3:mem=0-3" \
+        --slot "numa=0-3:mem=0-3:nv=0" \
+        --slot "numa=0-3:mem=0-3:nv=1" \
+        --nvidia-mps \
         --event-skip 100 \
         --event-resolution 10 \
         --output-log \

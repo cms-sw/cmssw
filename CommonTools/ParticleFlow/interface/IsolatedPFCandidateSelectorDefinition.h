@@ -27,7 +27,7 @@ namespace pf2pat {
                                     [&](edm::InputTag const& tag) { return iC.consumes<IsoMap>(tag); })),
           doDeltaBetaCorrection_(cfg.getParameter<bool>("doDeltaBetaCorrection")),
           deltaBetaIsolationValueMapToken_(
-              iC.mayConsume<IsoMap>(cfg.getParameter<edm::InputTag>("deltaBetaIsolationValueMap"))),
+              iC.consumes<IsoMap>(cfg.getParameter<edm::InputTag>("deltaBetaIsolationValueMap"))),
           deltaBetaFactor_(cfg.getParameter<double>("deltaBetaFactor")),
           isRelative_(cfg.getParameter<bool>("isRelative")),
           isolationCut_(cfg.getParameter<double>("isolationCut")) {}

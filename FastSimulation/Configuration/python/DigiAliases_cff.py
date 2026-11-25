@@ -1,26 +1,43 @@
 import FWCore.ParameterSet.Config as cms
 
+fastSimGeneralTracks = cms.VPSet(
+    cms.PSet(
+        fromProductInstance = cms.string('generalTracks'),
+        toProductInstance = cms.string(''),
+        type = cms.string('recoTracks')
+    ),
+    cms.PSet(
+        fromProductInstance = cms.string('generalTracks'),
+        toProductInstance = cms.string(''),
+        type = cms.string('recoTrackExtras')
+    ),
+    cms.PSet(
+        fromProductInstance = cms.string('generalTracks'),
+        toProductInstance = cms.string(''),
+        type = cms.string('TrackingRecHitsOwned')
+    )
+)
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(fastSimGeneralTracks,
+    lambda v: v.extend([
+        cms.PSet(
+            fromProductInstance = cms.string('generalTracks'),
+            toProductInstance = cms.string(''),
+            type = cms.string('Trajectorys')
+        ),
+        cms.PSet(
+            fromProductInstance = cms.string('generalTracks'),
+            toProductInstance = cms.string(''),
+            type = cms.string('TrajectorysToOnerecoTracksAssociation')
+        ),
+    ])
+)
+
 def loadGeneralTracksAlias(process, premix=False):
     nopremix = not premix
     process.generalTracks = cms.EDAlias(
         **{"mix" if nopremix else "mixData" :
-           cms.VPSet(
-                cms.PSet(
-                    fromProductInstance = cms.string('generalTracks'),
-                    toProductInstance = cms.string(''),
-                    type = cms.string('recoTracks')
-                    ), 
-                cms.PSet(
-                    fromProductInstance = cms.string('generalTracks'),
-                    toProductInstance = cms.string(''),
-                    type = cms.string('recoTrackExtras')
-                    ), 
-                cms.PSet(
-                    fromProductInstance = cms.string('generalTracks'),
-                    toProductInstance = cms.string(''),
-                    type = cms.string('TrackingRecHitsOwned')
-                    )
-                )
+            fastSimGeneralTracks
            }
           )
 

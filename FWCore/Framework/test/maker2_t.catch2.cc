@@ -5,7 +5,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/maker/WorkerT.h"
+#include "FWCore/Framework/interface/maker/ModuleTransitionWorker.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "FWCore/Framework/interface/SignallingProductRegistryFiller.h"
@@ -58,10 +58,10 @@ TEST_CASE("Maker2", "[Framework][Factory]") {
 
     signalslot::Signal<void(const ModuleDescription&)> aSignal;
     auto m1 = f->makeModule(params1, aSignal, aSignal);
-    std::unique_ptr<Worker> w1 =
+    std::unique_ptr<TransitionWorkerBase> w1 =
         m1->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
     auto m2 = f->makeModule(params2, aSignal, aSignal);
-    std::unique_ptr<Worker> w2 =
+    std::unique_ptr<TransitionWorkerBase> w2 =
         m2->makeWorker(&table, edm::EventTransitionInfo::key(), edm::TransitionPhaseGlobal::value);
 
     //  return 0;

@@ -4,6 +4,8 @@
 // Original Author:  G. Bruno, D. Kcira
 //         Created:  Mon May 20 10:04:31 CET 2007
 #include "CalibTracker/SiStripChannelGain/plugins/SiStripGainCosmicCalculator.h"
+
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CommonTopologies/interface/GeomDet.h"
@@ -229,7 +231,7 @@ std::pair<double, double> SiStripGainCosmicCalculator::getPeakOfLandau(
   //
   // perform fit with standard landau
   // make our own copy to avoid problems with threads
-  std::unique_ptr<TF1> fitfunction(new TF1("landaufit", "landau"));
+  std::unique_ptr<TF1> fitfunction = std::make_unique<TF1>("landaufit", "landau");
   inputHisto->Fit(fitfunction.get(), "0Q");
   adcs = fitfunction->GetParameter("MPV");
   error = fitfunction->GetParError(1);  // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)

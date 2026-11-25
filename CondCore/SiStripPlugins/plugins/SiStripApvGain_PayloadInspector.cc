@@ -821,7 +821,7 @@ namespace {
       titleMap += std::to_string(std::get<0>(firstiov));
       titleMap += "/ IOV:";
       titleMap += std::to_string(std::get<0>(lastiov));
-      titleMap += ")";
+      titleMap += ')';
 
       titleMap += +" " + std::to_string(nsigma) + " std. dev. saturation";
 

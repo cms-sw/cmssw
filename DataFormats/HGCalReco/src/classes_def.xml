@@ -9,6 +9,8 @@
   <class name="std::pair<edm::RefProd<std::vector<ticl::io_v1::Trackster> >, edm::RefProd<std::vector<ticl::io_v1::Trackster> > >"/>
   <class name="edm::Wrapper<ticl::io_v1::Trackster>" />
   <class name="edm::Wrapper<std::vector<ticl::io_v1::Trackster> >" />
+  <class name="edm::Ptr<ticl::io_v1::Trackster>" />
+  <class name="std::vector<edm::Ptr<ticl::io_v1::Trackster> >" />
 
   <class name="ticl::TICLLayerTile" persistent="false">
     <field name="tile_" transient="true"/>

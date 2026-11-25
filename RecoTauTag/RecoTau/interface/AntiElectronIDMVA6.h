@@ -27,12 +27,13 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "RecoTauTag/RecoTau/interface/PositionAtECalEntranceComputer.h"
 
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include <map>
+#include <string>
 #include <vector>
+
+class TFile;
 
 class GBRWrapperRcd;
 

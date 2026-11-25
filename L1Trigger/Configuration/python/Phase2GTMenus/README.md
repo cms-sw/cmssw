@@ -11,6 +11,12 @@ Available menus:
 * `step1_2023` –> first menu of 2023
 * `step1_2024` -> the 2024 version 
 * `step1_2024_explicitSeeds` –> the 2024 version with explicit definitions of individual objects
+* `step1and2_2026` -> `step1_2024` plus the step 2 seeds that P2GT can run
+* `step1p5_2026` -> the step 1.5 menu, based on the Run 3 menu (2025 `v1_3_0`)
+* `v0p0_2026` -> `step1p5_2026` plus the step 2 and extended-eta seeds that P2GT can run
+
+The 2026 menus follow the Phase-2 L1 MenuTools menus of the same names (`configs/V50nano/rate_table/` in [Phase2-L1MenuTools](https://github.com/cms-l1-dpg/Phase2-L1MenuTools)), with path names `pX` for the MenuTools seed `L1_X`.
+`step1_2024` remains the default.
 
 These menus can be specified via the cmsDriver configuration as `-s L1P2GT:step1_2024`.
 

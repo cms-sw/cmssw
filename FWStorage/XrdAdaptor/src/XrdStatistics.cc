@@ -10,6 +10,7 @@
 #include "XrdStatistics.h"
 
 #include <chrono>
+#include <memory>
 
 using namespace edm::storage;
 
@@ -81,7 +82,7 @@ std::shared_ptr<XrdSiteStatistics> XrdSiteStatisticsInformation::getStatisticsFo
 
 void XrdSiteStatisticsInformation::createInstance() {
   if (!m_instance) {
-    std::unique_ptr<XrdSiteStatisticsInformation> tmp{new XrdSiteStatisticsInformation()};
+    std::unique_ptr<XrdSiteStatisticsInformation> tmp = std::make_unique<XrdSiteStatisticsInformation>();
     XrdSiteStatisticsInformation *expected = nullptr;
     if (m_instance.compare_exchange_strong(expected, tmp.get())) {
       tmp.release();

@@ -13,6 +13,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "fastjet/JetDefinition.hh"
+#include <memory>
 #include <set>
 
 class PseudoTopProducer : public edm::stream::EDProducer<> {
@@ -86,14 +87,14 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
   edm::Handle<edm::View<reco::Candidate> > genParticleHandle;
   event.getByToken(genParticleToken_, genParticleHandle);
 
-  std::unique_ptr<reco::GenParticleCollection> neutrinos(new reco::GenParticleCollection);
-  std::unique_ptr<reco::GenJetCollection> leptons(new reco::GenJetCollection);
-  std::unique_ptr<reco::GenJetCollection> jets(new reco::GenJetCollection);
+  std::unique_ptr<reco::GenParticleCollection> neutrinos = std::make_unique<reco::GenParticleCollection>();
+  std::unique_ptr<reco::GenJetCollection> leptons = std::make_unique<reco::GenJetCollection>();
+  std::unique_ptr<reco::GenJetCollection> jets = std::make_unique<reco::GenJetCollection>();
   auto neutrinosRefHandle = event.getRefBeforePut<reco::GenParticleCollection>("neutrinos");
   auto leptonsRefHandle = event.getRefBeforePut<reco::GenJetCollection>("leptons");
   auto jetsRefHandle = event.getRefBeforePut<reco::GenJetCollection>("jets");
 
-  std::unique_ptr<reco::GenParticleCollection> pseudoTop(new reco::GenParticleCollection);
+  std::unique_ptr<reco::GenParticleCollection> pseudoTop = std::make_unique<reco::GenParticleCollection>();
   auto pseudoTopRefHandle = event.getRefBeforePut<reco::GenParticleCollection>();
 
   // Collect unstable B-hadrons

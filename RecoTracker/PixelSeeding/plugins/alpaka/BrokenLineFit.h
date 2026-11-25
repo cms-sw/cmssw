@@ -21,10 +21,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   template <int N>
   class Kernel_BLFastFit {
   public:
+    // Templated on the hit view (HitsMultiView, or the CAHitsView facade of Phase2OTVectorHits).
+    template <typename HitsView>
     ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                   Tuples const *__restrict__ foundNtuplets,
                                   TupleMultiplicity const *__restrict__ tupleMultiplicity,
-                                  caStructures::HitsMultiView hh,
+                                  HitsView hh,
                                   ::reco::CAModulesConstView cm,
                                   typename caStructures::tindex_type *__restrict__ ptkids,
                                   double *__restrict__ phits,
@@ -251,7 +253,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   };
 
   template <typename TrackerTraits>
-  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const caStructures::HitsMultiView &hv,
+  void HelixFit<TrackerTraits>::launchBrokenLineKernels(const HitsMultiView &hv,
                                                         const ::reco::CAModulesConstView &cm,
                                                         uint32_t hitsInFit,
                                                         uint32_t maxNumberOfTuples,

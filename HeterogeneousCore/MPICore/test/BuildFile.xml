@@ -57,12 +57,22 @@
 
 <test
   name="testMPIAutosplitter"
-  command="testAutomaticSplitter.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/configutration_for_automatic_splitter.py"
+  command="testAutomaticSplitter.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/automatic_splitter_cfg.py"
 />
 
 <test
-  name="testMPIAutosplitter"
-  command="testAutomaticSplitterMultiProcess.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/configutration_for_automatic_splitter.py"
+  name="testMPIAutosplitterMultiProcess"
+  command="testAutomaticSplitterMultiProcess.sh ${CMSSW_BASE}/src/HeterogeneousCore/MPICore/test/automatic_splitter_cfg.py"
+/>
+
+<test
+  name="testOffloadedModulesDoNotRunMoreThanNeeded"
+  command="testOffloadedModulesDoNotRunMoreThanNeeded.sh"
+/>
+
+<test
+  name="testSplitterSendsOnlyConsumedProducts"
+  command="testSplitterSendsOnlyConsumedProducts.sh"
 />
 
 <test

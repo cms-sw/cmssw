@@ -1,4 +1,6 @@
 
+#include <memory>
+
 #include "CommonTools/RecoUtils/interface/PF_PU_AssoMapAlgos.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -374,7 +376,7 @@ double PF_PU_AssoMapAlgos::dR(const math::XYZPoint& vtx_pos,
 
 unique_ptr<ConversionCollection> PF_PU_AssoMapAlgos::GetCleanedConversions(
     edm::Handle<reco::ConversionCollection> convCollH, Handle<BeamSpot> bsH, bool cleanedColl) {
-  unique_ptr<ConversionCollection> cleanedConvColl(new ConversionCollection());
+  unique_ptr<ConversionCollection> cleanedConvColl = std::make_unique<ConversionCollection>();
 
   for (unsigned int convcoll_idx = 0; convcoll_idx < convCollH->size(); convcoll_idx++) {
     ConversionRef convref(convCollH, convcoll_idx);
@@ -440,7 +442,8 @@ VertexRef PF_PU_AssoMapAlgos::FindConversionVertex(const reco::TrackRef trackref
 
 unique_ptr<VertexCompositeCandidateCollection> PF_PU_AssoMapAlgos::GetCleanedKshort(
     Handle<VertexCompositeCandidateCollection> KshortsH, Handle<BeamSpot> bsH, bool cleanedColl) {
-  unique_ptr<VertexCompositeCandidateCollection> cleanedKaonColl(new VertexCompositeCandidateCollection());
+  unique_ptr<VertexCompositeCandidateCollection> cleanedKaonColl =
+      std::make_unique<VertexCompositeCandidateCollection>();
 
   for (unsigned int kscoll_idx = 0; kscoll_idx < KshortsH->size(); kscoll_idx++) {
     VertexCompositeCandidateRef ksref(KshortsH, kscoll_idx);
@@ -486,7 +489,8 @@ unique_ptr<VertexCompositeCandidateCollection> PF_PU_AssoMapAlgos::GetCleanedKsh
 
 unique_ptr<VertexCompositeCandidateCollection> PF_PU_AssoMapAlgos::GetCleanedLambda(
     Handle<VertexCompositeCandidateCollection> LambdasH, Handle<BeamSpot> bsH, bool cleanedColl) {
-  unique_ptr<VertexCompositeCandidateCollection> cleanedLambdaColl(new VertexCompositeCandidateCollection());
+  unique_ptr<VertexCompositeCandidateCollection> cleanedLambdaColl =
+      std::make_unique<VertexCompositeCandidateCollection>();
 
   for (unsigned int lambdacoll_idx = 0; lambdacoll_idx < LambdasH->size(); lambdacoll_idx++) {
     VertexCompositeCandidateRef lambdaref(LambdasH, lambdacoll_idx);
@@ -597,7 +601,7 @@ VertexRef PF_PU_AssoMapAlgos::FindV0Vertex(const TrackRef trackref,
 unique_ptr<PFDisplacedVertexCollection> PF_PU_AssoMapAlgos::GetCleanedNI(Handle<PFDisplacedVertexCollection> NuclIntH,
                                                                          Handle<BeamSpot> bsH,
                                                                          bool cleanedColl) {
-  unique_ptr<PFDisplacedVertexCollection> cleanedNIColl(new PFDisplacedVertexCollection());
+  unique_ptr<PFDisplacedVertexCollection> cleanedNIColl = std::make_unique<PFDisplacedVertexCollection>();
 
   for (PFDisplacedVertexCollection::const_iterator niref = NuclIntH->begin(); niref != NuclIntH->end(); niref++) {
     if ((niref->isFake()) || !(niref->isNucl()))

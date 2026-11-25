@@ -18,8 +18,8 @@ namespace edm::streamer {
         one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
         StreamerOutputModuleCommon(ps, &keptProducts()[InEvent], description().moduleLabel()),
         trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
-        psetToken_(
-            consumes<SendJobHeader::ParameterSetMap, edm::InRun>(ps.getUntrackedParameter<edm::InputTag>("psetMap"))) {}
+        psetToken_(consumes<SendJobHeader::ParameterSetMap, edm::InRun, edm::Transition::BeginRun>(
+            ps.getUntrackedParameter<edm::InputTag>("psetMap"))) {}
 
   StreamerOutputModuleBase::~StreamerOutputModuleBase() {}
 

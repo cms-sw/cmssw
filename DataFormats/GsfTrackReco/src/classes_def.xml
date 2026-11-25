@@ -50,5 +50,7 @@
   <class name="std::vector<edm::RefVector<std::vector<reco::io_v1::GsfTrack>,reco::io_v1::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GsfTrack>,reco::io_v1::GsfTrack> > >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::io_v1::GsfTrack>,reco::io_v1::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GsfTrack>,reco::io_v1::GsfTrack> > >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::io_v1::GsfTrack>,reco::io_v1::GsfTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::io_v1::GsfTrack>,reco::io_v1::GsfTrack> > >"/>
+  <class name="edm::Ptr<reco::io_v1::GsfTrack>"/>
+  <class name="std::vector<edm::Ptr<reco::io_v1::GsfTrack> >"/>
 
   </lcgdict>

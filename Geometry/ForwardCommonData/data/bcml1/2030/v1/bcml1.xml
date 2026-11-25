@@ -1,0 +1,158 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <!--BCML1 source: FLUKA v6630.inp; seven source regions at +z, z=284.8 to 287.2 cm.-->
+  <!--Construction hierarchy: +x unit (containing all +y/-y) -> rotated -x unit -> +z assembly.-->
+  <!--Full +z assembly optionally rotated to -z in companion placement template.-->
+  <!--Rz180 used for -x to preserve asymmetric PCB/diamond positions in z; Ry180 would reverse z.-->
+  <!--Material replacement: carbon-fiber shell -> air cavity -> FR4/diamond daughters.-->
+
+<SolidSection label="BCML1">
+  <Box name="BCML1" dx="4.6*cm" dy="9*cm" dz="1.2*cm" />
+  <Box name="BCML1_PosXUnitSolid" dx="1.55*cm" dy="9*cm" dz="1.2*cm" />
+  <Box name="BCML1_SideShellBase" dx="1.45*cm" dy="4.4*cm" dz="1.2*cm" />
+  <Box name="BCML1_SideCavityBase" dx="1.375*cm" dy="4.2*cm" dz="1*cm" />
+  <Box name="BCML1_PcbBase" dx="1.375*cm" dy="4*cm" dz="0.08*cm" />
+  <Box name="BCML1_RailBase" dx="0.1*cm" dy="9*cm" dz="1.2*cm" />
+  <Box name="BCML1_RailAirBase" dx="0.065*cm" dy="3.6*cm" dz="1*cm" />
+  <Box name="BCML1_DiamondBase" dx="0.14997734829*cm" dy="0.80002061223*cm" dz="0.8*cm" />
+  <Tubs name="BCML1_Cut_R284" rMin="0*cm" rMax="2.84*cm" dz="1.5*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <Tubs name="BCML1_Cut_R292" rMin="0*cm" rMax="2.92*cm" dz="1.5*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <Tubs name="BCML1_Cut_R320" rMin="0*cm" rMax="3.2*cm" dz="1.5*cm" startPhi="0*deg" deltaPhi="360*deg" />
+  <SubtractionSolid name="BCML1_SideShell">
+    <rSolid name="BCML1_SideShellBase" />
+    <rSolid name="BCML1_Cut_R284" />
+    <Translation x="-3.15*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <SubtractionSolid name="BCML1_SideCavity">
+    <rSolid name="BCML1_SideCavityBase" />
+    <rSolid name="BCML1_Cut_R292" />
+    <Translation x="-3.075*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <SubtractionSolid name="BCML1_Pcb">
+    <rSolid name="BCML1_PcbBase" />
+    <rSolid name="BCML1_Cut_R320" />
+    <Translation x="-3.075*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <SubtractionSolid name="BCML1_RailShell">
+    <rSolid name="BCML1_RailBase" />
+    <rSolid name="BCML1_Cut_R284" />
+    <Translation x="-1.6*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+  <SubtractionSolid name="BCML1_RailAir">
+    <rSolid name="BCML1_RailAirBase" />
+    <rSolid name="BCML1_Cut_R292" />
+    <Translation x="-1.635*cm" y="0*cm" z="0*cm" />
+  </SubtractionSolid>
+</SolidSection>
+
+<LogicalPartSection label="BCML1">
+  <LogicalPart name="BCML1" category="unspecified">
+    <rSolid name="BCML1" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="BCML1_PosXUnit" category="unspecified">
+    <rSolid name="BCML1_PosXUnitSolid" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="BCML1_SideShellPart" category="unspecified">
+    <rSolid name="BCML1_SideShell" />
+    <rMaterial name="materials:Carbon fibre str." />
+  </LogicalPart>
+  <LogicalPart name="BCML1_SideAirPart" category="unspecified">
+    <rSolid name="BCML1_SideCavity" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="BCML1_RailPart" category="unspecified">
+    <rSolid name="BCML1_RailShell" />
+    <rMaterial name="materials:Carbon fibre str." />
+  </LogicalPart>
+  <LogicalPart name="BCML1_RailAirPart" category="unspecified">
+    <rSolid name="BCML1_RailAir" />
+    <rMaterial name="materials:Air" />
+  </LogicalPart>
+  <LogicalPart name="BCML1_PcbPart" category="unspecified">
+    <rSolid name="BCML1_Pcb" />
+    <rMaterial name="brilMaterials:BRIL_FR4" />
+  </LogicalPart>
+  <LogicalPart name="BCML1_DiamondPart" category="unspecified">
+    <rSolid name="BCML1_DiamondBase" />
+    <rMaterial name="brilMaterials:BCML1_DIAM_DET" />
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="BCML1">
+  <PosPart copyNumber="1">
+    <rParent name="bcml1:BCML1" />
+    <rChild name="bcml1:BCML1_PosXUnit" />
+    <Translation x="3.05*cm" y="0*cm" z="0*cm" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="bcml1:BCML1" />
+    <rChild name="bcml1:BCML1_PosXUnit" />
+    <Translation x="-3.05*cm" y="0*cm" z="0*cm" />
+    <rRotation name="rotations:R180" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml1:BCML1_PosXUnit" />
+    <rChild name="bcml1:BCML1_SideShellPart" />
+    <Translation x="0.1*cm" y="0*cm" z="0*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml1:BCML1_PosXUnit" />
+    <rChild name="bcml1:BCML1_RailPart" />
+    <Translation x="-1.45*cm" y="0*cm" z="0*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml1:BCML1_SideShellPart" />
+    <rChild name="bcml1:BCML1_SideAirPart" />
+    <Translation x="-0.075*cm" y="0*cm" z="0*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml1:BCML1_RailPart" />
+    <rChild name="bcml1:BCML1_RailAirPart" />
+    <Translation x="0.035*cm" y="0*cm" z="0*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml1:BCML1_SideAirPart" />
+    <rChild name="bcml1:BCML1_PcbPart" />
+    <Translation x="0*cm" y="0*cm" z="0.8*cm" />
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="bcml1:BCML1_SideAirPart" />
+    <rChild name="bcml1:BCML1_DiamondPart" />
+    <Translation x="-0.60015*cm" y="2.47485*cm" z="-0.08*cm" />
+    <rRotation name="rotations:R045" />
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="bcml1:BCML1_SideAirPart" />
+    <rChild name="bcml1:BCML1_DiamondPart" />
+    <Translation x="-0.24655*cm" y="2.82845*cm" z="-0.08*cm" />
+    <rRotation name="rotationns:R045" />
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="bcml1:BCML1_SideAirPart" />
+    <rChild name="bcml1:BCML1_DiamondPart" />
+    <Translation x="0.10695*cm" y="3.18195*cm" z="-0.08*cm" />
+    <rRotation name="rotationns:R045" />
+  </PosPart>
+  <PosPart copyNumber="4">
+    <rParent name="bcml1:BCML1_SideAirPart" />
+    <rChild name="bcml1:BCML1_DiamondPart" />
+    <Translation x="-0.60015*cm" y="-2.47485*cm" z="-0.08*cm" />
+    <rRotation name="rotationns:R315" />
+  </PosPart>
+  <PosPart copyNumber="5">
+    <rParent name="bcml1:BCML1_SideAirPart" />
+    <rChild name="bcml1:BCML1_DiamondPart" />
+    <Translation x="-0.24655*cm" y="-2.82845*cm" z="-0.08*cm" />
+    <rRotation name="rotationns:R315" />
+  </PosPart>
+  <PosPart copyNumber="6">
+    <rParent name="bcml1:BCML1_SideAirPart" />
+    <rChild name="bcml1:BCML1_DiamondPart" />
+    <Translation x="0.10695*cm" y="-3.18195*cm" z="-0.08*cm" />
+    <rRotation name="rotationns:R315" />
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

@@ -130,7 +130,7 @@ void TrackDistanceValueMapProducer::produce(edm::StreamID streamID,
   // Populate the event with the value map
   //=======================================================
 
-  std::unique_ptr<edm::ValueMap<std::vector<float>>> vm_dR2(new edm::ValueMap<std::vector<float>>());
+  std::unique_ptr<edm::ValueMap<std::vector<float>>> vm_dR2 = std::make_unique<edm::ValueMap<std::vector<float>>>();
   edm::ValueMap<std::vector<float>>::Filler filler(*vm_dR2);
   filler.insert(muonTrackCollectionHandle, v2_dR2.begin(), v2_dR2.end());
   filler.fill();

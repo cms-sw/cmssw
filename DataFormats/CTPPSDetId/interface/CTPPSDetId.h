@@ -102,7 +102,7 @@ public:
         break;
       case nFull:
         subDetectorName(name, flag);
-        name += "_";
+        name += '_';
         break;
       case nPath:
         subDetectorName(name, flag);
@@ -120,7 +120,7 @@ public:
         break;
       case nFull:
         armName(name, flag);
-        name += "_";
+        name += '_';
         break;
       case nPath:
         armName(name, flag);
@@ -138,11 +138,11 @@ public:
         break;
       case nFull:
         stationName(name, flag);
-        name += "_";
+        name += '_';
         break;
       case nPath:
         stationName(name, flag);
-        name += "/";
+        name += '/';
         break;
     }
 

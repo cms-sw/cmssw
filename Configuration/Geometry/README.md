@@ -78,6 +78,7 @@ Several detector combinations have been generated:
 * 2021FlatMinus10Percent = T6+C1+M9+P7+O5+F1
 * 2021FlatPlus05Percent = T7+C1+M9+P7+O5+F1
 * 2021FlatPlus10Percent = T8+C1+M9+P7+O5+F1
+* 2022 = T3+C2+M13+P7+O7+F3
 * 2023 = T3+C2+M14+P7+O7+F3
 * 2023ZeroMaterial = T4+C1+M10+P7+O4+F2
 * 2023FlatMinus05Percent = T5+C1+M10+P7+O5+F2

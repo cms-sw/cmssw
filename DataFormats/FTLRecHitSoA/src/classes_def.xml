@@ -1,0 +1,25 @@
+<lcgdict>
+  <class name="btlrechit::BTLBaseRecHitHostCollection::Layout"/>
+  <class name="btlrechit::BTLBaseRecHitSoALayout<>"/>
+  <class name="btlrechit::BTLBaseRecHitSoALayout<>::View"/>
+  <class name="btlrechit::BTLBaseRecHitHostCollection" rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<btlrechit::BTLBaseRecHitHostCollection>" splitLevel="0"/>
+
+  <class name="btlrechit::BTLRecHitHostCollection::Layout"/>
+  <class name="btlrechit::BTLRecHitSoALayout<>"/>
+  <class name="btlrechit::BTLRecHitSoALayout<>::View"/>
+  <class name="btlrechit::BTLRecHitHostCollection" rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<btlrechit::BTLRecHitHostCollection>" splitLevel="0"/>
+
+  <class name="etlrechit::ETLBaseRecHitHostCollection::Layout"/>
+  <class name="etlrechit::ETLBaseRecHitSoALayout<>"/>
+  <class name="etlrechit::ETLBaseRecHitSoALayout<>::View"/>
+  <class name="etlrechit::ETLBaseRecHitHostCollection" rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<etlrechit::ETLBaseRecHitHostCollection>" splitLevel="0"/>
+
+  <class name="etlrechit::ETLRecHitHostCollection::Layout"/>
+  <class name="etlrechit::ETLRecHitSoALayout<>"/>
+  <class name="etlrechit::ETLRecHitSoALayout<>::View"/>
+  <class name="etlrechit::ETLRecHitHostCollection" rntupleStreamerMode="true"/>
+  <class name="edm::Wrapper<etlrechit::ETLRecHitHostCollection>" splitLevel="0"/>
+</lcgdict>

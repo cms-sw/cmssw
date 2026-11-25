@@ -1,16 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 
 from Validation.RecoTau.TauValidator import TauValidator as _TauValidator
+from Validation.RecoTau.tauDecayModeDefinitions_cff import decayModes as tauDecayModes
 
 hltTauValidation = _TauValidator(
-    genTauCollection = "tauGenJetsSelectorAllHadrons", # only GenTaus decaying hadronically
+    genTauCollection = "tauGenJetsSelectorAllHadrons",
     recoTauCollection = "hltHpsPFTauProducer",
+    genParticleCollection = "prunedGenParticles",
+    genJetCollection = "ak4GenJets",
     recoTauIDCollections = ["hltHpsPFTauDeepTauProducer:VSjet", "hltHpsPFTauDeepTauProducer:VSe", "hltHpsPFTauDeepTauProducer:VSmu"],
-    cutIDs_wp = [-1, -1, -1], # WP discriminator (disabled if < 0)
-    cutIDs_raw = [0.0, 0.0, 0.0], # raw discriminator value cuts (disabled if 0.0)
+    cutIDs_wp = [-1, -1, -1],
+    cutIDs_raw = [0.0, 0.0, 0.0],
     minDeltaR = 0.3,
     outFolder = "HLT/Tau/TauValidation",
-    isPatTaus = False
+    isPatTaus = False,
+    decayModes=cms.vstring(*tauDecayModes),
 )
 
 hltTauValidation_cutWPVsJet_0 = hltTauValidation.clone(cutIDs_wp = [0, -1, -1])

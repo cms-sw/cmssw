@@ -10,7 +10,7 @@
 int SiStripUtility::getMEList(std::string const& name, std::vector<std::string>& values) {
   values.clear();
   auto prefix_str = name.substr(0, (name.find(':')));
-  prefix_str += "/";
+  prefix_str += '/';
   auto const temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   for (auto& value : values) {
@@ -24,7 +24,7 @@ int SiStripUtility::getMEList(std::string const& name, std::vector<std::string>&
 int SiStripUtility::getMEList(std::string const& name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
   dir_path = name.substr(0, (name.find(':')));
-  dir_path += "/";
+  dir_path += '/';
   auto const temp_str = name.substr(name.find(':') + 1);
   split(temp_str, values, ",");
   return values.size();
@@ -35,7 +35,7 @@ bool SiStripUtility::checkME(std::string const& name, std::string const& me_name
   if (name.find(name) == std::string::npos)
     return false;
   auto prefix_str = name.substr(0, (name.find(':')));
-  prefix_str += "/";
+  prefix_str += '/';
   auto const temp_str = name.substr(name.find(':') + 1);
   std::vector<std::string> values;
   split(temp_str, values, ",");

@@ -40,7 +40,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       addlevel_(addlevel),
       lastTrackID_(-1) {
   //Initialise the parameter set
-
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Initialised with TestBeam = " << testBeam_ << " Emin = " << eMin_
                               << " Flags " << putHistory_ << " (History), " << doFineCalo_ << " (Special Calorimeter)";
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Have a possibility of " << fineNames.size()
@@ -68,7 +68,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: " << csps.insideLevel_.size() << " entries for insideLevel:";
   for (unsigned int i = 0; i < csps.insideLevel_.size(); i++)
     edm::LogVerbatim("CaloSim") << " (" << i << ") " << (csps.insideLevel_[i] + addlevel_);
-
+#endif
   if (csps.caloNames_.size() < csps.neighbours_.size()) {
     edm::LogError("CaloSim") << "CaloTrkProcessing: # of Calorimeter bins " << csps.caloNames_.size()
                              << " does not match with " << csps.neighbours_.size() << " ==> illegal ";
@@ -147,7 +147,7 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       fineDetectors_.emplace_back(detector);
     }
   }
-
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << detectors_.size() << " calorimetric volumes";
   for (unsigned int i = 0; i < detectors_.size(); i++) {
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i << " " << detectors_[i].name << " LV "
@@ -157,12 +157,14 @@ CaloTrkProcessing::CaloTrkProcessing(const std::string& name,
       edm::LogVerbatim("CaloSim") << "                   Element " << k << " " << detectors_[i].fromDets[k] << " LV "
                                   << detectors_[i].fromDetL[k] << " at level " << detectors_[i].fromLevels[k];
   }
-
+#endif
   doFineCalo_ = doFineCalo_ && !(fineDetectors_.empty());
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: with " << fineDetectors_.size() << " special calorimetric volumes";
   for (unsigned int i = 0; i < detectors_.size(); i++)
     edm::LogVerbatim("CaloSim") << "CaloTrkProcessing: Calorimeter volume " << i << " " << detectors_[i].name << " LV "
                                 << detectors_[i].lv << " at level " << detectors_[i].level;
+#endif
 }
 
 CaloTrkProcessing::~CaloTrkProcessing() {}

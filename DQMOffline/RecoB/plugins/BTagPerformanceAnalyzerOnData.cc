@@ -22,9 +22,9 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
       ptRanges(pSet.getParameter<vector<double>>("ptRanges")),
       doJEC(pSet.getParameter<bool>("doJEC")),
       moduleConfig(pSet.getParameter<vector<edm::ParameterSet>>("tagConfig")) {
-  genToken = mayConsume<GenEventInfoProduct>(edm::InputTag("generator"));
+  genToken = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
   slInfoToken = consumes<SoftLeptonTagInfoCollection>(pSet.getParameter<InputTag>("softLeptonInfo"));
-  jecMCToken = mayConsume<JetCorrector>(pSet.getParameter<edm::InputTag>("JECsourceMC"));
+  jecMCToken = consumes<JetCorrector>(pSet.getParameter<edm::InputTag>("JECsourceMC"));
   jecDataToken = consumes<JetCorrector>(pSet.getParameter<edm::InputTag>("JECsourceData"));
 
   if (etaRanges.size() <= 1)
@@ -272,9 +272,6 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
         if (inBin)
           binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(*tagI, jec, -1);
       }
-    }
-    for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-      binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag();
     }
   }
 

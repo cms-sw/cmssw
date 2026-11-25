@@ -80,7 +80,8 @@ namespace edm {
       ModuleDescription const& iDescription) {
     auto newWorker = this->getWorkerForExistingModuleUnattached(iDescription.moduleLabel());
     assert(nullptr != newWorker);
-    assert(newWorker->moduleType() == Worker::Types::kProducer || newWorker->moduleType() == Worker::Types::kFilter);
+    assert(newWorker->moduleType() == TransitionWorkerBase::Types::kProducer ||
+           newWorker->moduleType() == TransitionWorkerBase::Types::kFilter);
     unscheduled_.addWorker(newWorker);
     //add to list so it gets reset each new event
     addToAllWorkers(newWorker);

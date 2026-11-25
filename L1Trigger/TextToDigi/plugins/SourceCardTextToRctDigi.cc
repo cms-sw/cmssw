@@ -20,6 +20,8 @@ digis for pattern tests.
 #include "FWCore/ServiceRegistry/interface/Service.h"      // Framework services
 #include "SourceCardTextToRctDigi.h"
 
+#include <memory>
+
 using namespace edm;
 using namespace std;
 
@@ -55,8 +57,8 @@ SourceCardTextToRctDigi::~SourceCardTextToRctDigi() {
 
 /// Append empty digi collection
 void SourceCardTextToRctDigi::putEmptyDigi(edm::Event &iEvent) {
-  std::unique_ptr<L1CaloEmCollection> em(new L1CaloEmCollection);
-  std::unique_ptr<L1CaloRegionCollection> rgn(new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> em = std::make_unique<L1CaloEmCollection>();
+  std::unique_ptr<L1CaloRegionCollection> rgn = std::make_unique<L1CaloRegionCollection>();
   for (int i = 0; i < NUM_RCT_CRATES; i++) {
     for (int j = 0; j < 4; j++) {
       em->push_back(L1CaloEmCand(0, i, true));
@@ -95,8 +97,8 @@ void SourceCardTextToRctDigi::produce(edm::Event &iEvent, const edm::EventSetup 
   }
 
   // New collections
-  std::unique_ptr<L1CaloEmCollection> em(new L1CaloEmCollection);
-  std::unique_ptr<L1CaloRegionCollection> rgn(new L1CaloRegionCollection);
+  std::unique_ptr<L1CaloEmCollection> em = std::make_unique<L1CaloEmCollection>();
+  std::unique_ptr<L1CaloRegionCollection> rgn = std::make_unique<L1CaloRegionCollection>();
 
   // General variables
   unsigned long VHDCI[2][2];

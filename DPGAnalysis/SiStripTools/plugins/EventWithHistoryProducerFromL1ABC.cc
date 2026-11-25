@@ -74,8 +74,8 @@ private:
 //
 EventWithHistoryProducerFromL1ABC::EventWithHistoryProducerFromL1ABC(const edm::ParameterSet& iConfig)
     : _l1abccollectionToken(
-          mayConsume<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
-      _tcdsRecordToken(mayConsume<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
+          consumes<L1AcceptBunchCrossingCollection>(iConfig.getParameter<edm::InputTag>("l1ABCCollection"))),
+      _tcdsRecordToken(consumes<TCDSRecord>(iConfig.getParameter<edm::InputTag>("tcdsRecordLabel"))),
       _forceNoOffset(iConfig.getUntrackedParameter<bool>("forceNoOffset", false)),
       _forceSCAL(iConfig.getParameter<bool>("forceSCAL")),
       _offsets(),
@@ -103,7 +103,7 @@ void EventWithHistoryProducerFromL1ABC::produce(edm::Event& iEvent, const edm::E
   using namespace edm;
 
   if (iEvent.run() < 110878) {
-    std::unique_ptr<EventWithHistory> pOut(new EventWithHistory(iEvent));
+    std::unique_ptr<EventWithHistory> pOut = std::make_unique<EventWithHistory>(iEvent);
     iEvent.put(std::move(pOut));
 
   } else {

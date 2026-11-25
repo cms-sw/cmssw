@@ -49,7 +49,7 @@ void METCorrectorDBWriter::beginJob() {
     std::string levelName = payload.findLabel(static_cast<MEtXYcorrectParametersCollection::Level_t>(ilev));
     //std::string levelName = MEtXYcorrectParametersCollection::findLabel( static_cast<MEtXYcorrectParametersCollection::Level_t>(ilev) );
     append += levelName;
-    append += "_";
+    append += '_';
     append += algo;
     append += ".txt";
     inputTxtFile = path + era + append;
