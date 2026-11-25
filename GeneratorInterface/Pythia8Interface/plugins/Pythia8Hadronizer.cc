@@ -683,6 +683,22 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
   bool status = false, status1 = false;
 
+  // If the photon flux parameters are defined while using external partons,
+  // apply the flux params same as for internal partons.
+  if (!photonFluxParams.empty()) {
+    const auto &beamTypeA = photonFluxParams.getParameter<int>("beamTypeA");
+    const auto &beamTypeB = photonFluxParams.getParameter<int>("beamTypeB");
+    const auto &radiusA = photonFluxParams.getUntrackedParameter<double>("radiusA", -1.0);
+    const auto &radiusB = photonFluxParams.getUntrackedParameter<double>("radiusB", -1.0);
+    const auto &zA = photonFluxParams.getUntrackedParameter<int>("zA", -1);
+    const auto &zB = photonFluxParams.getUntrackedParameter<int>("zB", -1);
+    Pythia8::PDFPtr photonFluxA =
+        fMasterGen->settings.flag("PDF:beamA2gamma") ? make_shared<Nucleus2gamma2>(beamTypeA, radiusA, zA) : nullptr;
+    Pythia8::PDFPtr photonFluxB =
+        fMasterGen->settings.flag("PDF:beamB2gamma") ? make_shared<Nucleus2gamma2>(beamTypeB, radiusB, zB) : nullptr;
+    fMasterGen->setPhotonFluxPtr(photonFluxA, photonFluxB);
+  }
+
   if (!fUserHooksVector.get())
     fUserHooksVector = std::make_shared<UserHooksVector>();
   (fUserHooksVector->hooks).clear();
