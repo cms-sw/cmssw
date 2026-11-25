@@ -184,7 +184,7 @@ void PFHcalGPUComparisonTask::analyze(edm::Event const& event, edm::EventSetup c
 
 void PFHcalGPUComparisonTask::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::string>("compDir", "pfCaloGPUCompDir");
+  desc.addUntracked<std::string>("compDir", "HLT/HeterogeneousComparisons/ParticleFlow/HCAL");
   desc.addUntracked<edm::InputTag>("pfClusterToken_ref", edm::InputTag("hltParticleFlowClusterHCALSerialSync"));
   desc.addUntracked<edm::InputTag>("pfClusterToken_target", edm::InputTag("hltParticleFlowClusterHCAL"));
   descriptions.addWithDefaultLabel(desc);
