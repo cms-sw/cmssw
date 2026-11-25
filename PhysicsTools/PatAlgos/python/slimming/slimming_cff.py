@@ -80,9 +80,10 @@ pp_on_AA.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedJPTJets
 (pp_on_AA).toReplaceWith(slimmingTask,
                          slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
 
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
-(run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(slimmingTask,
+(pp_on_AA_2018 | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(slimmingTask,
                                                    slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
