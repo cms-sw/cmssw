@@ -2,6 +2,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/SiPixelClusterSoA/interface/SiPixelClustersSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsSoACollection.h"
@@ -18,6 +19,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   using namespace ALPAKA_ACCELERATOR_NAMESPACE::reco;
   namespace testTrackingRecHitSoA {
 
+    struct InitializeClusters {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, SiPixelClustersSoAView clustersView) const {
+        for (auto i : cms::alpakatools::uniform_elements(acc, clustersView.metadata().size())) {
+          clustersView[i].clusModuleStart() = 2 * i;
+        }
+      }
+    };
+
+    struct InitializeTracks {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::TrackingRecHitView trackView) const {
+        for (auto i : cms::alpakatools::uniform_elements(acc, trackView.metadata().size())) {
+          trackView[i].xLocal() = static_cast<float>(i) * 2;
+          trackView[i].yGlobal() = static_cast<float>(-14.0458);
+        }
+      }
+    };
+
+    struct InitializeModules {
+      ALPAKA_FN_ACC void operator()(Acc1D const& acc,
+                                    ::reco::HitModuleSoAView modsView,
+                                    SiPixelClustersSoAConstView clustersView) const {
+        for (auto i : cms::alpakatools::uniform_elements(acc, clustersView.metadata().size())) {
+          modsView[i].moduleStart() = clustersView[i].clusModuleStart();
+        }
+      }
+    };
+
     struct TestFillKernel {
       ALPAKA_FN_ACC void operator()(Acc1D const& acc, ::reco::TrackingBlocksSoAView soa) const {
         const uint32_t i(alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u]);
@@ -29,7 +57,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         }
 
         soa.trackingHits()[i].iphi() = i % 10;
-        soa.hitModules()[j].moduleStart() = j;
+        soa.hitModules()[j].moduleStart() = 2 * j;
       }
     };
 
@@ -49,7 +77,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
-    void runKernels(::reco::TrackingBlocksSoAView& view, Queue& queue) {
+    void initializeClusters(Queue& queue, SiPixelClustersSoAView clustersView) {
+      uint32_t items = 64;
+      uint32_t groups = divide_up_by(clustersView.metadata().size(), items);
+      auto workDiv = make_workdiv<Acc1D>(groups, items);
+      alpaka::exec<Acc1D>(queue, workDiv, InitializeClusters{}, clustersView);
+    }
+
+    void initializeTracks(Queue& queue, ::reco::TrackingRecHitView trackView) {
+      uint32_t items = 64;
+      uint32_t groups = divide_up_by(trackView.metadata().size(), items);
+      auto workDiv = make_workdiv<Acc1D>(groups, items);
+      alpaka::exec<Acc1D>(queue, workDiv, InitializeTracks{}, trackView);
+    }
+
+    void initializeModules(Queue& queue, ::reco::HitModuleSoAView modsView, SiPixelClustersSoAConstView clustersView) {
+      uint32_t items = 64;
+      uint32_t groups = divide_up_by(clustersView.metadata().size(), items);
+      auto workDiv = make_workdiv<Acc1D>(groups, items);
+      alpaka::exec<Acc1D>(queue, workDiv, InitializeModules{}, modsView, clustersView);
+    }
+
+    void runKernels(Queue& queue, ::reco::TrackingBlocksSoAView& view) {
       uint32_t items = 64;
       uint32_t groups = divide_up_by(view.trackingHits().metadata().size(), items);
       auto workDiv = make_workdiv<Acc1D>(groups, items);

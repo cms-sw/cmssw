@@ -251,9 +251,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // consumed by the downstream module (converters to legacy formats).
     // But this is the common practice at the moment
     // also for legacy data formats.
-    std::memcpy(moduleStartVec.data(),
-                stripHitsModuleView.moduleStart().data(),
-                sizeof(uint32_t) * stripHitsModuleView.metadata().size());
+    for (int i = 0; i < stripHitsModuleView.metadata().size(); ++i) {
+      moduleStartVec[i] = stripHitsModuleView[i].moduleStart();
+    }
     iEvent.emplace(hitModuleStart_, std::move(moduleStartVec));
 
     // Put the strip hits SoA (host) in the event

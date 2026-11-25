@@ -1,6 +1,7 @@
 <use name="alpaka"/>
 <use name="rootcling"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/Portable"/>
 <use name="DataFormats/SiPixelClusterSoA"/>
 <use name="DataFormats/SoATemplate"/>
 <use name="DataFormats/TrackerCommon" source_only="1"/>
