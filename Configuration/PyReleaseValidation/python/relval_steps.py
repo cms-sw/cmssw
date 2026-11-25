@@ -3425,8 +3425,8 @@ steps['AODNANORUN3_reHLT_2023B']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM
 steps['RECOHIRUN3_reHLT_2023']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@standardDQM','--datatier':'RECO,MINIAOD,DQMIO','--eventcontent':'RECO,MINIAOD,DQM','--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023','--conditions':'auto:run3_data_HIon'},steps['RECODR3_reHLT_2023']])
 
 steps['RECOHIRUN3']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters','--conditions':'auto:run3_data_prompt','-s':'RAW2DIGI,L1Reco,RECO,PAT,DQM:@standardDQM','--datatier':'RECO,MINIAOD,DQMIO','--eventcontent':'RECO,MINIAOD,DQM','--repacked':''},steps['RECODR3']])
-steps['RECOHIRUN3_2023']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023'},steps['RECOHIRUN3']])
-steps['RECOHIRUN3_2024']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters_2024'},steps['RECOHIRUN3']])
+steps['RECOHIRUN3_2023']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters_2023','--conditions':'170X_dataRun3_HI_rereco_23_24_v2'},steps['RECOHIRUN3']])
+steps['RECOHIRUN3_2024']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters_2024','--conditions':'170X_dataRun3_HI_rereco_23_24_v2'},steps['RECOHIRUN3']])
 steps['RECOHIRUN3_2025']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters_2025'},steps['RECOHIRUN3']])
 steps['RECOHIRUN3_2026']=merge([{'--era':'Run3_pp_on_PbPb_approxSiStripClusters_2026'},steps['RECOHIRUN3']])
 
