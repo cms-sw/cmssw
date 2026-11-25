@@ -129,13 +129,6 @@ bool LHAupLesHouches::setEvent(int inProcId) {
 
   const lhef::LHEEvent::PDF *pdf = event->getPDF();
   if (pdf) {
-    // Add access to hard-process info from LHE, same as the native
-    // Pythia LHAupLHEF reader. This is necessary for photoproduction
-    // and photonuclear events.
-    this->setIdX(hepeup.IDUP[0],
-                 hepeup.IDUP[1],
-                 hepeup.PUP[0][3] / runInfo->getHEPRUP()->EBMUP.first,
-                 hepeup.PUP[1][3] / runInfo->getHEPRUP()->EBMUP.second);
     this->setPdf(pdf->id.first,
                  pdf->id.second,
                  pdf->x.first,
@@ -145,6 +138,13 @@ bool LHAupLesHouches::setEvent(int inProcId) {
                  pdf->xPDF.second,
                  true);
   } else {
+    // Add access to hard-process info from LHE, same as the native
+    // Pythia LHAupLHEF reader. This is necessary for photoproduction
+    // and photonuclear events.
+    this->setIdX(hepeup.IDUP[0],
+                 hepeup.IDUP[1],
+                 hepeup.PUP[0][3] / runInfo->getHEPRUP()->EBMUP.first,
+                 hepeup.PUP[1][3] / runInfo->getHEPRUP()->EBMUP.second);
     this->setPdf(hepeup.IDUP[0],
                  hepeup.IDUP[1],
                  hepeup.PUP[0][3] / runInfo->getHEPRUP()->EBMUP.first,
