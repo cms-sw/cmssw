@@ -370,7 +370,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         if (nli >= maxNl) {
           continue;
         }
-        const float curvi = tracks_view[it].pt();  // pre-fit curvature (CACell::find_ntuplets), not a pT
+        const float curvi = tracks_view[it].pt();  // pre-fit curvature (CACell::save_ntuplet), not a pT
         bool found = false;
         for (int32_t base = 0; base < ntr; base += warpSize) {
           const int32_t j = base + laneId;
@@ -1093,7 +1093,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         const auto nKeys = genericHisto->nOnes();
         for (uint32_t index : cms::alpakatools::uniform_elements(acc, *nElements)) {
           auto const key = cn[index].inner();
-          // Key-range guard, mirroring the count pass in Kernel_connect / CACell::find_ntuplets: the
+          // Key-range guard, mirroring the count pass in Kernel_connect / CACell::save_ntuplet: the
           // key is a cell index below the cell count the histogram was sized from, so this holds by
           // construction and only a sizing mismatch can drop an entry here.
           if (key < nKeys) {
@@ -1167,28 +1167,28 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
           if (doit) {
             typename Cell::TmpTuple stack;
-            // Per-thread buffer that find_ntuplets fills when it saves an ntuplet. Declared here, not inside the
-            // recursive (fully inlined) find_ntuplets, so the stack holds one copy per thread, not one per depth.
+            // per-thread buffer that save_ntuplet fills when it saves an ntuplet
             typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];
 
             stack.reset();
-            thisCell.template find_ntuplets<maxDepth>(acc,
-                                                      hh,
-                                                      ntupletCuts,
-                                                      cc,
-                                                      cells,
-                                                      *foundNtuplets,
-                                                      cellNeighborsHisto,
-                                                      cellTracksHisto,
-                                                      nCellTracks,
-                                                      ct,
-                                                      *apc,
-                                                      tracks_view.quality().data(),
-                                                      tracks_view.nLayers().data(),
-                                                      tracks_view.pt().data(),
-                                                      stack,
-                                                      hits,
-                                                      params.minHitsPerNtuplet_);
+            Cell::template find_ntuplets<maxDepth>(acc,
+                                                   hh,
+                                                   ntupletCuts,
+                                                   cc,
+                                                   cells,
+                                                   *foundNtuplets,
+                                                   cellNeighborsHisto,
+                                                   cellTracksHisto,
+                                                   nCellTracks,
+                                                   ct,
+                                                   *apc,
+                                                   tracks_view.quality().data(),
+                                                   tracks_view.nLayers().data(),
+                                                   tracks_view.pt().data(),
+                                                   stack,
+                                                   hits,
+                                                   params.minHitsPerNtuplet_,
+                                                   idx);
             ALPAKA_ASSERT_ACC(stack.empty());
           }
         }
@@ -2720,7 +2720,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // essentially every doublet is a real track segment with a genuine neighbour and the ratio rises
     // towards 1 while nCells, and hence the derived capacity, falls. The formula therefore shrinks
     // exactly where the requirement grows. The surplus would be dropped silently by the capacity
-    // guards in Kernel_connect and CACell::find_ntuplets, and which entries survive is decided by
+    // guards in Kernel_connect and CACell::save_ntuplet, and which entries survive is decided by
     // who wins the atomic: deterministic on the serial backend, race order on the GPU, i.e. an
     // efficiency loss that differs between backends and between runs.
     // The floor is the clean-event bound -- at most kCleanEdgesPerCell edges per cell -- tracked
@@ -2739,10 +2739,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // Offsets vs storage: the two extents computed above have different natures.
     //   nBins (the offsets extent of both associators) is a key-space extent: one word per cell plus
     //   the total. Its only consumers are the nOnes() bounds (Kernel_connect's cell loop and
-    //   CACell::find_ntuplets), and every index they test is a cell id, hence < nCells by construction.
+    //   CACell::save_ntuplet), and every index they test is a cell id, hence < nCells by construction.
     //   nCellsToCells / nCellsToTracks (the storage extents) are content capacities: the truncation
     //   guards compare against them (Kernel_connect's maxTriplets test and the cell->track push in
-    //   CACell::find_ntuplets), so entries past them are dropped silently. Their per-cell ratios are
+    //   CACell::save_ntuplet), so entries past them are dropped silently. Their per-cell ratios are
     //   calibrated against the basis in force here; changing the basis without re-deriving the ratios
     //   moves a content-reaching clamp.
     // This function is called either once at construction with the maxDoublets safety cap -- no
