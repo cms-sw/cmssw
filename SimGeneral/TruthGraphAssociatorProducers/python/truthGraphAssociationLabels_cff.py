@@ -61,6 +61,7 @@ truthGraphRecoLabelsPSet = cms.PSet(
 # the truth objects with a hit in them. An empty list means the whole hit channel.
 truthBranchDenominatorDetectors = dict(
     tracks=[],
+    layerClusters=["HGCalEE", "HGCalHSi", "HGCalHSc"],
     tracksters=["HGCalEE", "HGCalHSi", "HGCalHSc"],
     candidates=["HGCalEE", "HGCalHSi", "HGCalHSc"],
     pfClustersEcal=["Ecal"],

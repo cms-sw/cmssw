@@ -145,7 +145,7 @@ truthBranchLayerClusterAssociators = cms.EDProducer(
         cms.InputTag("HGCalRecHit", "HGCHEBRecHits"),
     ),
     pfRecHits=cms.VInputTag(),
-    denominatorDetectors=cms.vstring("HGCalEE", "HGCalHSi", "HGCalHSc"),
+    denominatorDetectors=cms.vstring(*truthBranchDenominatorDetectors["layerClusters"]),
     **_truthSources,
     **_workingPointArgs,
 )
