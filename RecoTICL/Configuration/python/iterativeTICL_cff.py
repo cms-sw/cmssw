@@ -26,6 +26,7 @@ from Configuration.ProcessModifiers.ticlv5_TrackLinkingGNN_cff import ticlv5_Tra
 
 from Configuration.ProcessModifiers.ticl_superclustering_mustache_ticl_cff import ticl_superclustering_mustache_ticl
 from Configuration.ProcessModifiers.ticl_barrel_cff import ticl_barrel
+from Configuration.ProcessModifiers.ticl_v6_cff import ticl_v6
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 
@@ -86,6 +87,14 @@ ticlTracksterLinks = _tracksterLinksProducer.clone(
         onnxEnergyModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/PFN/linking/energy_v1.onnx'),
         onnxPIDModelPath = cms.string('RecoHGCal/TICL/data/ticlv5/onnx_models/CNN/linking/id_v0.onnx'),
         type = cms.string('TracksterInferenceByPFN')
+    )
+)
+
+# TICLv6 links the tracksters with the Cornetto plugin.
+ticl_v6.toModify(ticlTracksterLinks,
+    linkingPSet = cms.PSet(
+        algo_verbosity = cms.int32(0),
+        type = cms.string('Cornetto')
     )
 )
 
