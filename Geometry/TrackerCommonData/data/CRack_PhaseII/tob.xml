@@ -46,12 +46,12 @@
 
 
     <!-- Module volume  -->
-    <Box name="CRACKL1M1" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
-    <Box name="CRACKL1M2" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
-    <Box name="CRACKL1M3" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
-    <Box name="CRACKL1M4" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
-    <Box name="CRACKL1M5" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
-    <Box name="CRACKL1M6" dx="[SensorDx]" dy="[SensorDy]" dz="0.6*cm"/>
+    <Box name="CRACKL1M1" dx="[SensorDx]" dy="[SensorDy]" dz="0.15*cm"/>
+    <Box name="CRACKL1M2" dx="[SensorDx]" dy="[SensorDy]" dz="0.15*cm"/>
+    <Box name="CRACKL1M3" dx="[SensorDx]" dy="[SensorDy]" dz="0.15*cm"/>
+    <Box name="CRACKL1M4" dx="[SensorDx]" dy="[SensorDy]" dz="0.15*cm"/>
+    <Box name="CRACKL1M5" dx="[SensorDx]" dy="[SensorDy]" dz="0.15*cm"/>
+    <Box name="CRACKL1M6" dx="[SensorDx]" dy="[SensorDy]" dz="0.15*cm"/>
 
 
     <!-- Wafer Volumes (holders) -->
@@ -496,39 +496,37 @@
 <PosPart copyNumber="1">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="0.0*mm" y="0.0*mm" z="0*mm"/>
+<Translation x="0.0*mm" y="0.0*mm" z="-584.146*mm"/>
 </PosPart>
 
 <PosPart copyNumber="2">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="0.0*mm" y="86.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="86.0*mm" z="-584.146*mm"/>
 </PosPart>
 
 <PosPart copyNumber="3">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="0.0*mm" y="172.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="172.0*mm" z="-584.146*mm"/>
 </PosPart>
-
 
 <PosPart copyNumber="4">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="0.0*mm" y="258.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="258.0*mm" z="-584.146*mm"/>
 </PosPart>
-
 
 <PosPart copyNumber="5">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="0.0*mm" y="344.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="344.0*mm" z="-584.146*mm"/>
 </PosPart>
 
 <PosPart copyNumber="6">
 <rParent name="tob:TOB"/>
 <rChild name="tob:LAYER1"/>
-<Translation x="0.0*mm" y="430.0*mm" z="0.0*mm"/>
+<Translation x="0.0*mm" y="430.0*mm" z="-584.146*mm"/>
 </PosPart>
 
 
