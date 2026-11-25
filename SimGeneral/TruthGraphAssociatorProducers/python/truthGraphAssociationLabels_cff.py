@@ -48,8 +48,6 @@ truthGraphRecoLabelsPSet = cms.PSet(
     # that does run them replaces this with what its process actually schedules, via
     # setTracksterLabelsFromProcess below.
     tracksters=cms.vstring(*sorted(ticlIterLabelsPSet.labels)),
-    # TICL candidates, matched on the layer clusters of their tracksters; their tracks are matched as tracks.
-    candidates=cms.vstring("ticlCandidate"),
     # HGCAL layer clusters, the constituents of the tracksters, matched on their own cells
     # against the same candidate roots as the tracksters, so a layer cluster and the
     # trackster built from it point at the same truth.
@@ -81,7 +79,6 @@ truthGraphHltRecoLabelsPSet = cms.PSet(
     # Validation/HGCalValidation. A RECO or DQM job reads the HLT tracksters from its
     # input file and so has no HLT producer to discover.
     tracksters=cms.vstring(*sorted(hltTiclIterLabelsPSet.labels)),
-    candidates=cms.vstring(),
     layerClusters=cms.vstring(),
 )
 

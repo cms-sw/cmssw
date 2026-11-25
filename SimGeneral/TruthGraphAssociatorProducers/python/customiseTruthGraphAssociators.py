@@ -98,7 +98,6 @@ def customiseTruthGraphAssociators(process):
                 "keep *_allSecondaryVertexToTruthBranchAssociators_*_*",
                 "keep *_truthBranchTracksterAssociators_*_*",
                 "keep *_truthBranchLayerClusterAssociators_*_*",
-                "keep *_truthBranchCandidateAssociators_*_*",
                 "keep *_truthBranchPFClusterEcalAssociators_*_*",
                 "keep *_truthBranchPFClusterHcalAssociators_*_*",
                 "keep *_hltTrackToTruthBranchAssociators_*_*",

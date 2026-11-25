@@ -130,19 +130,6 @@ truthBranchTracksterAssociators = cms.EDProducer(
     **_workingPointArgs,
 )
 
-# A TICL candidate is matched like one trackster made of the layer clusters of all its tracksters, on the same
-# HGCAL denominator and rechit weights as the tracksters.
-truthBranchCandidateAssociators = cms.EDProducer(
-    "TruthBranchCandidateAssociatorsProducer",
-    recoCollections=_tags("candidates"),
-    targetsSrc=cms.InputTag("truthBranchTargets", "selectedRoots"),
-    assignableTargetsSrc=cms.InputTag("truthBranchTargets", "assignableRoots"),
-    layerClusters=cms.InputTag("hgcalMergeLayerClusters"),
-    denominatorDetectors=cms.vstring("HGCalEE", "HGCalHSi", "HGCalHSc"),
-    **_truthSources,
-    **_workingPointArgs,
-)
-
 # A layer cluster owns its HGCAL cells directly, so it is matched on shared energy like a
 # trackster, against the same candidate roots and with the same rechit weights, and
 # needs no layer-cluster collection to resolve. The barrel PFRecHits are left out: the
@@ -221,7 +208,6 @@ truthGraphAssociatorsSequence = cms.Sequence(
     + allTrackToTruthBranchAssociators
     + truthBranchTracksterAssociators
     + truthBranchLayerClusterAssociators
-    + truthBranchCandidateAssociators
     + truthBranchPFClusterEcalAssociators
     + truthBranchPFClusterHcalAssociators
     + allVertexToTruthBranchAssociators
