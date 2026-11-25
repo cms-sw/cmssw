@@ -9,4 +9,10 @@ from ..sequences.HLTParticleFlowRecoSequence_cfi import *
 from ..sequences.HLTParticleFlowSuperClusteringSequence_cfi import *
 from ..sequences.HLTVertexRecoSequence_cfi import *
 
-HLTParticleFlowSequence = cms.Sequence(HLTPhase2MuonsForPFSequence+HLTPfRecHitUnseededSequence+HLTParticleFlowClusterSequence+HLTIterTICLSequence+HLTVertexRecoSequence+HLTParticleFlowSuperClusteringSequence+HLTCaloTowersRecSequence+HLTParticleFlowRecoSequence)
+HLTParticleFlowSequence = cms.Sequence(HLTPhase2MuonsForPFSequence+
+                                       HLTPfRecHitUnseededSequence+
+                                       HLTParticleFlowClusterSequence+
+                                       HLTIterTICLSequence+HLTVertexRecoSequence+
+                                       HLTParticleFlowSuperClusteringSequence+
+                                       HLTCaloTowersRecSequence+
+                                       HLTParticleFlowRecoSequence)
