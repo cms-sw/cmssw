@@ -56,7 +56,6 @@ private:
                                       HcalL1TriggerObjectsRcd,
                                       HcalTimeCorrsRcd,
                                       HcalLUTCorrsRcd,
-                                      HcalPFCorrsRcd,
                                       HcalLutMetadataRcd,
                                       HcalSiPMParametersRcd,
                                       HcalTPChannelParametersRcd,
@@ -226,7 +225,6 @@ private:
              TokensForServiceHolder<HcalQIETypesRcd, ServiceToken<HcalQIETypes, kWithTopo>>,
              TokensForServiceHolder<HcalQIEDataRcd, ServiceToken<HcalQIEData, kWithTopo>>,
              TokensForServiceHolder<HcalTimeCorrsRcd, ServiceToken<HcalTimeCorrs, kWithTopo>>,
-             TokensForServiceHolder<HcalPFCorrsRcd, ServiceToken<HcalPFCorrs, kWithTopo>>,
              TokensForServiceHolder<HcalLUTCorrsRcd, ServiceToken<HcalLUTCorrs, kWithTopo>>,
              TokensForServiceHolder<HcalGainsRcd, ServiceToken<HcalGains, kWithTopo>>,
              TokensForServiceHolder<HcalRespCorrsRcd, ServiceToken<HcalRespCorrs, kWithTopo>>>
@@ -247,7 +245,6 @@ private:
                  TokenAndTopologyHolder<HcalL1TriggerObjects, HcalL1TriggerObjectsRcd>,
                  TokenAndTopologyHolder<HcalTimeCorrs, HcalTimeCorrsRcd>,
                  TokenAndTopologyHolder<HcalLUTCorrs, HcalLUTCorrsRcd>,
-                 TokenAndTopologyHolder<HcalPFCorrs, HcalPFCorrsRcd>,
                  TokenAndTopologyHolder<HcalLutMetadata, HcalLutMetadataRcd>,
                  TokenAndTopologyHolder<HcalSiPMParameters, HcalSiPMParametersRcd>,
                  TokenAndTopologyHolder<HcalTPChannelParameters, HcalTPChannelParametersRcd>,
