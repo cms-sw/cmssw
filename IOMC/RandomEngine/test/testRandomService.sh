@@ -171,6 +171,9 @@ test=testRandomService
   eventSeeded eventSeededOffset streams=1 seedOffset=1000
   [ $(wc -l < eventSeededOffset.sorted) -eq 32 ] || die "counting the lines of eventSeededOffset.sorted" 1
   [ $(comm -12 eventSeededOffset.sorted eventSeeded1.sorted | wc -l) -eq 0 ] || die "comparing jobs with different seeds" 1
+  # eventSeedOffset adds to the seed of every module.
+  eventSeeded eventSeededEventOffset streams=2 eventSeedOffset=1000
+  diff eventSeededOffset.sorted eventSeededEventOffset.sorted || die "comparing eventSeedOffset with seedOffset" $?
 
   # PhiloxEngine also works in stream mode.
   eventSeeded streamSeeded2 streams=2 seedingMode=stream
@@ -180,6 +183,10 @@ test=testRandomService
   eventSeeded eventSeededSave streams=3 output=eventSeededStates.root
   eventSeeded eventSeededReplay streams=2 seedOffset=1000 input=eventSeededStates.root
   diff eventSeededSave.sorted eventSeededReplay.sorted || die "comparing the event-seeded job and its replay" $?
+  # The replay also works when the stored seed is 0 (1234567 + 4293732729 = 2^32).
+  eventSeeded eventSeededSaveZero streams=1 eventSeedOffset=4293732729 output=eventSeededStatesZero.root
+  eventSeeded eventSeededReplayZero streams=2 seedOffset=1000 input=eventSeededStatesZero.root
+  diff eventSeededSaveZero.sorted eventSeededReplayZero.sorted || die "comparing the replay with the stored seed 0" $?
 
   # In a replay, a module with no stored state gets the numbers of the event mode.
   eventSeeded eventSeededReplayAdded1 streams=1 addedModule=1 input=eventSeededStates.root

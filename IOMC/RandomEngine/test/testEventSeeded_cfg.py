@@ -12,6 +12,8 @@ options.register("events", 12, VarParsing.VarParsing.multiplicity.singleton, Var
                  "number of events")
 options.register("seedOffset", 0, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int,
                  "value added to every initialSeed")
+options.register("eventSeedOffset", 0, VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int, "eventSeedOffset of the RandomNumberGeneratorService")
 options.register("seedingMode", "event", VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string, "seedingMode of the RandomNumberGeneratorService")
 options.register("input", "", VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string,
@@ -47,6 +49,7 @@ else:
 # mixMax and philox have the same seed, so only the module label separates their numbers.
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
     seedingMode=cms.untracked.string(options.seedingMode),
+    eventSeedOffset=cms.untracked.uint32(options.eventSeedOffset),
     enableChecking=cms.untracked.bool(True),
     mixMax=cms.PSet(initialSeed=cms.untracked.uint32(1234567 + options.seedOffset),
                     engineName=cms.untracked.string("MixMaxRng")),

@@ -325,12 +325,9 @@ namespace edm {
       return edm::cloneEngine(getEngine(lumiIndex));
     }
 
-    // PROBABLY TO BE DELETED, This returns the configured seed without
-    // any of the modifications for streams or the offset configuration
-    // parameter. Maybe useful to use for debugging/checks, but dangerous if one tries
-    // to create your own engines using it. It is difficult to get the offsets
-    // for streams/forking/offset parameters correct and almost certainly would break
-    // replay.
+    // Returns the configured seed of the current module, without the stream offset and
+    // eventSeedOffset. HGCDigitizerBase uses it for the noise table that does not depend
+    // on the stream. An engine seeded from it is not saved and not replayed.
     std::uint32_t RandomNumberGeneratorService::mySeed() const {
       std::string label;
       ModuleCallingContext const* mcc = CurrentModuleOnThread::getCurrentModuleOnThread();
@@ -823,8 +820,10 @@ namespace edm {
         } else if (engineStateL[0] == CLHEP::engineIDulong<CLHEP::MixMaxRng>()) {
           checkEngineType(engine->name(), std::string("MixMaxRng"), engineLabel);
 
-          // This line actually restores the engine state.
-          engine->setSeed(engineSeedsL[0], 0);
+          // get() restores the full state. MixMaxRng refuses the seed 0, which event mode can store.
+          if (engineSeedsL[0] != 0) {
+            engine->setSeed(engineSeedsL[0], 0);
+          }
           engine->get(engineStateL);
 
           labelAndEngine->setSeed(engineSeeds[0], 0);

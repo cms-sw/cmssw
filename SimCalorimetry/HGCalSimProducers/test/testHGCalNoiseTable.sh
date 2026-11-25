@@ -18,8 +18,9 @@ noiseDigest noiseTable4 streams=4
 [ $(awk '$5 > 0' noiseTable1.sorted | wc -l) -ge 16 ] || die "finding noise digis in noiseTable1.sorted" 1
 diff noiseTable1.sorted noiseTable4.sorted || die "comparing the noise digis of 1 and 4 streams" $?
 
-# Without noiseTableFromJobSeed each stream fills its own table, so the digis depend on the stream.
+# Without noiseTableFromJobSeed each stream fills its table from its first event, so the digis depend on the stream.
+noiseDigest noiseTableStream1 streams=1 noiseTableFromJobSeed=0
 noiseDigest noiseTableStream4 streams=4 noiseTableFromJobSeed=0
-cmp -s noiseTable4.sorted noiseTableStream4.sorted && die "the noise table of each stream gave the same digis" 1
+cmp -s noiseTableStream1.sorted noiseTableStream4.sorted && die "the noise digis of 1 and 4 streams are equal without noiseTableFromJobSeed" 1
 
 exit 0
