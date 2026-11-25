@@ -17,18 +17,18 @@ import FWCore.ParameterSet.Config as cms
 from RecoTICL.Configuration.iterativeTICL_cff import ticlIterLabelsPSet
 from Validation.HGCalValidation.HLT_TICLIterLabels_cff import hltTiclIterLabelsPSet
 
-# EDProducer types whose products include a vector<ticl::Trackster>. A trackster
-# collection is recognised BY TYPE, so a new TICL iteration or HLT trackster module
-# joins the validation without an edit here. TICLCandidateProducer puts its tracksters
-# next to its vector<TICLCandidate>; EDM resolves the two by type from the module label.
-# A type with no module in the process matches nothing.
+# EDProducer types whose produces<> declares a vector<ticl::Trackster>, so a trackster
+# collection is recognised BY TYPE and a new TICL iteration or HLT trackster module
+# joins the validation without an edit here. The plugins are in RecoTICL/PatternRecognition,
+# RecoTICL/Linking and RecoTICL/Interpretation. TICLCandidateProducer emits the post-linking
+# trackster collection next to its vector<TICLCandidate>; EDM resolves the two by type from
+# the bare module label.
 # SimTrackstersProducer is deliberately absent: its tracksters are truth, not reco.
 tracksterProducerTypes = (
     "TrackstersProducer",
     "TracksterLinksProducer",
     "MergedTrackstersProducer",
     "TICLCandidateProducer",
-    "TICLInterpretationProducer",
 )
 
 # Reco collections per domain. Each entry is a module label; a collection that also
