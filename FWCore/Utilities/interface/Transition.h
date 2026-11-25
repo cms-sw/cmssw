@@ -25,9 +25,9 @@ namespace edm {
   constexpr unsigned int kNumberOfEventSetupTransitions =
       static_cast<unsigned int>(Transition::NumberOfEventSetupTransitions);
 
-  //Useful for converting EndBranchType to BranchType
+  // Useful for converting a Transition to the branch type used for product lookup.
   constexpr BranchType convertToBranchType(Transition iValue) {
-    constexpr BranchType branches[] = {InEvent, InLumi, InLumi, InRun, InRun, InProcess, InProcess};
+    constexpr BranchType branches[] = {InEvent, InLumi, InLumi, InRun, InRun, InProcess, InProcess, InProcess};
     return branches[static_cast<std::underlying_type<Transition>::type>(iValue)];
   }
 

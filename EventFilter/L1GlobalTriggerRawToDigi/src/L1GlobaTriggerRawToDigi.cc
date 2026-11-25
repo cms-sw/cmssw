@@ -20,6 +20,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <memory>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
@@ -94,11 +95,11 @@ L1GlobalTriggerRawToDigi::L1GlobalTriggerRawToDigi(const edm::ParameterSet& pSet
   produces<L1GlobalTriggerReadoutRecord>();
   produces<L1MuGMTReadoutCollection>();
 
-  produces<std::vector<L1MuRegionalCand> >("DT");
-  produces<std::vector<L1MuRegionalCand> >("CSC");
-  produces<std::vector<L1MuRegionalCand> >("RPCb");
-  produces<std::vector<L1MuRegionalCand> >("RPCf");
-  produces<std::vector<L1MuGMTCand> >();
+  produces<std::vector<L1MuRegionalCand>>("DT");
+  produces<std::vector<L1MuRegionalCand>>("CSC");
+  produces<std::vector<L1MuRegionalCand>>("RPCb");
+  produces<std::vector<L1MuRegionalCand>>("RPCf");
+  produces<std::vector<L1MuGMTCand>>();
   consumes<FEDRawDataCollection>(m_daqGtInputTag);
 
   // create GTFE, FDL, PSB cards once per producer
@@ -403,11 +404,11 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
   int maxBxInEvent = std::max(m_recordLength0, m_recordLength1);
 
-  std::unique_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord(
-      new L1GlobalTriggerReadoutRecord(maxBxInEvent, numberFdlBoards, numberPsbBoards));
+  std::unique_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord =
+      std::make_unique<L1GlobalTriggerReadoutRecord>(maxBxInEvent, numberFdlBoards, numberPsbBoards);
 
   // produce also the GMT readout collection and set the reference in GT record
-  std::unique_ptr<L1MuGMTReadoutCollection> gmtrc(new L1MuGMTReadoutCollection(maxBxInEvent));
+  std::unique_ptr<L1MuGMTReadoutCollection> gmtrc = std::make_unique<L1MuGMTReadoutCollection>(maxBxInEvent);
 
   //edm::RefProd<L1MuGMTReadoutCollection> refProdMuGMT = iEvent.getRefBeforePut<
   //        L1MuGMTReadoutCollection> ();
@@ -782,11 +783,11 @@ void L1GlobalTriggerRawToDigi::unpackGMT(const unsigned char* chp,
   // 17*64/2 TODO FIXME ask Ivan for a getSize() function for GMT record
   const unsigned int gmtRecordSize32 = 34;
 
-  std::unique_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuGMTCand> > GMTCands(new std::vector<L1MuGMTCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand>> DTCands = std::make_unique<std::vector<L1MuRegionalCand>>();
+  std::unique_ptr<std::vector<L1MuRegionalCand>> CSCCands = std::make_unique<std::vector<L1MuRegionalCand>>();
+  std::unique_ptr<std::vector<L1MuRegionalCand>> RPCbCands = std::make_unique<std::vector<L1MuRegionalCand>>();
+  std::unique_ptr<std::vector<L1MuRegionalCand>> RPCfCands = std::make_unique<std::vector<L1MuRegionalCand>>();
+  std::unique_ptr<std::vector<L1MuGMTCand>> GMTCands = std::make_unique<std::vector<L1MuGMTCand>>();
 
   const unsigned* p = (const unsigned*)chp;
 
@@ -930,15 +931,15 @@ void L1GlobalTriggerRawToDigi::unpackTrailer(const unsigned char* trlPtr, FEDTra
 
 // produce empty products in case of problems
 void L1GlobalTriggerRawToDigi::produceEmptyProducts(edm::Event& iEvent) {
-  std::unique_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord(new L1GlobalTriggerReadoutRecord());
+  std::unique_ptr<L1GlobalTriggerReadoutRecord> gtReadoutRecord = std::make_unique<L1GlobalTriggerReadoutRecord>();
 
-  std::unique_ptr<L1MuGMTReadoutCollection> gmtrc(new L1MuGMTReadoutCollection());
+  std::unique_ptr<L1MuGMTReadoutCollection> gmtrc = std::make_unique<L1MuGMTReadoutCollection>();
 
-  std::unique_ptr<std::vector<L1MuRegionalCand> > DTCands(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuRegionalCand> > CSCCands(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuRegionalCand> > RPCbCands(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuRegionalCand> > RPCfCands(new std::vector<L1MuRegionalCand>);
-  std::unique_ptr<std::vector<L1MuGMTCand> > GMTCands(new std::vector<L1MuGMTCand>);
+  std::unique_ptr<std::vector<L1MuRegionalCand>> DTCands = std::make_unique<std::vector<L1MuRegionalCand>>();
+  std::unique_ptr<std::vector<L1MuRegionalCand>> CSCCands = std::make_unique<std::vector<L1MuRegionalCand>>();
+  std::unique_ptr<std::vector<L1MuRegionalCand>> RPCbCands = std::make_unique<std::vector<L1MuRegionalCand>>();
+  std::unique_ptr<std::vector<L1MuRegionalCand>> RPCfCands = std::make_unique<std::vector<L1MuRegionalCand>>();
+  std::unique_ptr<std::vector<L1MuGMTCand>> GMTCands = std::make_unique<std::vector<L1MuGMTCand>>();
 
   // put empty records into event
 

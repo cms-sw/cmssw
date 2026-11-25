@@ -19,7 +19,6 @@
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -247,7 +246,7 @@ namespace edm {
 
       ev.put(std::move(genEventInfo));
 
-      std::unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
+      std::unique_ptr<HepMCProduct> bare_product = std::make_unique<HepMCProduct>();
       bare_product->addHepMCData(event.release());
       ev.put(std::move(bare_product), "unsmeared");
 
@@ -260,7 +259,7 @@ namespace edm {
 
       ev.put(std::move(genEventInfo3));
 
-      std::unique_ptr<HepMC3Product> bare_product(new HepMC3Product());
+      std::unique_ptr<HepMC3Product> bare_product = std::make_unique<HepMC3Product>();
       bare_product->addHepMCData(*event3);
       ev.put(std::move(bare_product), "unsmeared");
     }
@@ -283,7 +282,7 @@ namespace edm {
         decayer_->statistics();
     }
 
-    std::unique_ptr<GenRunInfoProduct> griproduct(new GenRunInfoProduct(hadronizer_.getGenRunInfo()));
+    std::unique_ptr<GenRunInfoProduct> griproduct = std::make_unique<GenRunInfoProduct>(hadronizer_.getGenRunInfo());
     r.put(std::move(griproduct));
   }
 
@@ -350,7 +349,7 @@ namespace edm {
     temp.setAcceptedBr(0, -1, -1);
     GenLumiProcess.push_back(temp);
 
-    std::unique_ptr<GenLumiInfoProduct> genLumiInfo(new GenLumiInfoProduct());
+    std::unique_ptr<GenLumiInfoProduct> genLumiInfo = std::make_unique<GenLumiInfoProduct>();
     genLumiInfo->setHEPIDWTUP(-1);
     genLumiInfo->setProcessInfo(GenLumiProcess);
 

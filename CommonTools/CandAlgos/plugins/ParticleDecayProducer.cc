@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include <memory>
 #include <vector>
 
 class ParticleDecayProducer : public edm::global::EDProducer<> {
@@ -57,8 +58,8 @@ void ParticleDecayProducer::produce(edm::StreamID, edm::Event& iEvent, edm::Even
   // get gen particle candidates
   const edm::Handle<CandidateCollection> genCandidatesCollection = iEvent.getHandle(genCandidatesToken_);
 
-  unique_ptr<CandidateCollection> mothercands(new CandidateCollection);
-  unique_ptr<CandidateCollection> daughterscands(new CandidateCollection);
+  unique_ptr<CandidateCollection> mothercands = std::make_unique<CandidateCollection>();
+  unique_ptr<CandidateCollection> daughterscands = std::make_unique<CandidateCollection>();
   size_t daughtersize = daughtersPdgId_.size();
   for (CandidateCollection::const_iterator p = genCandidatesCollection->begin(); p != genCandidatesCollection->end();
        ++p) {
@@ -79,7 +80,7 @@ void ParticleDecayProducer::produce(edm::StreamID, edm::Event& iEvent, edm::Even
   daughterscands->sort(GreaterByPt<reco::Candidate>());
 
   for (unsigned int row = 0; row < daughtersize; ++row) {
-    unique_ptr<CandidateCollection> leptonscands_(new CandidateCollection);
+    unique_ptr<CandidateCollection> leptonscands_ = std::make_unique<CandidateCollection>();
     leptonscands_->push_back((daughterscands->begin() + row)->clone());
     iEvent.put(std::move(leptonscands_), valias.at(row));
   }

@@ -177,67 +177,67 @@ void BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID,
     }
   }
 
-  std::unique_ptr<edm::ValueMap<float>> leptonPtRelV_v0(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> leptonPtRelV_v0 = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerRel_v0(*leptonPtRelV_v0);
   fillerRel_v0.insert(srcJet, leptonPtRel_v0.begin(), leptonPtRel_v0.end());
   fillerRel_v0.fill();
   iEvent.put(std::move(leptonPtRelV_v0), "leptonPtRelv0");
 
-  std::unique_ptr<edm::ValueMap<float>> leptonPtRelInvV_v0(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> leptonPtRelInvV_v0 = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerRelInv_v0(*leptonPtRelInvV_v0);
   fillerRelInv_v0.insert(srcJet, leptonPtRelInv_v0.begin(), leptonPtRelInv_v0.end());
   fillerRelInv_v0.fill();
   iEvent.put(std::move(leptonPtRelInvV_v0), "leptonPtRelInvv0");
 
-  std::unique_ptr<edm::ValueMap<float>> leptonDeltaRV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> leptonDeltaRV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerLdR(*leptonDeltaRV);
   fillerLdR.insert(srcJet, leptonDeltaR.begin(), leptonDeltaR.end());
   fillerLdR.fill();
   iEvent.put(std::move(leptonDeltaRV), "leptonDeltaR");
 
-  std::unique_ptr<edm::ValueMap<int>> leptonPtPdgIdV(new edm::ValueMap<int>());
+  std::unique_ptr<edm::ValueMap<int>> leptonPtPdgIdV = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler fillerId(*leptonPtPdgIdV);
   fillerId.insert(srcJet, leptonPdgId.begin(), leptonPdgId.end());
   fillerId.fill();
   iEvent.put(std::move(leptonPtPdgIdV), "leptonPdgId");
 
-  std::unique_ptr<edm::ValueMap<float>> leadTrackPtV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> leadTrackPtV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerLT(*leadTrackPtV);
   fillerLT.insert(srcJet, leadTrackPt.begin(), leadTrackPt.end());
   fillerLT.fill();
   iEvent.put(std::move(leadTrackPtV), "leadTrackPt");
 
-  std::unique_ptr<edm::ValueMap<float>> vtxPtV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> vtxPtV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerVtxPt(*vtxPtV);
   fillerVtxPt.insert(srcJet, vtxPt.begin(), vtxPt.end());
   fillerVtxPt.fill();
   iEvent.put(std::move(vtxPtV), "vtxPt");
 
-  std::unique_ptr<edm::ValueMap<float>> vtxMassV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> vtxMassV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerVtxMass(*vtxMassV);
   fillerVtxMass.insert(srcJet, vtxMass.begin(), vtxMass.end());
   fillerVtxMass.fill();
   iEvent.put(std::move(vtxMassV), "vtxMass");
 
-  std::unique_ptr<edm::ValueMap<float>> vtx3dLV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> vtx3dLV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerVtx3dL(*vtx3dLV);
   fillerVtx3dL.insert(srcJet, vtx3dL.begin(), vtx3dL.end());
   fillerVtx3dL.fill();
   iEvent.put(std::move(vtx3dLV), "vtx3dL");
 
-  std::unique_ptr<edm::ValueMap<float>> vtx3deLV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> vtx3deLV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerVtx3deL(*vtx3deLV);
   fillerVtx3deL.insert(srcJet, vtx3deL.begin(), vtx3deL.end());
   fillerVtx3deL.fill();
   iEvent.put(std::move(vtx3deLV), "vtx3deL");
 
-  std::unique_ptr<edm::ValueMap<int>> vtxNtrkV(new edm::ValueMap<int>());
+  std::unique_ptr<edm::ValueMap<int>> vtxNtrkV = std::make_unique<edm::ValueMap<int>>();
   edm::ValueMap<int>::Filler fillerVtxNT(*vtxNtrkV);
   fillerVtxNT.insert(srcJet, vtxNtrk.begin(), vtxNtrk.end());
   fillerVtxNT.fill();
   iEvent.put(std::move(vtxNtrkV), "vtxNtrk");
 
-  std::unique_ptr<edm::ValueMap<float>> ptDV(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> ptDV = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler fillerPtD(*ptDV);
   fillerPtD.insert(srcJet, ptD.begin(), ptD.end());
   fillerPtD.fill();

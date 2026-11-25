@@ -260,7 +260,7 @@ void CTPPSAcceptancePlotter::endJob() {
     string dirName;
     for (const auto &rpId : p.first) {
       if (!dirName.empty())
-        dirName += ",";
+        dirName += ',';
       dirName += Form("%u", rpId);
     }
 
@@ -272,7 +272,7 @@ void CTPPSAcceptancePlotter::endJob() {
     string dirName;
     for (const auto &rpId : p.first) {
       if (!dirName.empty())
-        dirName += ",";
+        dirName += ',';
       dirName += Form("%u", rpId);
     }
 

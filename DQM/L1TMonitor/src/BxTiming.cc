@@ -173,7 +173,7 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
   lbl.clear();
   lbl += "BX(fed)-BX(";
   lbl += refName;
-  lbl += ")";
+  lbl += ')';
   hBxDiffAllFed->setAxisTitle(lbl, 2);
   for (int i = 0; i < nspr_; i++) {
     lbl.clear();
@@ -184,7 +184,7 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
     hBxDiffAllFedSpread[i]->setAxisTitle(lbl, 2);
     lbl.clear();
     lbl += "Bx FED occupancy";
-    lbl += " ";
+    lbl += ' ';
     lbl += spreadLabel[i];
     hBxOccyAllFedSpread[i]->setAxisTitle("FED ID", 1);
     hBxOccyAllFedSpread[i]->setAxisTitle(lbl, 2);
@@ -209,7 +209,7 @@ void BxTiming::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &, edm:
     lbl += SysLabel[i];
     lbl += ")-BX(";
     lbl += refName;
-    lbl += ")";
+    lbl += ')';
     hBxDiffSysFed[i]->setAxisTitle(lbl, 2);
   }
 

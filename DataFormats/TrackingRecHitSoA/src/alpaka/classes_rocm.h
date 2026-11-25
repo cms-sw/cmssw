@@ -12,6 +12,9 @@
 #include "DataFormats/TrackingRecHitSoA/interface/VectorHitsDevice.h"
 #include "DataFormats/TrackingRecHitSoA/interface/VectorHitsSoA.h"
 #include "DataFormats/TrackingRecHitSoA/interface/alpaka/VectorHitsSoACollection.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsMaskingDevice.h"
+#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsMaskingSoA.h"
+#include "DataFormats/TrackingRecHitSoA/interface/alpaka/TrackingRecHitsMaskingSoACollection.h"
 
 using namespace pixelTopology;
 

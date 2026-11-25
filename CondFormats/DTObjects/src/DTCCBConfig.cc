@@ -100,7 +100,7 @@ DTCCBConfig::ccb_config_map DTCCBConfig::configKeyMap() const {
         pck = nullptr;
       }
     }
-    keyList.push_back(std::pair<DTCCBId, std::vector<int> >(ccbId, cfgKeys));
+    keyList.push_back(std::pair<DTCCBId, std::vector<int>>(ccbId, cfgKeys));
     delete ptr;
   }
   return keyList;
@@ -127,7 +127,7 @@ int DTCCBConfig::setConfigKey(int wheelId, int stationId, int sectorId, const st
   int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), confPtr);
 
   if (!searchStatus) {
-    std::vector<std::pair<DTCCBId, int> > tempList;
+    std::vector<std::pair<DTCCBId, int>> tempList;
     const_iterator iter = dataList.begin();
     const_iterator iend = dataList.end();
     while (iter != iend) {
@@ -148,7 +148,7 @@ int DTCCBConfig::setConfigKey(int wheelId, int stationId, int sectorId, const st
     *confPtr = confKey;
     return -1;
   } else {
-    dBuf->insert(chanKey.begin(), chanKey.end(), std::make_unique<std::vector<int> >(confKey));
+    dBuf->insert(chanKey.begin(), chanKey.end(), std::make_unique<std::vector<int>>(confKey));
     DTCCBId ccbId;
     ccbId.wheelId = wheelId;
     ccbId.stationId = stationId;
@@ -180,7 +180,7 @@ int DTCCBConfig::appendConfigKey(int wheelId, int stationId, int sectorId, const
   int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), confPtr);
 
   if (searchStatus) {
-    std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+    std::unique_ptr<std::vector<int>> newVector = std::make_unique<std::vector<int>>();
     confPtr = newVector.get();
     dBuf->insert(chanKey.begin(), chanKey.end(), std::move(newVector));
   }
@@ -224,7 +224,7 @@ void DTCCBConfig::initialize() {
     int searchStatus = dBuf->find(chanKey.begin(), chanKey.end(), ccbConfPtr);
 
     if (searchStatus) {
-      std::unique_ptr<std::vector<int> > newVector(new std::vector<int>);
+      std::unique_ptr<std::vector<int>> newVector = std::make_unique<std::vector<int>>();
       ccbConfPtr = newVector.get();
       dBuf->insert(chanKey.begin(), chanKey.end(), std::move(newVector));
     }

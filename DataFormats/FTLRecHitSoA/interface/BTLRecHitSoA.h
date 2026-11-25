@@ -6,7 +6,7 @@
 
 namespace btlrechit {
   GENERATE_SOA_LAYOUT(BTLRecHitSoALayout,
-                      SOA_COLUMN(DetId, detId),
+                      SOA_COLUMN(uint32_t, rawDetId),
                       SOA_COLUMN(uint8_t, row),
                       SOA_COLUMN(float, time1),
                       SOA_COLUMN(float, time2),

@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun testHGCalGeomCheck_cfg.py geometry=V17
 #
-#   Options for geometry V16, V17, V18, V19
+#   Options for geometry V17, V18, V19, V20
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "V17",
+                 "V19",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: V16, V17, V18, V19")
+                  "geometry of operations: V17, V18, V19, V20")
 
 ### get and parse the command line arguments
 options.parseArguments()

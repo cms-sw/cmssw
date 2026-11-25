@@ -76,7 +76,7 @@ void RPCTwinMuxRawToDigi::produce(edm::Event &event, edm::EventSetup const &setu
   event.getByToken(raw_token_, raw_data_collection);
 
   std::set<std::pair<RPCDetId, RPCDigi> > rpc_digis;
-  std::unique_ptr<RPCAMCLinkCounters> counters(new RPCAMCLinkCounters());
+  std::unique_ptr<RPCAMCLinkCounters> counters = std::make_unique<RPCAMCLinkCounters>();
 
   // Loop over the FEDs
   for (int fed : feds_) {
@@ -507,7 +507,7 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed,
 }
 
 void RPCTwinMuxRawToDigi::putRPCDigis(edm::Event &event, std::set<std::pair<RPCDetId, RPCDigi> > const &digis) {
-  std::unique_ptr<RPCDigiCollection> rpc_digi_collection(new RPCDigiCollection());
+  std::unique_ptr<RPCDigiCollection> rpc_digi_collection = std::make_unique<RPCDigiCollection>();
   RPCDetId rpc_det_id;
   std::vector<RPCDigi> local_digis;
   for (std::pair<RPCDetId, RPCDigi> const &rpc_digi : digis) {

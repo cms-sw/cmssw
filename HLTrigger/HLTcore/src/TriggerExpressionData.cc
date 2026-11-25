@@ -19,6 +19,9 @@ namespace triggerExpression {
   bool Data::setEvent(const edm::Event& event, const edm::EventSetup& setup) {
     // cache the event number
     m_eventNumber = event.id().event();
+    // the index of the stream selects the prescale counters of an expression shared by several streams;
+    // an expression used by a single stream has a single set of counters
+    m_streamIndex = m_numberOfStreams > 1 ? event.streamID().value() : 0;
 
     // access L1 objects only if L1 is used
     if (hasL1T()) {

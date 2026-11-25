@@ -327,3 +327,35 @@ void phase2tkutil::add2DDesc(edm::ParameterSetDescription& desc,
   ps.add<double>("ymax", ymax);
   desc.add<edm::ParameterSetDescription>(psetKey, ps);
 }
+
+//Template ParameterSets
+void phase2tkutil::getTemplatePSets(edm::ParameterSetDescription& desc) {
+  {  // CRACK overview
+    edm::ParameterSetDescription CrackOverview_PSet;
+    CrackOverview_PSet.add<bool>("switch", false);
+    CrackOverview_PSet.add<std::string>("name", "Crack_Overview");
+    CrackOverview_PSet.add<std::string>("title", "Crack Overview;Module;Layer");
+    CrackOverview_PSet.add<double>("xmin", 0.0);
+    CrackOverview_PSet.add<double>("xmax", 13.0);
+    CrackOverview_PSet.add<double>("ymin", 0.0);
+    CrackOverview_PSet.add<double>("ymax", 7.0);
+    desc.add<edm::ParameterSetDescription>("CrackOverview", CrackOverview_PSet);
+    // CRACK overview bins (2DPoly)
+    std::vector<double> CrackOverviewBins;
+    for (int layer = 1; layer < 7; layer++) {
+      for (int module = 1; module < 13; module++) {
+        CrackOverviewBins.push_back(module - 0.75);  // x1
+        if (module % 2 == 1) {
+          CrackOverviewBins.push_back(layer - 0.2);    // y1
+          CrackOverviewBins.push_back(module + 0.75);  // x2
+          CrackOverviewBins.push_back(layer);          // y2
+        } else {
+          CrackOverviewBins.push_back(layer);          // y1
+          CrackOverviewBins.push_back(module + 0.75);  // x2
+          CrackOverviewBins.push_back(layer + 0.2);    // y2
+        }
+      }
+    }
+    desc.add<std::vector<double>>("CrackOverview_Bins", CrackOverviewBins);
+  }
+}

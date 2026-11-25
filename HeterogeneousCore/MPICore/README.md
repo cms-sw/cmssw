@@ -90,7 +90,7 @@ An automated test is available in the `test/` directory.
 ## Automatic configuration splitter
 
 In order to use MPI functionality in CMSSW, you need to create special configurations with MPI modules performing the 
-communication. Therefore we provide ```edmMpiSplitConfig.py``` script which allows to split any given
+communication. Therefore we provide ```edmMpiSplitConfig``` script which allows to split any given
 python process configuration into 2 parts: local and remote.
 
 The tool takes modules to offload as a command line parameter and analyzes data dependencies between CMSSW modules.
@@ -103,7 +103,7 @@ between processes unless the producing module is explicitly marked as shared.
 The example command to offload GPU component of ECAL, HCAL and Pixels would be following:
 
 ```
-python3 edmMpiSplitConfig.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
+edmMpiSplitConfig hlt.py --remote-modules hltEcalDigisSoA hltEcalUncalibRecHitSoA \
         hltHcalDigisSoA hltHbheRecoSoA hltParticleFlowRecHitHBHESoA hltParticleFlowClusterHBHESoA \
         hltSiPixelClustersSoA hltSiPixelRecHitsSoA hltPixelTracksSoA hltPixelVerticesSoA \
         --duplicate-modules hltHcalDigis hltOnlineBeamSpot   hltOnlineBeamSpotDevice \
@@ -111,7 +111,7 @@ python3 edmMpiSplitConfig.py hlt.py --remote-modules hltEcalDigisSoA hltEcalUnca
         --output-remote remote_pixels.py
 ```
 
-For more information about input parameters of the script you could run ```edmMpiSplitConfig.py -h```.
+For more information about input parameters of the script you could run ```edmMpiSplitConfig -h```.
 
 
 ## Current limitations
@@ -120,12 +120,26 @@ For more information about input parameters of the script you could run ```edmMp
   - there is only a partial check that the number, type and order of collections sent by the `MPISender` match those
     expected by the `MPIReceiver`.
 
+The automatic configuration splitter has the following limitations:
+
+  - the decision of an offloaded `EDFilter` is not sent back to the local process. The splitter stops with an error
+    for an `EDFilter` in `--remote-modules`. An `EDFilter` in `--duplicate-modules` keeps its decision in the local
+    process, and its remote copy is wrapped in `cms.ignore`;
+  - each group of offloaded modules needs at least one module on a `Path` or `EndPath`. A module that is only in a
+    `Task` can be offloaded together with a scheduled module that consumes it; offloaded alone, the splitter stops
+    with an error;
+  - a local module on no `Path` or `EndPath` (e.g. only in a `Task`) whose products an offloaded module reads runs on
+    every event, because the `MPISender` prefetches its products before checking whether the offloaded modules run;
+  - run, luminosity block and process block products are not forwarded. The splitter prints a warning.
+
 
 ## Notes for future developments
 
   - implement efficient GPU-direct transfers for trivially serialisable products (in progress);
   - check that the collection sent by the `MPISender` matches the one expected by the `MPIReceiver`;
   - integrate filter decisions and GPU backend into the metadata message
+  - let the configuration splitter send the decision of an offloaded `EDFilter` back to the local process;
+  - let the configuration splitter offload groups made only of modules that are on no `Path` or `EndPath`;
   - improve the `MPIController` to be a `global` module rather than a `one` module;
   - let an `MPISource` accept connections and events from multiple `MPIController` modules in different jobs;
   - let an `MPIController` connect and sent events to multiple `MPISource` modules in different jobs (in progress);

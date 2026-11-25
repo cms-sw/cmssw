@@ -64,7 +64,7 @@ ZJetsAnalyzer::ZJetsAnalyzer(const edm::ParameterSet& pset)
           edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), ""))),
       tokenHepMC_(consumes<edm::HepMCProduct>(
           edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
-      tokenGenRun_(consumes<GenRunInfoProduct, edm::InRun>(
+      tokenGenRun_(consumes<GenRunInfoProduct, edm::InRun, edm::Transition::EndRun>(
           edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), ""))),
       fHist2muMass(0) {
   usesResource(TFileService::kSharedResource);

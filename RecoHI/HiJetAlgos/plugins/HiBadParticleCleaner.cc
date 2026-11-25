@@ -253,7 +253,7 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
   iEvent.put(std::make_unique<bool>(pass));
 
-  std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf(new edm::ValueMap<reco::PFCandidateRef>());
+  std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf = std::make_unique<edm::ValueMap<reco::PFCandidateRef>>();
   edm::ValueMap<reco::PFCandidateRef>::Filler filler(*pf2pf);
 
   std::vector<reco::PFCandidateRef> refs;

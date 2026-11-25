@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -131,8 +130,8 @@ template <typename T>
 void EDMtoMEConverter::Tokens<T>::set(const edm::InputTag &runInputTag,
                                       const edm::InputTag &lumiInputTag,
                                       edm::ConsumesCollector &iC) {
-  runToken = iC.mayConsume<MEtoEDM<T>, edm::InRun>(runInputTag);
-  lumiToken = iC.mayConsume<MEtoEDM<T>, edm::InLumi>(lumiInputTag);
+  runToken = iC.consumes<MEtoEDM<T>, edm::InRun>(runInputTag);
+  lumiToken = iC.consumes<MEtoEDM<T>, edm::InLumi>(lumiInputTag);
 }
 
 template <typename T>

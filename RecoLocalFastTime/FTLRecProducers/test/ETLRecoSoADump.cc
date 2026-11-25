@@ -118,8 +118,6 @@ void ETLRecoSoADump::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     for (int i = 0; i < h_ETL_reco_SoA->view().metadata().size(); i++) {
       std::cout << h_ETL_reco_SoA->view()[i] << "\n" << std::endl;
     }
-
-    //  MTDDetId mtdDetId(h_ETL_reco_SoA->view()[i].detId());
   }  // if ( h_ETL_reco_soa->size() > 0 )
 }
 

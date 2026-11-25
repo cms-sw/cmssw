@@ -123,7 +123,7 @@ void BetaStarVarProducer<T>::fillValueMaps(std::string valueName,
                                            const std::vector<float> &values,
                                            edm::Handle<edm::View<pat::Jet>> &srcJet,
                                            edm::Event &iEvent) const {
-  std::unique_ptr<edm::ValueMap<float>> valuesPtr(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> valuesPtr = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler valuesFiller(*valuesPtr);
   valuesFiller.insert(srcJet, values.begin(), values.end());
   valuesFiller.fill();

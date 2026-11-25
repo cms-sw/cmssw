@@ -10,7 +10,7 @@
 
 namespace etlrechit {
   GENERATE_SOA_LAYOUT(ETLBaseRecHitSoALayout,
-                      SOA_COLUMN(DetId, detId),
+                      SOA_COLUMN(uint32_t, rawDetId),
                       SOA_COLUMN(uint8_t, row),
                       SOA_COLUMN(uint8_t, column),
                       SOA_COLUMN(float, toa),

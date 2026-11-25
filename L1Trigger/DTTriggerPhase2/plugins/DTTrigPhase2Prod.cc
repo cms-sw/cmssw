@@ -72,6 +72,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <queue>
 #include <cmath>
 
@@ -1075,12 +1076,12 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 
   // Storing Phi results
   if (df_extended_ == 1 || df_extended_ == 2) {
-    std::unique_ptr<L1Phase2MuDTExtPhContainer> resultExtP2Ph(new L1Phase2MuDTExtPhContainer);
+    std::unique_ptr<L1Phase2MuDTExtPhContainer> resultExtP2Ph = std::make_unique<L1Phase2MuDTExtPhContainer>();
     resultExtP2Ph->setContainer(outExtP2Ph);
     iEvent.put(std::move(resultExtP2Ph));
   }
   if (df_extended_ == 0 || df_extended_ == 2) {
-    std::unique_ptr<L1Phase2MuDTPhContainer> resultP2Ph(new L1Phase2MuDTPhContainer);
+    std::unique_ptr<L1Phase2MuDTPhContainer> resultP2Ph = std::make_unique<L1Phase2MuDTPhContainer>();
     resultP2Ph->setContainer(outP2Ph);
     iEvent.put(std::move(resultP2Ph));
   }
@@ -1091,12 +1092,12 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
 
   // Storing Theta results
   if (df_extended_ == 1 || df_extended_ == 2) {
-    std::unique_ptr<L1Phase2MuDTExtThContainer> resultExtP2Th(new L1Phase2MuDTExtThContainer);
+    std::unique_ptr<L1Phase2MuDTExtThContainer> resultExtP2Th = std::make_unique<L1Phase2MuDTExtThContainer>();
     resultExtP2Th->setContainer(outExtP2Th);
     iEvent.put(std::move(resultExtP2Th));
   }
   if (df_extended_ == 0 || df_extended_ == 2) {
-    std::unique_ptr<L1Phase2MuDTThContainer> resultP2Th(new L1Phase2MuDTThContainer);
+    std::unique_ptr<L1Phase2MuDTThContainer> resultP2Th = std::make_unique<L1Phase2MuDTThContainer>();
     resultP2Th->setContainer(outP2Th);
     iEvent.put(std::move(resultP2Th));
   }

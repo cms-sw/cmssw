@@ -1,3 +1,4 @@
+#include <memory>
 #include <ostream>
 
 #include <vector>
@@ -170,11 +171,11 @@ namespace edm {
       fEvt->print();
 #endif
 
-    std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+    std::unique_ptr<HepMCProduct> BProduct = std::make_unique<HepMCProduct>();
     BProduct->addHepMCData(fEvt);
     e.put(std::move(BProduct), "unsmeared");
 
-    std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+    std::unique_ptr<GenEventInfoProduct> genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
     e.put(std::move(genEventInfo));
 #ifdef DebugLog
     if (fVerbosity > 0)

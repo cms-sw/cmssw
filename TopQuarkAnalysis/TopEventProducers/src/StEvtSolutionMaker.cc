@@ -48,7 +48,7 @@ StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig) {
   }
   metSrcToken_ = consumes<std::vector<pat::MET>>(iConfig.getParameter<edm::InputTag>("metSource"));
   jetSrcToken_ = consumes<std::vector<pat::Jet>>(iConfig.getParameter<edm::InputTag>("jetSource"));
-  genEvtSrcToken_ = mayConsume<StGenEvent>(edm::InputTag("genEvt"));
+  genEvtSrcToken_ = consumes<StGenEvent>(edm::InputTag("genEvt"));
   jetCorrScheme_ = iConfig.getParameter<int>("jetCorrectionScheme");
   //jetInput_        = iConfig.getParameter< std::string > 	  ("jetInput");
   doKinFit_ = iConfig.getParameter<bool>("doKinFit");

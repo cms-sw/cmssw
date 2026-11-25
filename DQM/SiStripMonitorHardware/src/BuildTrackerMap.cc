@@ -12,6 +12,7 @@
 //         Created:  2009/07/22
 //
 
+#include <memory>
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -163,7 +164,7 @@ void BuildTrackerMapPlugin::read(bool aMechView,
   unsigned int nFailTot = 0;
   unsigned int nTotTot = 0;
   for (unsigned int i(0); i < nHists; i++) {
-    std::unique_ptr<TkHistoMap> tkHistoMap{new TkHistoMap(tkDetMap)};
+    std::unique_ptr<TkHistoMap> tkHistoMap = std::make_unique<TkHistoMap>(tkDetMap);
 
     tkHistoMap->loadTkHistoMap(dirName, tkHistoMapNameVec_.at(i), aMechView);
 

@@ -53,10 +53,10 @@ namespace pat {
     void produce(edm::Event&, const edm::EventSetup&) override;
 
     /// The RECO objects
-    edm::EDGetTokenT<edm::View<T> > srcToken_;
+    edm::EDGetTokenT<edm::View<T>> srcToken_;
 
     /// The MC objects to match against
-    edm::EDGetTokenT<std::vector<reco::GenParticle> > matchedToken_;
+    edm::EDGetTokenT<std::vector<reco::GenParticle>> matchedToken_;
 
     /// Preselection cut on MC objects
     StringCutObjectSelector<reco::GenParticle> mcSel_;
@@ -74,12 +74,12 @@ namespace pat {
  */
 template <typename T>
 pat::MatcherByPulls<T>::MatcherByPulls(const edm::ParameterSet& iConfig)
-    : srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-      matchedToken_(consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("matched"))),
+    : srcToken_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("src"))),
+      matchedToken_(consumes<std::vector<reco::GenParticle>>(iConfig.getParameter<edm::InputTag>("matched"))),
       mcSel_(iConfig.getParameter<std::string>("matchedSelector")),
       algo_(iConfig) {
-  produces<edm::Association<std::vector<reco::GenParticle> > >();
-  produces<edm::ValueMap<float> >("pulls");
+  produces<edm::Association<std::vector<reco::GenParticle>>>();
+  produces<edm::ValueMap<float>>("pulls");
 }
 
 template <typename T>
@@ -96,7 +96,7 @@ pat::MatcherByPulls<T>::~MatcherByPulls() {}
 template <typename T>
 void pat::MatcherByPulls<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   typedef std::vector<reco::GenParticle> MCColl;
-  edm::Handle<edm::View<T> > src;
+  edm::Handle<edm::View<T>> src;
   edm::Handle<MCColl> cands;
   iEvent.getByToken(srcToken_, src);
   iEvent.getByToken(matchedToken_, cands);
@@ -120,7 +120,7 @@ void pat::MatcherByPulls<T>::produce(edm::Event& iEvent, const edm::EventSetup& 
   matchesFiller.fill();
   iEvent.put(std::move(matchesMap));
 
-  std::unique_ptr<edm::ValueMap<float> > pullsMap(new edm::ValueMap<float>());
+  std::unique_ptr<edm::ValueMap<float>> pullsMap = std::make_unique<edm::ValueMap<float>>();
   edm::ValueMap<float>::Filler pullsFiller(*pullsMap);
   pullsFiller.insert(src, pulls.begin(), pulls.end());
   pullsFiller.fill();

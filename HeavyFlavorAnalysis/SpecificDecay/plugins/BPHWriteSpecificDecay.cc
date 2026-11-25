@@ -1620,7 +1620,7 @@ void BPHWriteSpecificDecay::addTrackModes(const std::string& name,
                                           bool& count) {
   for (const std::map<std::string, const reco::Candidate*>::value_type& entry : cand.daugMap()) {
     if (count)
-      modes += "#";
+      modes += '#';
     modes += (name + entry.first + ":" + cand.getTMode(entry.second));
     count = true;
   }

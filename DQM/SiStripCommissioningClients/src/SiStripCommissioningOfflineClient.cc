@@ -455,7 +455,7 @@ void SiStripCommissioningOfflineClient::setInputFiles(std::vector<std::string>& 
     //bool rootFile = ( fileName.rfind(".root",5) == fileName.size()-5 );
     if (goodName && goodRun && rootFile && goodPartition) {
       std::string entry = path;
-      entry += "/";
+      entry += '/';
       entry += fileName;
       files.push_back(entry);
     }

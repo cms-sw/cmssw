@@ -178,7 +178,7 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
   // if the input collection does not have any information for bx 0,
   // produce an empty collection, and fail
   if (handle->isEmpty(0)) {
-    std::unique_ptr<GlobalAlgBlkBxCollection> result(new GlobalAlgBlkBxCollection());
+    std::unique_ptr<GlobalAlgBlkBxCollection> result = std::make_unique<GlobalAlgBlkBxCollection>();
     event.put(std::move(result));
     return false;
   }
@@ -320,7 +320,7 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
     algoBlock.setPreScColumn(m_l1tPrescaleColumn);
 
   // create a new GlobalAlgBlkBxCollection, and set the new prescaled decisions for bx 0
-  std::unique_ptr<GlobalAlgBlkBxCollection> result(new GlobalAlgBlkBxCollection());
+  std::unique_ptr<GlobalAlgBlkBxCollection> result = std::make_unique<GlobalAlgBlkBxCollection>();
   result->push_back(0, algoBlock);
   event.put(std::move(result));
 

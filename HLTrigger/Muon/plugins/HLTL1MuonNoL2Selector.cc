@@ -17,6 +17,8 @@
 // Class Header
 #include "HLTL1MuonNoL2Selector.h"
 
+#include <memory>
+
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -70,7 +72,7 @@ void HLTL1MuonNoL2Selector::produce(edm::StreamID, edm::Event& iEvent, const edm
 
   const std::string metname = "Muon|RecoMuon|HLTL1MuonNoL2Selector";
 
-  unique_ptr<MuonBxCollection> output(new MuonBxCollection());
+  unique_ptr<MuonBxCollection> output = std::make_unique<MuonBxCollection>();
 
   // Get hold of L2 trks
   edm::Handle<RecoChargedCandidateCollection> L2cands;

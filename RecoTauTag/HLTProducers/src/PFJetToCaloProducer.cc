@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/PFJetToCaloProducer.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -18,7 +20,7 @@ void PFJetToCaloProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::
   using namespace edm;
   using namespace std;
 
-  std::unique_ptr<reco::CaloJetCollection> selectedTaus(new CaloJetCollection);
+  std::unique_ptr<reco::CaloJetCollection> selectedTaus = std::make_unique<CaloJetCollection>();
 
   edm::Handle<PFJetCollection> tauJets;
   iEvent.getByToken(tauSrc_, tauJets);

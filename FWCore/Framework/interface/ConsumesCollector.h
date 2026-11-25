@@ -56,7 +56,17 @@ namespace edm {
       return m_consumer->consumes<ProductType, B>(tag);
     }
 
+    template <typename ProductType, BranchType B, Transition Tr>
+    EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
+      return m_consumer->consumes<ProductType, B, Tr>(tag);
+    }
+
     template <BranchType B = InEvent>
+    [[nodiscard]] ConsumesCollectorAdaptor<B> consumes(edm::InputTag tag) {
+      return ConsumesCollectorAdaptor<B>(*this, std::move(tag));
+    }
+
+    template <BranchType B, Transition Tr>
     [[nodiscard]] ConsumesCollectorAdaptor<B> consumes(edm::InputTag tag) {
       return ConsumesCollectorAdaptor<B>(*this, std::move(tag));
     }
@@ -68,16 +78,9 @@ namespace edm {
       return m_consumer->consumes<B>(id, tag);
     }
 
-    template <typename ProductType, BranchType B = InEvent>
-    EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
-      return m_consumer->mayConsume<ProductType, B>(tag);
-    }
-
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) { return m_consumer->mayConsume(id, tag); }
-
-    template <BranchType B>
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return m_consumer->mayConsume<B>(id, tag);
+    template <BranchType B, Transition Tr>
+    EDGetToken consumes(TypeToGet const& id, edm::InputTag const& tag) {
+      return m_consumer->consumes<B, Tr>(id, tag);
     }
 
     // For consuming event-setup products

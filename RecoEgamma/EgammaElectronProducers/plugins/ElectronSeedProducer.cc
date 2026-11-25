@@ -117,7 +117,7 @@ ElectronSeedProducer::ElectronSeedProducer(const edm::ParameterSet& conf)
 
   ElectronSeedGenerator::Tokens esg_tokens;
   esg_tokens.token_bs = beamSpotTag_;
-  esg_tokens.token_vtx = mayConsume<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertices"));
+  esg_tokens.token_vtx = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("vertices"));
 
   matcher_ = std::make_unique<ElectronSeedGenerator>(conf, esg_tokens, consumesCollector());
 

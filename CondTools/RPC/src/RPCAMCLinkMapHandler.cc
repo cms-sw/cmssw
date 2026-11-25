@@ -51,7 +51,7 @@ void RPCAMCLinkMapHandler::getNewObjects() {
   std::string amc_name, link_name;
   unsigned int wos, sector, amc_number, amc_input;
 
-  std::unique_ptr<RPCAMCLinkMap> amc_link_map_object(new RPCAMCLinkMap());
+  std::unique_ptr<RPCAMCLinkMap> amc_link_map_object = std::make_unique<RPCAMCLinkMap>();
   RPCAMCLinkMap::map_type& amc_link_map = amc_link_map_object->getMap();
   RPCLBLink lb_link;
 

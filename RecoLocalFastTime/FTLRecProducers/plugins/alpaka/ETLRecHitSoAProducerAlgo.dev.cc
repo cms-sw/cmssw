@@ -58,14 +58,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::etlrechit {
 
 #ifdef EDM_ML_DEBUG
 
-        printf("RecHit SoA with raw id %i \n", entry.detId().rawId());
+        printf("RecHit SoA with raw id %i \n", entry.rawDetId());
         printf("Time of arrival: %f +- %f \n", toa, time_error);
         printf("Time over threshold: %f \n", tot);
 
 #endif
 
         // fill the rechit
-        output[i] = {entry.detId(), entry.row(), entry.column(), toa, tot, time_error, flag};
+        output[i] = {entry.rawDetId(), entry.row(), entry.column(), toa, tot, time_error, flag};
       }
     }
   };

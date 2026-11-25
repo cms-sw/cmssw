@@ -13,12 +13,17 @@ FILES = {
     "HLT_75e33_cff.py": """import FWCore.ParameterSet.Config as cms
 fragment = cms.ProcessFragment("HLT")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPGood_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModifier_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPMissing_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Good_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Bad_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Good_cfi")
 """,
     "HLT_75e33/eventsetup/hltESPGood_cfi.py": 'import FWCore.ParameterSet.Config as cms\nhltESPGood = cms.ESProducer("Foo")\n',
+    "HLT_75e33/eventsetup/hltESPModifier_cfi.py": """import FWCore.ParameterSet.Config as cms
+def _add(process):
+    process.hltESPModifier = cms.ESProducer("Foo")
+""",
     "HLT_75e33/modules/hltA_cfi.py": 'import FWCore.ParameterSet.Config as cms\nhltA = cms.EDProducer("X")\n',
     "HLT_75e33/modules/hltB_cfi.py": 'import FWCore.ParameterSet.Config as cms\nhltB = cms.EDProducer("X")\n',
     "HLT_75e33/modules/hltOrphan_cfi.py": 'import FWCore.ParameterSet.Config as cms\nhltOrphan = cms.EDProducer("X")\n',

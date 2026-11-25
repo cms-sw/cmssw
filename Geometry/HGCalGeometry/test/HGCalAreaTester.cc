@@ -44,7 +44,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomUtils.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
-#include "Geometry/HGCalGeometry/interface/HGCalNeighbourFinder.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class HGCalAreaTester : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
@@ -62,6 +61,7 @@ public:
 private:
   const std::string nameDetector_;
   const std::string fileName_;
+  const int nskip_;
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tok_hgcal_;
   const DetId::Detector dets_;
   std::vector<DetId> detIds_;
@@ -70,6 +70,7 @@ private:
 HGCalAreaTester::HGCalAreaTester(const edm::ParameterSet &iC)
     : nameDetector_(iC.getParameter<std::string>("nameDetector")),
       fileName_(iC.getParameter<std::string>("fileName")),
+      nskip_(iC.getParameter<int>("nSkip")),
       tok_hgcal_(esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(
           edm::ESInputTag{"", nameDetector_})),
       dets_((nameDetector_ == "HGCalEESensitive")
@@ -88,9 +89,8 @@ HGCalAreaTester::HGCalAreaTester(const edm::ParameterSet &iC)
       while (fInput.getline(buffer, 80)) {
         std::vector<std::string> items = HGCalGeomUtils::splitString(std::string(buffer));
         unsigned int id = static_cast<unsigned int>(std::atoi(items[0].c_str()));
-        DetId::Detector det = DetId(id).det();
-        edm::LogVerbatim("HGCGeom") << "ID " << std::hex << id << std::dec << " Detector " << det;
-        if (det == dets_) {
+        edm::LogVerbatim("HGCGeom") << "ID " << std::hex << id << std::dec << " Detector " << DetId(id).det();
+        if (DetId(id).det() == dets_) {
           auto itr = std::find(detIds_.begin(), detIds_.end(), DetId(id));
           if (itr == detIds_.end()) {
             detIds_.emplace_back(DetId(id));
@@ -106,7 +106,8 @@ HGCalAreaTester::HGCalAreaTester(const edm::ParameterSet &iC)
     edm::LogVerbatim("HGCalGeom") << "Reads " << detIds_.size() << " ID's from " << fileName_;
   }
   if (detIds_.empty()) {
-    edm::LogVerbatim("HGCalGeom") << "List of DetIds not provided == will test all valid ids for " << dets_;
+    edm::LogVerbatim("HGCalGeom") << "List of DetIds not provided == will test all valid ids for " << dets_
+                                  << " skipping " << nskip_ << " entries";
   }
 }
 
@@ -114,6 +115,7 @@ void HGCalAreaTester::fillDescriptions(edm::ConfigurationDescriptions &descripti
   edm::ParameterSetDescription desc;
   desc.add<std::string>("nameDetector", "HGCalHEScintillatorSensitive");
   desc.add<std::string>("fileName", "detID.txt");
+  desc.add<int>("nSkip", 1000);
   descriptions.add("hgcalAreaTester", desc);
 }
 
@@ -125,12 +127,20 @@ void HGCalAreaTester::beginRun(edm::Run const &iRun, edm::EventSetup const &iSet
   if (hgcGeom.isValid()) {
     const HGCalGeometry *geom = hgcGeom.product();
     edm::LogVerbatim("HGCalGeom") << "Loaded HGCalDDConstants for " << nameDetector_;
+    std::vector<DetId> detIds;
+    uint32_t nskip(nskip_);
     if (detIds_.empty()) {
-      detIds_ = geom->getValidDetIds(dets_);
-      edm::LogVerbatim("HGCalGeom") << "Gets " << detIds_.size() << " valid ID's for detector " << dets_;
+      detIds = geom->getValidDetIds(dets_);
+    } else {
+      for (auto const &id : detIds_) {
+        if (id.det() == dets_)
+          detIds.emplace_back(id);
+      }
+      nskip = 1;
     }
-    std::unique_ptr<HGCalNeighbourFinder> finder = std::make_unique<HGCalNeighbourFinder>(geom);
-    for (unsigned int k = 0; k < detIds_.size(); ++k) {
+    edm::LogVerbatim("HGCalGeom") << "Gets " << detIds.size() << " valid ID's for detector " << dets_
+                                  << " examining every " << nskip << " events";
+    for (unsigned int k = 0; k < detIds.size(); k += nskip) {
       if (geom->validDetId(detIds_[k])) {
         std::ostringstream st1;
         st1 << "[" << k << "] ";

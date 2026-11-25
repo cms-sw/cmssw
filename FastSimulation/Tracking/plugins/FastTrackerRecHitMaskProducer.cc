@@ -40,7 +40,7 @@ private:
 
   edm::EDGetTokenT<FastTrackerRecHitCollection> recHits_;
 
-  edm::EDGetTokenT<std::vector<bool> > oldHitMaskToken_;
+  edm::EDGetTokenT<std::vector<bool>> oldHitMaskToken_;
 };
 
 FastTrackerRecHitMaskProducer::FastTrackerRecHitMaskProducer(const edm::ParameterSet& iConfig)
@@ -48,7 +48,7 @@ FastTrackerRecHitMaskProducer::FastTrackerRecHitMaskProducer(const edm::Paramete
       trackQuality_(reco::TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"))),
       trajectories_(iConfig.getParameter<edm::InputTag>("trajectories"), consumesCollector()),
       recHits_(consumes<FastTrackerRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHits"))) {
-  produces<std::vector<bool> >();
+  produces<std::vector<bool>>();
 
   auto const& classifier = iConfig.getParameter<edm::InputTag>("trackClassifier");
   if (!classifier.label().empty())
@@ -56,14 +56,14 @@ FastTrackerRecHitMaskProducer::FastTrackerRecHitMaskProducer(const edm::Paramete
 
   auto const& oldHitRemovalInfo = iConfig.getParameter<edm::InputTag>("oldHitRemovalInfo");
   if (!oldHitRemovalInfo.label().empty()) {
-    oldHitMaskToken_ = consumes<std::vector<bool> >(oldHitRemovalInfo);
+    oldHitMaskToken_ = consumes<std::vector<bool>>(oldHitRemovalInfo);
   }
 }
 
 void FastTrackerRecHitMaskProducer::produce(edm::Event& iEvent, const edm::EventSetup& es) {
   // the product
 
-  std::unique_ptr<std::vector<bool> > collectedHits(new std::vector<bool>());
+  std::unique_ptr<std::vector<bool>> collectedHits = std::make_unique<std::vector<bool>>();
 
   // input
 
@@ -71,7 +71,7 @@ void FastTrackerRecHitMaskProducer::produce(edm::Event& iEvent, const edm::Event
   iEvent.getByToken(recHits_, recHits);
 
   if (!oldHitMaskToken_.isUninitialized()) {
-    edm::Handle<std::vector<bool> > oldHitMasks;
+    edm::Handle<std::vector<bool>> oldHitMasks;
     iEvent.getByToken(oldHitMaskToken_, oldHitMasks);
     collectedHits->insert(collectedHits->begin(), oldHitMasks->begin(), oldHitMasks->end());
   }

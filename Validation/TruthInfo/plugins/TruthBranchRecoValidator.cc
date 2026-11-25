@@ -434,61 +434,15 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
   auto const& hitIndexProduct = event.get(hitIndexToken_);
   truth::SubgraphHitView hitIndex(hitIndexProduct);
 
-  // Where the branch ENTERS the calorimeter, as opposed to where its root was produced.
-  // The root of a branch is a generator particle that decayed long before any
-  // calorimeter, so its own eta says nothing about which part of the detector saw the
-  // branch: a top at eta 0 sprays into both endcaps, and a forward top deposits where no
-  // endcap object can be reconstructed. The calorimeter-entrance eta is taken from the
-  // boundary crossing (checkpoint 0) of the branch's most energetic particle to reach
-  // the calorimeter, and propagated UP the production edges so a root inherits it from
-  // its descendants. Computed once per event over the whole graph rather than per branch:
-  // per-branch descendant walks are quadratic at PU200, where there are thousands of
-  // roots and the branches overlap heavily.
-  std::vector<double> caloEntryEta(graph.nParticles(), truth::kNoCaloEntry);
-  if constexpr (!Traits::truthIsVertex) {
-    const uint32_t nParticles = graph.nParticles();
-    std::vector<double> caloEntryEnergy(nParticles, -1.);
-    std::vector<uint32_t> worklist;
-    worklist.reserve(nParticles);
-
-    for (uint32_t p = 0; p < nParticles; ++p) {
-      // Back-scattered tracks crossed the boundary INWARD; that is the same particle
-      // coming back, not an entry, and truth::atLevel excludes them for the same reason.
-      if (graph.particles()[p].backscattered) {
-        continue;
-      }
-      const auto crossing = truth::Particle(&graph, p).checkpoint(0);
-      if (!crossing.has_value()) {
-        continue;
-      }
-      caloEntryEnergy[p] = crossing->momentum.energy();
-      caloEntryEta[p] = crossing->position.eta();
-      worklist.push_back(p);
-    }
-
-    // Carry the most energetic crossing up to every ancestor. Values only ever increase
-    // and are bounded by the largest crossing in the event, so this terminates even if
-    // the graph contains a cycle.
-    for (std::size_t head = 0; head < worklist.size(); ++head) {
-      const uint32_t p = worklist[head];
-      for (const uint32_t vertexId : graph.productionVertices(p)) {
-        if (vertexId >= graph.nVertices()) {
-          continue;
-        }
-        for (const uint32_t parent : graph.incomingParticles(vertexId)) {
-          if (parent < nParticles && caloEntryEnergy[p] > caloEntryEnergy[parent]) {
-            caloEntryEnergy[parent] = caloEntryEnergy[p];
-            caloEntryEta[parent] = caloEntryEta[p];
-            worklist.push_back(parent);
-          }
-        }
-      }
-    }
-  }
+  // Where the branch ENTERS the calorimeter, as opposed to where its root was produced: a root at eta 0 can deposit
+  // in both endcaps. A vertex domain has no particle branch.
+  const std::vector<double> caloEntryEta = Traits::truthIsVertex
+                                               ? std::vector<double>(graph.nParticles(), truth::kNoCaloEntry)
+                                               : truth::caloEntryEtas(graph);
 
   // PROJECTION onto the dominance antichain: for each particle, the member of the
   // antichain it descends from, or itself if it is one. Built once per event by a
-  // downward walk, the same shape as the calorimeter-entrance propagation above.
+  // downward walk, the same shape as the calorimeter-entrance walk of truth::caloEntryEtas.
   //
   // Projecting, rather than keeping only candidates that ARE members, makes a branch and
   // its own descendants add up as the ONE contributor they are instead of competing.
@@ -826,9 +780,7 @@ void TruthBranchRecoValidator<RECO>::dqmAnalyze(edm::Event const& event,
         // The branch's own detector footprint, which is the truth analogue of a track's
         // hit count.
         const auto subgraph = hitIndex.subgraphHits(Traits::hitChannel, b);
-        if (entry.requireHits && std::ranges::none_of(subgraph, [this](auto const& hit) {
-              return (requireHitsDetectors_ & truth::BranchHitAssociator::detectorBit(hit.detId)) != 0u;
-            })) {
+        if (entry.requireHits && !truth::BranchHitAssociator::hasHitInDetectors(subgraph, requireHitsDetectors_)) {
           continue;
         }
         kin.nhits = subgraph.size();
@@ -967,7 +919,8 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
     desc.add<double>("minLeadingTruthShare", 0.5)
         ->setComment(
             "Fake criterion: one branch of dominanceLevel must own at least this share of the shared quantity all "
-            "candidates at that level contribute. An object below it, or with no candidate there, is a fake");
+            "candidates at that level contribute. An object below it is a fake; for an object with no candidate "
+            "there the question is undefined, and it is not a fake");
     desc.add<std::string>("dominanceLevel", "caloBoundary")
         ->setComment(
             "The level whose targets the leading-truth-contributor measure is computed over. It must be an "
@@ -999,7 +952,8 @@ void TruthBranchRecoValidator<RECO>::fillDescriptions(edm::ConfigurationDescript
             "applied src/HGVHistoProducerAlgo.cc:2897). This is an ENERGY FRACTION, not a score");
     desc.add<double>("maxSimToRecoScoreForDuplicate", 0.2)
         ->setComment(
-            "More than one reco object below this simToReco score makes the truth object a duplicate. "
+            "More than one reco object below this simToReco score makes an individually found truth object a "
+            "duplicate. "
             "HGCalValidator's maxSimToRecoScoreForPurity/Duplicate (HGVHistoProducerAlgoBlock_cfi.py:72-73, "
             "applied HGVHistoProducerAlgo.cc:2898-2899)");
     desc.add<double>("maxRecoToSimScore", 0.6)

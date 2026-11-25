@@ -1,3 +1,4 @@
+#include <memory>
 #include <ostream>
 
 #include <vector>
@@ -174,11 +175,11 @@ void FileRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
   if (fVerbosity > 1)
     fEvt->print();
 
-  std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> BProduct = std::make_unique<HepMCProduct>();
   BProduct->addHepMCData(fEvt);
   e.put(std::move(BProduct), "unsmeared");
 
-  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  std::unique_ptr<GenEventInfoProduct> genEventInfo = std::make_unique<GenEventInfoProduct>(fEvt);
   e.put(std::move(genEventInfo));
   if (fVerbosity > 0)
     edm::LogVerbatim("ParticleGun") << "FileRandomMultiParticlePGunProducer : Event Generation Done";

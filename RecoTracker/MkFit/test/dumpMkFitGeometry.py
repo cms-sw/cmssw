@@ -26,12 +26,19 @@ process.add_(cms.ESProducer("MkFitGeometryESProducer"))
 
 defaultOutputFileName="phase1-trackerinfo.bin"
 
+# Phase-1 takes its geometry from the conditions DB rather than from a version
+# variable, so the stamp is the process era. Set it by hand if a dump is made
+# against something else.
+GEOM_VERSION = "Run3"
+
 # level: 0 - no printout; 1 - print layers, 2 - print shapes and modules
 # outputFileName: binary dump file; no dump if empty string
 process.dump = cms.EDAnalyzer("DumpMkFitGeometry",
                               level = cms.untracked.int32(1),
-                              outputFileName = cms.untracked.string(defaultOutputFileName)
+                              outputFileName = cms.untracked.string(defaultOutputFileName),
+                              geometryVersion = cms.untracked.string(GEOM_VERSION)
                               )
 
-print("Requesting MkFit geometry dump into file:", defaultOutputFileName, "\n");
+print("Requesting MkFit geometry dump into file:", defaultOutputFileName,
+      "  geometry version:", GEOM_VERSION, "\n");
 process.p = cms.Path(process.dump)

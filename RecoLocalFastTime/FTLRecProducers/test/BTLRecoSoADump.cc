@@ -118,8 +118,6 @@ void BTLRecoSoADump::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     for (int i = 0; i < h_BTL_reco_SoA->view().metadata().size(); i++) {
       std::cout << h_BTL_reco_SoA->view()[i] << "\n" << std::endl;
     }
-
-    //  MTDDetId mtdDetId(h_BTL_reco_SoA->view()[i].detId());
   }  // if ( h_BTL_reco_soa->size() > 0 )
 }
 

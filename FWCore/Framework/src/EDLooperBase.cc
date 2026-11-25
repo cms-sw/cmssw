@@ -181,16 +181,17 @@ namespace edm {
                                    Principal const& iPrincipal,
                                    EventSetupImpl const& iImpl) const noexcept {
     esPrefetchAsync(iTask, iImpl, iTrans, token);
-    edPrefetchAsync(std::move(iTask), token, iPrincipal);
+    edPrefetchAsync(std::move(iTask), iPrincipal, iTrans, token);
   }
 
   void EDLooperBase::edPrefetchAsync(WaitingTaskHolder iTask,
-                                     ServiceToken const& token,
-                                     Principal const& iPrincipal) const noexcept {
+                                     Principal const& iPrincipal,
+                                     Transition iTransition,
+                                     ServiceToken const& token) const noexcept {
     //Based on Worker edPrefetchAsync
 
     // Prefetch products the module declares it consumes
-    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iPrincipal.branchType());
+    std::vector<ProductResolverIndexAndSkipBit> const& items = itemsToGetFrom(iTransition);
 
     for (auto const& item : items) {
       ProductResolverIndex productResolverIndex = item.productResolverIndex();

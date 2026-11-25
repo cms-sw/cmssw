@@ -34,6 +34,7 @@
 #include "Utilities/Xerces/interface/Xerces.h"
 #include "Utilities/Xerces/interface/XercesStrUtils.h"
 
+#include <memory>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
@@ -392,7 +393,7 @@ void TotemDAQMappingESSourceXML::ParseXML(ParseType pType,
                                           const string &file,
                                           const std::unique_ptr<TotemDAQMapping> &mapping,
                                           const std::unique_ptr<TotemAnalysisMask> &mask) {
-  unique_ptr<XercesDOMParser> parser(new XercesDOMParser());
+  unique_ptr<XercesDOMParser> parser = std::make_unique<XercesDOMParser>();
   parser->parse(file.c_str());
 
   DOMDocument *domDoc = parser->getDocument();

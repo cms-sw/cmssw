@@ -8,8 +8,6 @@ template <typename HIT, typename CLUSTER>
 LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToSCAssociatorByEnergyScoreProducerT(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes(edm::ESInputTag("", ""))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_token_(consumes<multiCollectionT>(ps.getParameter<edm::InputTag>("hits"))) {
   // Register the product
@@ -24,7 +22,7 @@ void LCToSCAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
                                                                    edm::Event &iEvent,
                                                                    const edm::EventSetup &es) const {
   auto rhtools_ = std::make_shared<ticlgeom::Tools>();
-  rhtools_->setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  rhtools_->setGeometry(es.getData(ticlGeomToken_));
 
   if (!iEvent.getHandle(hitMap_) || !iEvent.getHandle(hits_token_)) {
     if (!iEvent.getHandle(hitMap_)) {

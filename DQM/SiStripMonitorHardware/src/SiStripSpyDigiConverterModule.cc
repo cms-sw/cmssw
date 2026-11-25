@@ -1,3 +1,4 @@
+#include <memory>
 #include <string>
 #include <memory>
 #include <vector>
@@ -72,14 +73,14 @@ namespace sistrip {
     }
 
     if (storePayloadDigis_)
-      produces<edm::DetSetVector<SiStripRawDigi> >("SpyPayload");
+      produces<edm::DetSetVector<SiStripRawDigi>>("SpyPayload");
     if (storeReorderedDigis_)
-      produces<edm::DetSetVector<SiStripRawDigi> >("SpyReordered");
+      produces<edm::DetSetVector<SiStripRawDigi>>("SpyReordered");
     if (storeModuleDigis_)
-      produces<edm::DetSetVector<SiStripRawDigi> >("SpyVirginRaw");
+      produces<edm::DetSetVector<SiStripRawDigi>>("SpyVirginRaw");
 
     if (storeAPVAddress_) {
-      produces<std::vector<uint32_t> >("APVAddress");
+      produces<std::vector<uint32_t>>("APVAddress");
       //produces<uint8_t>("APVAddress");
     }
 
@@ -114,7 +115,7 @@ namespace sistrip {
     event.getByToken(productToken_, scopeDigisHandle);
 
     //32-bit to accomodate known CMSSW container
-    std::unique_ptr<std::vector<uint32_t> > pAPVAddresses(new std::vector<uint32_t>);
+    std::unique_ptr<std::vector<uint32_t>> pAPVAddresses = std::make_unique<std::vector<uint32_t>>();
 
     std::unique_ptr<sistrip::SpyDigiConverter::DSVRawDigis> payloadDigis, reorderedDigis, moduleDigis;
 

@@ -46,6 +46,10 @@ namespace edm {
   public:
     Run(RunTransitionInfo const&, ModuleDescription const&, ModuleCallingContext const*, bool isAtEnd);
     Run(RunPrincipal const&, ModuleDescription const&, ModuleCallingContext const*, bool isAtEnd);
+    Run(Run const&) = delete;
+    Run& operator=(Run const&) = delete;
+    Run(Run&&) = delete;
+    Run& operator=(Run&&) = delete;
     ~Run() override;
 
     //Used in conjunction with EDGetToken

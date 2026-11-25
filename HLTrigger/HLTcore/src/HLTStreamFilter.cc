@@ -10,6 +10,8 @@
  *
  */
 
+#include <memory>
+
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTStreamFilter.h"
 
@@ -28,8 +30,8 @@ void HLTStreamFilter::makeHLTFilterDescription(edm::ParameterSetDescription& des
 HLTStreamFilter::~HLTStreamFilter() = default;
 
 bool HLTStreamFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
-  std::unique_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct(
-      new trigger::TriggerFilterObjectWithRefs(path(event), module(event)));
+  std::unique_ptr<trigger::TriggerFilterObjectWithRefs> filterproduct =
+      std::make_unique<trigger::TriggerFilterObjectWithRefs>(path(event), module(event));
 
   // compute the result of the HLTStreamFilter implementation
   bool result = hltFilter(event, setup, *filterproduct);

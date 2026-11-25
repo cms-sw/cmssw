@@ -31,6 +31,8 @@ The offsets currently in use are:
 * 0.3: 0.1 + 0.2
 * 0.4: LowPU tracking era, `Run2_2017_trackingLowPU`
 * 0.402: Alpaka, pixel only quadruplets, portable
+* 0.4021: Alpaka, pixel only quadruplets with CA extension to the outer tracker (`phase2CAExtension`), portable
+* 0.4022: Alpaka, pixel only quadruplets with CA extension to the outer tracker (`phase2CAExtension`), and two iterations (`caTwoIterations`), portable
 * 0.403: Alpaka, pixel only quadruplets, portable vs. CPU validation
 * 0.404: Alpaka, pixel only quadruplets, portable profiling
 * 0.4021: Alpaka, pixel only quadruplets with CA extension to the outer tracker (`phase2CAExtension`), portable
@@ -47,6 +49,7 @@ The offsets currently in use are:
 * 0.5: Legacy pixel tracking only (CPU)
 * 0.511: Legacy ECAL reco only (CPU)
 * 0.521: Legacy HCAL reco only (CPU)
+* 0.532: HGCAL reco only with the ticl_v6 process modifier (TICLv6)
 * 0.6: HE Collapse (old depth segmentation for 2018)
 * 0.601: HLT as separate step
 * 0.7: trackingMkFit modifier
@@ -61,25 +64,26 @@ The offsets currently in use are:
 * 0.7501: HLT phase-2 tracking-only menu
 * 0.7502: HLT phase-2 menu, with tracking ntuple
 * 0.7503: HLT phase-2 menu, CPU vs. GPU validation
+* 0.7504: HLT phase-2 development menu (with the v0p0_2026 L1 menu)
 * 0.751: HLT phase-2 timing menu Alpaka variant
-* 0.7512: HLT phase-2 timing menu, vector-hit-based pixel CA (`phase2CAVectorHits`)
-* 0.7521: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
-* 0.7522: HLT phase-2 timing menu mtd_at_hlt variant
 * 0.753: HLT phase-2 timing menu legacy tracking
-* 0.755: HLT phase-2 timing menu LST building variant
-* 0.757: HLT phase-2 timing menu mkFitFit variant
-* 0.758 HLT phase-2 timing menu ticl_barrel variant
+* 0.7531: HLT phase-2 timing menu LST building variant
+* 0.7532: HLT phase-2 timing menu mkFitFit variant
+* 0.7533: HLT phase-2 timing menu, vector-hit-based pixel CA (`phase2CAVectorHits`)
+* 0.756: HLT phase-2 timing menu ticl_barrel variant
+* 0.7561: HLT phase-2 timing menu ticlv5TrackLinkingGNN variant
+* 0.7562: HLT phase-2 timing menu mtd_at_hlt variant
 * 0.759: HLT phase-2 menu, with NANO:@Phase2HLT
 * 0.7591: HLT phase-2 menu, with NANO:@Phase2HLTVal
 * 0.7592: HLT phase-2 menu, with NANO:@Phase2HLTVal (and nanoDQM)
 * 0.76: HLT phase-2 reduced menu, with DIGI step
 * 0.77: HLT phase-2 NGT Scouting menu
 * 0.771: HLT phase-2 NGT Scouting menu, Alpaka, TICL-Barrel
+* 0.7711: HLT phase-2 NGT Scouting menu with Pixeltracks CA Extension + LST T5s as GeneralTracks
 * 0.772: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting
 * 0.7721: HLT phase-2 NGT Scouting menu, with NANO:@NGTScouting (and nanoDQM)
-* 0.773: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
-* 0.774: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen (L1+HLT objects)
-* 0.775: HLT phase-2 NGT Scouting menu with Pixeltracks CA Extension + LST T5s as GeneralTracks
+* 0.7722: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal
+* 0.7723: HLT phase-2 NGT Scouting menu, with NANO:@NGTScoutingVal+@Phase2L1DPGwithGen (L1+HLT objects)
 * 0.778 L3 Tracker Muons reconstruction Outside-In first, HLT Muon NanoAOD
 * 0.78: Complete L1 workflow
 * 0.781: Complete L1 workflow, producing FEVT and NANO output L1/P2GT objects
@@ -125,6 +129,7 @@ The offsets currently in use are:
 * 0.103: Phase-2 aging, 3000fb-1
 * 0.204: HGCAL superclustering : using Mustache in TICL
 * 0.205: HGCAL superclustering : using old PFCluster-based Mustache algorithm with TICL
+* 0.207: TICLv6 : HLT and offline reconstruction with the ticl_v6 process modifier
 * 0.209: TICL barrel : run TICL in HGCAL and barrel calorimeters
 * 0.212: Enables offline HGCAL/TICL NanoAOD: NANO:@HGCAL
 * 0.213: Enables offline HGCAL/TICL NanoAOD with Sim objects for validation purposes: NANO:@HGCALVal

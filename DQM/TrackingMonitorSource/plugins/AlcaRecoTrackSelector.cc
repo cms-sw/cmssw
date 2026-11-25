@@ -59,7 +59,7 @@ AlcaRecoTrackSelector::AlcaRecoTrackSelector(const edm::ParameterSet& ps)
 }
 
 void AlcaRecoTrackSelector::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  std::unique_ptr<reco::TrackCollection> outputTColl(new reco::TrackCollection());
+  std::unique_ptr<reco::TrackCollection> outputTColl = std::make_unique<reco::TrackCollection>();
 
   // Read Track collection
   edm::Handle<reco::TrackCollection> tracks;

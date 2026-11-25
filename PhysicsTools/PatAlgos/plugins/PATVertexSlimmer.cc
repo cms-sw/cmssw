@@ -30,7 +30,7 @@ namespace pat {
 
 pat::PATVertexSlimmer::PATVertexSlimmer(const edm::ParameterSet& iConfig)
     : src_(consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("src"))),
-      score_(mayConsume<edm::ValueMap<float>>(
+      score_(consumes<edm::ValueMap<float>>(
           iConfig.existsAs<edm::InputTag>("score") ? iConfig.getParameter<edm::InputTag>("score") : edm::InputTag())),
       rekeyScores_(iConfig.existsAs<edm::InputTag>("score")) {
   produces<std::vector<reco::Vertex>>();

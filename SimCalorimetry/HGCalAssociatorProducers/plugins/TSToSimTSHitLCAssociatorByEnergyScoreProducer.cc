@@ -32,8 +32,6 @@ private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   edm::EDGetTokenT<std::unordered_map<DetId, const unsigned int>> hitMap_;
   edm::ESGetToken<TICLGeomHost, CaloGeometryRecord> ticlGeomToken_;
-  edm::ESGetToken<TICLGeomLookupHost, CaloGeometryRecord> ticlGeomLookupToken_;
-  edm::ESGetToken<TICLGeomLayersHost, CaloGeometryRecord> ticlGeomLayersToken_;
   const bool hardScatterOnly_;
   std::vector<edm::InputTag> hits_label_;
   std::vector<edm::EDGetTokenT<std::vector<HIT>>> hits_token_;
@@ -44,8 +42,6 @@ TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::TSToSimTSHitLCAssociatorByEn
     const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
       ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
-      ticlGeomLookupToken_(esConsumes(edm::ESInputTag("", ""))),
-      ticlGeomLayersToken_(esConsumes(edm::ESInputTag("", ""))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
   for (auto &label : hits_label_) {
@@ -64,7 +60,7 @@ void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
                                                                  edm::Event &iEvent,
                                                                  const edm::EventSetup &es) const {
   auto rhtools_ = std::make_shared<ticlgeom::Tools>();
-  rhtools_->setGeometry(es.getData(ticlGeomToken_), es.getData(ticlGeomLookupToken_), es.getData(ticlGeomLayersToken_));
+  rhtools_->setGeometry(es.getData(ticlGeomToken_));
 
   std::vector<const HIT *> hits;
   for (auto &token : hits_token_) {

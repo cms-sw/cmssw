@@ -40,7 +40,7 @@ process.source = cms.Source("PoolSource",
 )
 
 ptBins = cms.vdouble(0, 10, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95 , 100, 105, 110, 115 , 120, 125, 130, 135, 140, 145, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000)
-ptBinsHT = cms.vdouble(0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 1000, 1050, 1100, 1150, 1200, 1300, 1300, 1500, 1700, 2000)
+ptBinsHT = cms.vdouble(0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950, 1000, 1050, 1100, 1150, 1200, 1300, 1400, 1500, 1700, 2000)
 ptBinsMET = cms.vdouble(0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000)
 ptBinsJet = cms.vdouble(0, 100, 200, 300, 350, 375, 400, 425, 450, 475, 500, 550, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1500, 1700, 2000)
 etaBins = cms.vdouble(-4, -3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 4)
@@ -77,7 +77,9 @@ process.HLTGenValSourceELE = cms.EDProducer('HLTGenValSource',
         "HLT_Photon108EB_TightID_TightIso_L1Seeded",
         "HLT_Photon108EB_TightID_TightIso_Unseeded",
         "HLT_Photon187_L1Seeded",
-        "HLT_Photon187_Unseeded"
+        "HLT_Photon187_Unseeded",
+        "HLT_VBF_DiPFPuppiJet93_Mjj550_Ele24_eta2p1_WPTight_L1Seeded",
+        "HLT_VBF_DiPFPuppiJet145_70_Mjj1000_Photon22_L1Seeded"
     ),
     doOnlyLastFilter = doOnlyLastFilter,
     histConfigs = cms.VPSet(
@@ -129,7 +131,13 @@ process.HLTGenValSourceMU = cms.EDProducer('HLTGenValSource',
         "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon",
         "HLT_Mu37_Mu27_FromL1TkMuon",
         "HLT_Mu50_FromL1TkMuon",
-        "HLT_TriMu_10_5_5_DZ_FromL1TkMuon"
+        "HLT_TriMu_10_5_5_DZ_FromL1TkMuon",
+        "HLT_DoubleMu4_3_LowMass_FromL1TkMuon",
+        "HLT_DoubleMu4_3_Bs_FromL1TkMuon",
+        "HLT_DoubleMu4_3_Jpsi_FromL1TkMuon",
+        "HLT_Dimuon0_Upsilon_FromL1TkMuon",
+        "HLT_Mu9_Barrel_IP6_FromL1TkMuon",
+        "HLT_VBF_DiPFPuppiJet133_83_Mjj700_Mu5_TrkIsoVVL"
     ),
     doOnlyLastFilter = doOnlyLastFilter,
     histConfigs = cms.VPSet(
@@ -151,7 +159,9 @@ process.HLTGenValSourceTAU = cms.EDProducer('HLTGenValSource',
     hltProcessName = hltProcessName,
     hltPathsToCheck = cms.vstring(
         "HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1",
-        "HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1"
+        "HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1",
+        "HLT_VBF_DiPFPuppiJet145_70_Mjj1000_DoubleMediumPFPuppiParTTauh20_eta2p1",
+        "HLT_VBF_DiPFPuppiJet93_Mjj600_MediumPFPuppiParTTauh61_eta2p1"
     ),
     doOnlyLastFilter = doOnlyLastFilter,
     histConfigs = cms.VPSet(
@@ -172,9 +182,10 @@ process.HLTGenValSourceJET = cms.EDProducer('HLTGenValSource',
     objType = cms.string("AK4jet"),
     hltProcessName = hltProcessName,
     hltPathsToCheck = cms.vstring(
-        "HLT_AK4PFPuppiJet520"
+        "HLT_AK4PFPuppiJet520",
+        "HLT_VBF_DiPFPuppiJet145_70_Mjj1000"
     ),
-    inputCollections = cms.PSet(
+    genConfig = cms.PSet(
         ak4GenJets = cms.InputTag("ak4GenJetsNoNu"),
     ),
     doOnlyLastFilter = doOnlyLastFilter,
@@ -193,7 +204,7 @@ process.HLTGenValSourceHT = cms.EDProducer('HLTGenValSource',
     hltPathsToCheck = cms.vstring(
         "HLT_PFPuppiHT1070"
     ),
-    inputCollections = cms.PSet(
+    genConfig = cms.PSet(
         ak4GenJets = cms.InputTag("ak4GenJetsNoNu"),
     ),
     doOnlyLastFilter = doOnlyLastFilter,
@@ -210,7 +221,8 @@ process.HLTGenValSourceMET = cms.EDProducer('HLTGenValSource',
     objType = cms.string("MET"),
     hltProcessName = hltProcessName,
     hltPathsToCheck = cms.vstring(
-        "HLT_PFPuppiMETTypeOne140_PFPuppiMHT140"
+        "HLT_PFPuppiMETTypeOne140_PFPuppiMHT140",
+        "HLT_VBF_DiPFPuppiJet118_83_Mjj600_PFPuppiMETTypeOne176"
     ),
     doOnlyLastFilter = doOnlyLastFilter,
     histConfigs = cms.VPSet(

@@ -45,10 +45,10 @@ namespace edmtest {
     const std::string s_prod("PROD");
     for (auto const& label : labelsToGet_) {
       consumes<Thing>(edm::InputTag(label, "event", s_prod));
-      consumes<Thing, edm::InLumi>(edm::InputTag(label, "beginLumi", s_prod));
-      consumes<Thing, edm::InLumi>(edm::InputTag(label, "endLumi", s_prod));
-      consumes<Thing, edm::InRun>(edm::InputTag(label, "beginRun", s_prod));
-      consumes<Thing, edm::InRun>(edm::InputTag(label, "endRun", s_prod));
+      consumes<Thing, edm::InLumi, edm::Transition::BeginLuminosityBlock>(edm::InputTag(label, "beginLumi", s_prod));
+      consumes<Thing, edm::InLumi, edm::Transition::EndLuminosityBlock>(edm::InputTag(label, "endLumi", s_prod));
+      consumes<Thing, edm::InRun, edm::Transition::BeginRun>(edm::InputTag(label, "beginRun", s_prod));
+      consumes<Thing, edm::InRun, edm::Transition::EndRun>(edm::InputTag(label, "endRun", s_prod));
     }
   }
 

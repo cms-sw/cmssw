@@ -1008,7 +1008,7 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
       if (deltaPhiFW >= phiBound)
         deltaPhiFW = 2 * phiBound - deltaPhiFW;
       std::string lutName = lutObj0;
-      lutName += "-";
+      lutName += '-';
       lutName += lutObj1;
       long long deltaPhiLUT = m_gtScales->getLUT_DeltaPhi(lutName, deltaPhiFW);
       unsigned int precDeltaPhiLUT = m_gtScales->getPrec_DeltaPhi(lutName);

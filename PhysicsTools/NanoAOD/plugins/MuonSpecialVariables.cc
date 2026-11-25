@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -103,9 +105,9 @@ void MuonSpecialVariables::produce(edm::Event &iEvent, const edm::EventSetup &iS
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(trkSrc_, trkCollection);
 
-  std::unique_ptr<std::vector<pat::Muon>> muonCollection(new std::vector<pat::Muon>(*muonSrc));
+  std::unique_ptr<std::vector<pat::Muon>> muonCollection = std::make_unique<std::vector<pat::Muon>>(*muonSrc);
 
-  std::unique_ptr<std::vector<pat::Muon>> out(new std::vector<pat::Muon>());
+  std::unique_ptr<std::vector<pat::Muon>> out = std::make_unique<std::vector<pat::Muon>>();
 
   out->reserve(muonCollection->size());
 

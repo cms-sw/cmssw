@@ -35,11 +35,11 @@ namespace cms {
     geometry = conf.getUntrackedParameter<std::string>("GeometricStructure", "STANDARD");
     useHitsSplitting_ = conf.getParameter<bool>("useHitsSplitting");
     matchedrecHitsToken_ =
-        mayConsume<SiStripMatchedRecHit2DCollection>(conf.getParameter<edm::InputTag>("matchedRecHits"));
-    rphirecHitsToken_ = mayConsume<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("rphirecHits"));
-    stereorecHitsToken_ = mayConsume<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("stereorecHits"));
-    pixelRecHitsToken_ = mayConsume<SiPixelRecHitCollection>(conf.getParameter<edm::InputTag>("pixelRecHits"));
-    otRecHitsToken_ = mayConsume<Phase2TrackerRecHit1DCollectionNew>(conf.getParameter<edm::InputTag>("OTRecHits"));
+        consumes<SiStripMatchedRecHit2DCollection>(conf.getParameter<edm::InputTag>("matchedRecHits"));
+    rphirecHitsToken_ = consumes<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("rphirecHits"));
+    stereorecHitsToken_ = consumes<SiStripRecHit2DCollection>(conf.getParameter<edm::InputTag>("stereorecHits"));
+    pixelRecHitsToken_ = consumes<SiPixelRecHitCollection>(conf.getParameter<edm::InputTag>("pixelRecHits"));
+    otRecHitsToken_ = consumes<Phase2TrackerRecHit1DCollectionNew>(conf.getParameter<edm::InputTag>("OTRecHits"));
 
     seedToken_ = consumes<TrajectorySeedCollection>(conf.getParameter<edm::InputTag>("cosmicSeeds"));
 

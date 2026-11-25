@@ -283,7 +283,7 @@ HydjetAnalyzer::HydjetAnalyzer(const edm::ParameterSet &iConfig) {
   }
   etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2.);
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-  srcT_ = mayConsume<HepMCProduct>(
+  srcT_ = consumes<HepMCProduct>(
       iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generator", "unsmeared")));
   srcTmix_ = consumes<CrossingFrame<edm::HepMCProduct>>(
       iConfig.getUntrackedParameter<edm::InputTag>("srcMix", edm::InputTag("mix", "generatorSmeared")));

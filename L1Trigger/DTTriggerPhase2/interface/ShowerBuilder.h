@@ -139,7 +139,7 @@ namespace showerb {
       contents += std::to_string(hit.first) + ":" + std::to_string(hit.second.superLayerId()) + ":" +
                   std::to_string(hit.second.layerId()) + ":" + std::to_string(hit.second.channelId());
     }
-    contents += "]";
+    contents += ']';
     return contents;
   }
 }  // namespace showerb

@@ -19,6 +19,7 @@
 #include "PhysicsTools/HepMCCandAlgos/interface/MCTruthHelper.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include <memory>
 #include <vector>
 #include <string>
 #include <unordered_map>
@@ -187,10 +188,10 @@ GenParticleProducer::GenParticleProducer(const ParameterSet& cfg)
 
   if (useCF_)
     mixToken_ =
-        mayConsume<CrossingFrame<HepMCProduct>>(InputTag(cfg.getParameter<std::string>("mix"), "generatorSmeared"));
+        consumes<CrossingFrame<HepMCProduct>>(InputTag(cfg.getParameter<std::string>("mix"), "generatorSmeared"));
   else {
-    srcToken_ = mayConsume<HepMCProduct>(cfg.getParameter<InputTag>("src"));
-    srcToken3_ = mayConsume<HepMC3Product>(cfg.getParameter<InputTag>("src"));
+    srcToken_ = consumes<HepMCProduct>(cfg.getParameter<InputTag>("src"));
+    srcToken3_ = consumes<HepMC3Product>(cfg.getParameter<InputTag>("src"));
   }
 }
 
@@ -257,7 +258,7 @@ void GenParticleProducer::produce(StreamID, Event& evt, const EventSetup& es) co
   auto candsPtr = std::make_unique<GenParticleCollection>(size);
   auto barCodeVector = std::make_unique<vector<int>>(size);
   std::unique_ptr<math::XYZPointF> xyz0Ptr(new math::XYZPointF(0., 0., 0.));
-  std::unique_ptr<float> t0Ptr(new float(0.f));
+  std::unique_ptr<float> t0Ptr = std::make_unique<float>(0.f);
   reco::GenParticleRefProd ref = evt.getRefBeforePut<GenParticleCollection>();
   GenParticleCollection& cands = *candsPtr;
   size_t offset = 0;

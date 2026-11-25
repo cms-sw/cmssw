@@ -5,6 +5,7 @@
 // system
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -43,7 +44,7 @@ TextToRaw::~TextToRaw() {
 
 /// Append empty digi collection
 void TextToRaw::putEmptyDigi(edm::Event &iEvent) {
-  std::unique_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection());
+  std::unique_ptr<FEDRawDataCollection> rawColl = std::make_unique<FEDRawDataCollection>();
   // FEDRawData& feddata=rawColl->FEDData(fedId_);
   // feddata.data()[0] = 0;
   iEvent.put(std::move(rawColl));
@@ -112,7 +113,7 @@ void TextToRaw::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   unsigned evtSize = i * 4;
 
   // create the collection
-  std::unique_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection());
+  std::unique_ptr<FEDRawDataCollection> rawColl = std::make_unique<FEDRawDataCollection>();
   // retrieve the target buffer
   FEDRawData &feddata = rawColl->FEDData(fedId_);
   // Allocate space for header+trailer+payload

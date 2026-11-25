@@ -172,14 +172,14 @@ void GenFilterEfficiencyProducer::globalEndLuminosityBlock(edm::LuminosityBlock 
 void GenFilterEfficiencyProducer::globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLumi,
                                                                   const edm::EventSetup&) const {
   auto sums = luminosityBlockCache(iLumi.index());
-  std::unique_ptr<GenFilterInfo> thisProduct(new GenFilterInfo(sums->numEventsPassPos_,
-                                                               sums->numEventsPassNeg_,
-                                                               sums->numEventsTotalPos_,
-                                                               sums->numEventsTotalNeg_,
-                                                               sums->sumpass_w_,
-                                                               sums->sumpass_w2_,
-                                                               sums->sumtotal_w_,
-                                                               sums->sumtotal_w2_));
+  std::unique_ptr<GenFilterInfo> thisProduct = std::make_unique<GenFilterInfo>(sums->numEventsPassPos_,
+                                                                               sums->numEventsPassNeg_,
+                                                                               sums->numEventsTotalPos_,
+                                                                               sums->numEventsTotalNeg_,
+                                                                               sums->sumpass_w_,
+                                                                               sums->sumpass_w2_,
+                                                                               sums->sumtotal_w_,
+                                                                               sums->sumtotal_w2_);
   iLumi.put(std::move(thisProduct));
 }
 

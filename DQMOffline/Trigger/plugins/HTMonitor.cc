@@ -130,10 +130,10 @@ HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
       muoInputTag_(iConfig.getParameter<edm::InputTag>("muons")),
       vtxInputTag_(iConfig.getParameter<edm::InputTag>("vertices")),
       metToken_(consumes<reco::PFMETCollection>(metInputTag_)),
-      jetToken_(mayConsume<reco::JetView>(jetInputTag_)),
-      eleToken_(mayConsume<reco::GsfElectronCollection>(eleInputTag_)),
-      muoToken_(mayConsume<reco::MuonCollection>(muoInputTag_)),
-      vtxToken_(mayConsume<reco::VertexCollection>(vtxInputTag_)),
+      jetToken_(consumes<reco::JetView>(jetInputTag_)),
+      eleToken_(consumes<reco::GsfElectronCollection>(eleInputTag_)),
+      muoToken_(consumes<reco::MuonCollection>(muoInputTag_)),
+      vtxToken_(consumes<reco::VertexCollection>(vtxInputTag_)),
       ht_variable_binning_(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("htBinning")),
       jetptBinning_(

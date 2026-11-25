@@ -6,6 +6,8 @@
  */
 
 #include "SimMuon/MCTruth/plugins/SeedToTrackProducerBase.h"
+
+#include <memory>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
@@ -39,9 +41,9 @@ void SeedToTrackProducerBase<SeedCollection>::produce(edm::StreamID,
   using namespace edm;
   using namespace std;
 
-  std::unique_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras(new reco::TrackExtraCollection());
-  std::unique_ptr<TrackingRecHitCollection> selectedTrackHits(new TrackingRecHitCollection());
+  std::unique_ptr<reco::TrackCollection> selectedTracks = std::make_unique<reco::TrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> selectedTrackExtras = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<TrackingRecHitCollection> selectedTrackHits = std::make_unique<TrackingRecHitCollection>();
 
   reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
   reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();

@@ -180,7 +180,7 @@ PixelPortcardMap::~PixelPortcardMap() {}
 void PixelPortcardMap::writeASCII(std::string dir) const {
   std::string mthn = "[PixelPortcardMap::writeASCII()]\t\t\t\t    ";
   if (!dir.empty())
-    dir += "/";
+    dir += '/';
   string filename = dir + "portcardmap.dat";
 
   ofstream out(filename.c_str());

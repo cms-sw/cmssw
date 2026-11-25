@@ -85,9 +85,9 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig, edm::ConsumesColl
   edm::InputTag metaDataInputTag = iConfig.getParameter<edm::InputTag>("metadata");
   beamSpotToken_ = iC.consumes<reco::BeamSpot>(bsSrc);
   pvToken_ = iC.consumes<reco::VertexCollection>(primaryVertexInputTag);
-  pixelClustersToken_ = iC.mayConsume<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag);
-  lumiscalersToken_ = iC.mayConsume<LumiScalersCollection>(scalInputTag);
-  metaDataToken_ = iC.mayConsume<OnlineLuminosityRecord>(metaDataInputTag);
+  pixelClustersToken_ = iC.consumes<edmNew::DetSetVector<SiPixelCluster> >(pixelClusterInputTag);
+  lumiscalersToken_ = iC.consumes<LumiScalersCollection>(scalInputTag);
+  metaDataToken_ = iC.consumes<OnlineLuminosityRecord>(metaDataInputTag);
 
   if (doAllPlots_ || doEffFromHitPatternVsPU_ || doEffFromHitPatternVsBX_ || doEffFromHitPatternVsLUMI_) {
     trackerGeometryToken_ = iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>();

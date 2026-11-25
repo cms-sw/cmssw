@@ -256,6 +256,8 @@ void JetTagPlotter::finalize(DQMStore::IBooker& ibook_, DQMStore::IGetter& igett
   effPurFromHistos_ = std::make_unique<EffPurFromHistos>(
       *dDiscriminator_, jetTagDir, mcPlots_, ibook_, nBinEffPur_, startEffPur_, endEffPur_);
   effPurFromHistos_->doCTagPlots(doCTagPlots_);
+  if (!signalFlavour_.empty())
+    effPurFromHistos_->setSignalFlavour(signalFlavour_);
   effPurFromHistos_->compute(ibook_);
 
   // Produce the differentiel efficiency vs. kinematical variables

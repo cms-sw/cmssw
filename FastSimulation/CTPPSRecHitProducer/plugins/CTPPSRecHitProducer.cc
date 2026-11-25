@@ -242,7 +242,7 @@ void CTPPSRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
 
-  std::unique_ptr<CTPPSFastRecHitContainer> output_recHits(new edm::CTPPSFastRecHitContainer);
+  std::unique_ptr<CTPPSFastRecHitContainer> output_recHits = std::make_unique<edm::CTPPSFastRecHitContainer>();
   output_recHits->reserve(simHits->size());
 
   for (std::vector<CTPPSFastRecHit>::const_iterator i = theCTPPSFastRecHit.begin(); i != theCTPPSFastRecHit.end();

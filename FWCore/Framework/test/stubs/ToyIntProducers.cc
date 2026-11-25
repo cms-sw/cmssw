@@ -720,43 +720,43 @@ namespace edmtest {
       {
         auto tag = p.getParameter<edm::InputTag>("consumesBeginProcessBlock");
         if (not tag.label().empty()) {
-          bpbGet_ = consumes<edm::InProcess>(tag);
+          bpbGet_ = consumes<edm::InProcess, edm::Transition::BeginProcessBlock>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesBeginRun");
         if (not tag.label().empty()) {
-          brGet_ = consumes<edm::InRun>(tag);
+          brGet_ = consumes<edm::InRun, edm::Transition::BeginRun>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesBeginLuminosityBlock");
         if (not tag.label().empty()) {
-          blGet_ = consumes<edm::InLumi>(tag);
+          blGet_ = consumes<edm::InLumi, edm::Transition::BeginLuminosityBlock>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesEndLuminosityBlock");
         if (not tag.label().empty()) {
-          elGet_ = consumes<edm::InLumi>(tag);
+          elGet_ = consumes<edm::InLumi, edm::Transition::EndLuminosityBlock>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesEndRun");
         if (not tag.label().empty()) {
-          erGet_ = consumes<edm::InRun>(tag);
+          erGet_ = consumes<edm::InRun, edm::Transition::EndRun>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesEndProcessBlock");
         if (not tag.label().empty()) {
-          epbGet_ = consumes<edm::InProcess>(tag);
+          epbGet_ = consumes<edm::InProcess, edm::Transition::EndProcessBlock>(tag);
         }
       }
       {
         auto tag = p.getParameter<edm::InputTag>("consumesAccessInputProcessBlock");
         if (not tag.label().empty()) {
-          aipbGet_ = consumes<edm::InProcess>(tag);
+          aipbGet_ = consumes<edm::InProcess, edm::Transition::AccessInputProcessBlock>(tag);
         }
       }
     }

@@ -12,10 +12,12 @@ from ..sequences.HLTMuonsSequence_cfi import *
 from ..sequences.HLTItLocalRecoSequence_cfi import *
 from ..sequences.HLTMuonlocalrecoSequence_cfi import *
 from ..sequences.HLTOtLocalRecoSequence_cfi import *
+from ..sequences.HLTRawToDigiSequence_cfi import *
 
 HLT_Mu37_Mu27_FromL1TkMuon = cms.Path(
     HLTBeginSequence
     + hltDoubleMuon7DZ1p0
+    + HLTRawToDigiSequence
     + HLTMuonlocalrecoSequence
     + HLTItLocalRecoSequence
     + HLTOtLocalRecoSequence

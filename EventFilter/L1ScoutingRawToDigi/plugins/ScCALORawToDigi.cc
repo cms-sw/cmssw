@@ -1,4 +1,6 @@
 #include "EventFilter/L1ScoutingRawToDigi/plugins/ScCALORawToDigi.h"
+
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 ScCaloRawToDigi::ScCaloRawToDigi(const edm::ParameterSet& iConfig) {
@@ -29,10 +31,14 @@ void ScCaloRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<SDSRawDataCollection> ScoutingRawDataCollection;
   iEvent.getByToken(rawToken_, ScoutingRawDataCollection);
 
-  std::unique_ptr<l1ScoutingRun3::JetOrbitCollection> unpackedJets(new l1ScoutingRun3::JetOrbitCollection);
-  std::unique_ptr<l1ScoutingRun3::TauOrbitCollection> unpackedTaus(new l1ScoutingRun3::TauOrbitCollection);
-  std::unique_ptr<l1ScoutingRun3::EGammaOrbitCollection> unpackedEGammas(new l1ScoutingRun3::EGammaOrbitCollection);
-  std::unique_ptr<l1ScoutingRun3::BxSumsOrbitCollection> unpackedEtSums(new l1ScoutingRun3::BxSumsOrbitCollection);
+  std::unique_ptr<l1ScoutingRun3::JetOrbitCollection> unpackedJets =
+      std::make_unique<l1ScoutingRun3::JetOrbitCollection>();
+  std::unique_ptr<l1ScoutingRun3::TauOrbitCollection> unpackedTaus =
+      std::make_unique<l1ScoutingRun3::TauOrbitCollection>();
+  std::unique_ptr<l1ScoutingRun3::EGammaOrbitCollection> unpackedEGammas =
+      std::make_unique<l1ScoutingRun3::EGammaOrbitCollection>();
+  std::unique_ptr<l1ScoutingRun3::BxSumsOrbitCollection> unpackedEtSums =
+      std::make_unique<l1ScoutingRun3::BxSumsOrbitCollection>();
 
   // reset counters
   nJetsOrbit_ = 0;

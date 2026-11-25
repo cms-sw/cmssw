@@ -98,6 +98,7 @@ def customiseTruthGraphAssociators(process):
                 "keep *_allSecondaryVertexToTruthBranchAssociators_*_*",
                 "keep *_truthBranchTracksterAssociators_*_*",
                 "keep *_truthBranchLayerClusterAssociators_*_*",
+                "keep *_truthBranchCandidateAssociators_*_*",
                 "keep *_truthBranchPFClusterEcalAssociators_*_*",
                 "keep *_truthBranchPFClusterHcalAssociators_*_*",
                 "keep *_hltTrackToTruthBranchAssociators_*_*",
@@ -114,8 +115,8 @@ def customiseTruthBranchValidation(process):
     """Schedule the offline association maps and their performance plots.
 
     The plots are the efficiency, the fake rate, the purity and the resolution of every
-    reconstructed collection against every truth level and working point. They book 54242
-    monitor elements, 21.9 MiB of the harvested DQM file on 10 ttbar D127 events, so only
+    reconstructed collection against every truth level and working point. They book 48562
+    monitor elements, 34.9 MiB of the harvested DQM file on 10 ttbar D127 events, so only
     a study of the association turns them on. The graph summary and the comparison with
     CaloParticle, SimCluster and TrackingParticle run without this customise, and book 98.
 

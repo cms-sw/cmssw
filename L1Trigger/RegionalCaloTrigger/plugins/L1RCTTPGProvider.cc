@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTTPGProvider.h"
@@ -259,8 +261,8 @@ void L1RCTTPGProvider::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
     sprintf(ecal_label, "ECALBxminus%d", preSamples - i);
     sprintf(hcal_label, "HCALBxminus%d", preSamples - i);
 
-    std::unique_ptr<EcalTrigPrimDigiCollection> ecalIn(new EcalTrigPrimDigiCollection);
-    std::unique_ptr<HcalTrigPrimDigiCollection> hcalIn(new HcalTrigPrimDigiCollection);
+    std::unique_ptr<EcalTrigPrimDigiCollection> ecalIn = std::make_unique<EcalTrigPrimDigiCollection>();
+    std::unique_ptr<HcalTrigPrimDigiCollection> hcalIn = std::make_unique<HcalTrigPrimDigiCollection>();
     for (unsigned int j = 0; j < ecalColl[i].size(); ++j) {
       ecalIn->push_back((ecalColl[i])[j]);
     }
@@ -271,8 +273,8 @@ void L1RCTTPGProvider::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
     iEvent.put(std::move(hcalIn), hcal_label);
   }
 
-  std::unique_ptr<EcalTrigPrimDigiCollection> ecal0(new EcalTrigPrimDigiCollection);
-  std::unique_ptr<HcalTrigPrimDigiCollection> hcal0(new HcalTrigPrimDigiCollection);
+  std::unique_ptr<EcalTrigPrimDigiCollection> ecal0 = std::make_unique<EcalTrigPrimDigiCollection>();
+  std::unique_ptr<HcalTrigPrimDigiCollection> hcal0 = std::make_unique<HcalTrigPrimDigiCollection>();
   for (unsigned int j = 0; j < ecalColl[preSamples].size(); ++j)
     ecal0->push_back((ecalColl[preSamples])[j]);
   for (unsigned int j = 0; j < hcalColl[preSamples].size(); ++j)
@@ -288,8 +290,8 @@ void L1RCTTPGProvider::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
     sprintf(ecal_label, "ECALBxplus%d", i - preSamples);
     sprintf(hcal_label, "HCALBxplus%d", i - preSamples);
 
-    std::unique_ptr<EcalTrigPrimDigiCollection> ecalIn2(new EcalTrigPrimDigiCollection);
-    std::unique_ptr<HcalTrigPrimDigiCollection> hcalIn2(new HcalTrigPrimDigiCollection);
+    std::unique_ptr<EcalTrigPrimDigiCollection> ecalIn2 = std::make_unique<EcalTrigPrimDigiCollection>();
+    std::unique_ptr<HcalTrigPrimDigiCollection> hcalIn2 = std::make_unique<HcalTrigPrimDigiCollection>();
 
     for (unsigned int j = 0; j < ecalColl[i].size(); ++j)
       ecalIn2->push_back((ecalColl[i])[j]);

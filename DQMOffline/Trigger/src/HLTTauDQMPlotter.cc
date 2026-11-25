@@ -7,7 +7,7 @@
 HLTTauDQMPlotter::HLTTauDQMPlotter(const edm::ParameterSet& pset, std::string dqmBaseFolder)
     : dqmFullFolder_(std::move(dqmBaseFolder)), configValid_(false) {
   dqmFolder_ = pset.getUntrackedParameter<std::string>("DQMFolder");
-  dqmFullFolder_ += "/";
+  dqmFullFolder_ += '/';
   dqmFullFolder_ += dqmFolder_;
   configValid_ = true;
 }

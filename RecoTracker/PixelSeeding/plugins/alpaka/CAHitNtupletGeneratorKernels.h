@@ -14,12 +14,10 @@
 #include "DataFormats/TrackSoA/interface/TrackDefinitions.h"
 #include "DataFormats/TrackSoA/interface/TracksHost.h"
 #include "DataFormats/TrackSoA/interface/alpaka/TrackUtilities.h"
-#include "DataFormats/TrackingRecHitSoA/interface/TrackingRecHitsSoA.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/AtomicPairCounter.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/HistoContainer.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/memory.h"
-#include "RecoTracker/PixelSeeding/interface/CAGeometrySoA.h"
 #include "RecoTracker/PixelSeeding/interface/alpaka/CAPairSoACollection.h"
 // Type defined unconditionally (zero memory: just the layout + an empty std::optional below);
 // the actual device buffer is allocated only under #ifdef CA_TRIPLET_DUMP (see the .dev.cc).
@@ -239,6 +237,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                            const ::reco::CALayersSoAConstView& ll,
                            const ::reco::CADoubletCutsSoAConstView& doubletCuts,
                            uint32_t offsetBPIX2,
+                           const MapToHitConstView& maskView,
                            Queue& queue);
 
     // Allocate the cell-derived buffers (cell->cell, cell->track, triplet/track-cell
@@ -318,6 +317,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // quality snapshot while each thread writes its own track's quality directly. See the helper kernels
     // Kernel_snapshotQuality / Kernel_applyQuality in CAHitNtupletGeneratorKernelsImpl.h
     std::optional<cms::alpakatools::device_buffer<Device, int32_t[]>> device_qualityScratch_;
+    // heavy cells of the duplicate removers (word 0: their number)
+    std::optional<cms::alpakatools::device_buffer<Device, uint32_t[]>> device_dupHeavyCells_;
+    // the fast duplicate remover's copy of the tracks above `reject` of each heavy cell
+    std::optional<cms::alpakatools::device_buffer<Device, uint32_t[]>> device_dupAliveTracks_;
 
     // Cells-> Neighbor Cells
     DeviceGenericContainerBuffer device_cellToNeighbors_;

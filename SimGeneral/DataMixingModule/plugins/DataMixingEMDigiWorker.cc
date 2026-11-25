@@ -225,9 +225,9 @@ namespace edm {
 
   void DataMixingEMDigiWorker::putEM(edm::Event &e, const edm::EventSetup &ES) {
     // collection of digis to put in the event
-    std::unique_ptr<EBDigiCollection> EBdigis(new EBDigiCollection);
-    std::unique_ptr<EEDigiCollection> EEdigis(new EEDigiCollection);
-    std::unique_ptr<ESDigiCollection> ESdigis(new ESDigiCollection);
+    std::unique_ptr<EBDigiCollection> EBdigis = std::make_unique<EBDigiCollection>();
+    std::unique_ptr<EEDigiCollection> EEdigis = std::make_unique<EEDigiCollection>();
+    std::unique_ptr<ESDigiCollection> ESdigis = std::make_unique<ESDigiCollection>();
 
     // loop over the maps we have, re-making individual hits or digis if
     // necessary.

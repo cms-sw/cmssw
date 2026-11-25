@@ -220,8 +220,8 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(edm::Event& iEvent, const
   }
 
   if (produceOriginalMapping_) {
-    unique_ptr<CandToVertex> pfCandToOriginalVertexOutput(new CandToVertex(vertices));
-    unique_ptr<CandToVertexQuality> pfCandToOriginalVertexQualityOutput(new CandToVertexQuality());
+    unique_ptr<CandToVertex> pfCandToOriginalVertexOutput = std::make_unique<CandToVertex>(vertices);
+    unique_ptr<CandToVertexQuality> pfCandToOriginalVertexQualityOutput = std::make_unique<CandToVertexQuality>();
     CandToVertex::Filler cand2VertexFiller(*pfCandToOriginalVertexOutput);
     CandToVertexQuality::Filler cand2VertexQualityFiller(*pfCandToOriginalVertexQualityOutput);
 
@@ -233,7 +233,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(edm::Event& iEvent, const
     iEvent.put(std::move(pfCandToOriginalVertexOutput), "original");
     iEvent.put(std::move(pfCandToOriginalVertexQualityOutput), "original");
 
-    unique_ptr<VertexScore> vertexScoreOriginalOutput(new VertexScore);
+    unique_ptr<VertexScore> vertexScoreOriginalOutput = std::make_unique<VertexScore>();
     VertexScore::Filler vertexScoreOriginalFiller(*vertexScoreOriginalOutput);
     vertexScoreOriginalFiller.insert(vertices, vertexScoreOriginal.begin(), vertexScoreOriginal.end());
     vertexScoreOriginalFiller.fill();
@@ -249,13 +249,13 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(edm::Event& iEvent, const
       //        pfToSortedPVQualityVector.push_back(pfToPVQualityVector[i]); //same as old!
     }
 
-    unique_ptr<reco::VertexCollection> sortedVerticesOutput(new reco::VertexCollection);
+    unique_ptr<reco::VertexCollection> sortedVerticesOutput = std::make_unique<reco::VertexCollection>();
     for (size_t i = 0; i < vertices->size(); i++) {
       sortedVerticesOutput->push_back((*vertices)[newToOld[i]]);
     }
     edm::OrphanHandle<reco::VertexCollection> oh = iEvent.put(std::move(sortedVerticesOutput));
-    unique_ptr<CandToVertex> pfCandToVertexOutput(new CandToVertex(oh));
-    unique_ptr<CandToVertexQuality> pfCandToVertexQualityOutput(new CandToVertexQuality());
+    unique_ptr<CandToVertex> pfCandToVertexOutput = std::make_unique<CandToVertex>(oh);
+    unique_ptr<CandToVertexQuality> pfCandToVertexQualityOutput = std::make_unique<CandToVertexQuality>();
     CandToVertex::Filler cand2VertexFiller(*pfCandToVertexOutput);
     CandToVertexQuality::Filler cand2VertexQualityFiller(*pfCandToVertexQualityOutput);
 
@@ -267,7 +267,7 @@ void PrimaryVertexSorter<ParticlesCollection>::produce(edm::Event& iEvent, const
     iEvent.put(std::move(pfCandToVertexOutput));
     iEvent.put(std::move(pfCandToVertexQualityOutput));
 
-    unique_ptr<VertexScore> vertexScoreOutput(new VertexScore);
+    unique_ptr<VertexScore> vertexScoreOutput = std::make_unique<VertexScore>();
     VertexScore::Filler vertexScoreFiller(*vertexScoreOutput);
     vertexScoreFiller.insert(oh, vertexScore.begin(), vertexScore.end());
     vertexScoreFiller.fill();

@@ -38,6 +38,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 class L1TTwinMuxRawToDigi : public edm::global::EDProducer<> {
 public:
@@ -129,9 +130,9 @@ L1TTwinMuxRawToDigi::L1TTwinMuxRawToDigi(const edm::ParameterSet& pset)
 L1TTwinMuxRawToDigi::~L1TTwinMuxRawToDigi() {}
 
 void L1TTwinMuxRawToDigi::produce(edm::StreamID, edm::Event& e, const edm::EventSetup& c) const {
-  std::unique_ptr<L1MuDTChambPhContainer> TM7phi_product(new L1MuDTChambPhContainer);
-  std::unique_ptr<L1MuDTChambThContainer> TM7the_product(new L1MuDTChambThContainer);
-  std::unique_ptr<L1MuDTChambPhContainer> TM7phi_out_product(new L1MuDTChambPhContainer);
+  std::unique_ptr<L1MuDTChambPhContainer> TM7phi_product = std::make_unique<L1MuDTChambPhContainer>();
+  std::unique_ptr<L1MuDTChambThContainer> TM7the_product = std::make_unique<L1MuDTChambThContainer>();
+  std::unique_ptr<L1MuDTChambPhContainer> TM7phi_out_product = std::make_unique<L1MuDTChambPhContainer>();
 
   L1MuDTChambPhContainer::Phi_Container phi_data;
   L1MuDTChambThContainer::The_Container the_data;

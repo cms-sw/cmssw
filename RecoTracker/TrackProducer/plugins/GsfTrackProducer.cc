@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DataFormats/GsfTrackReco/interface/GsfComponent5D.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
@@ -43,7 +45,7 @@ GsfTrackProducer::GsfTrackProducer(const edm::ParameterSet& iConfig)
   // GsfTrackExtra collections, need to declare its production after
   // them to work around a rare race condition in framework scheduling
   produces<reco::GsfTrackCollection>().setBranchAlias(alias_ + "GsfTracks");
-  produces<std::vector<Trajectory> >();
+  produces<std::vector<Trajectory>>();
   produces<TrajGsfTrackAssociationCollection>();
 }
 
@@ -62,11 +64,11 @@ void GsfTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //
   // create empty output collections
   //
-  std::unique_ptr<TrackingRecHitCollection> outputRHColl(new TrackingRecHitCollection);
-  std::unique_ptr<reco::GsfTrackCollection> outputTColl(new reco::GsfTrackCollection);
-  std::unique_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-  std::unique_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl(new reco::GsfTrackExtraCollection);
-  std::unique_ptr<std::vector<Trajectory> > outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<TrackingRecHitCollection> outputRHColl = std::make_unique<TrackingRecHitCollection>();
+  std::unique_ptr<reco::GsfTrackCollection> outputTColl = std::make_unique<reco::GsfTrackCollection>();
+  std::unique_ptr<reco::TrackExtraCollection> outputTEColl = std::make_unique<reco::TrackExtraCollection>();
+  std::unique_ptr<reco::GsfTrackExtraCollection> outputGsfTEColl = std::make_unique<reco::GsfTrackExtraCollection>();
+  std::unique_ptr<std::vector<Trajectory>> outputTrajectoryColl = std::make_unique<std::vector<Trajectory>>();
 
   //
   //declare and get stuff to be retrieved from ES

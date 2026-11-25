@@ -5,6 +5,8 @@
  *  \author M. Strang SUNY-Buffalo
  */
 
+#include <memory>
+
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -226,7 +228,7 @@ void GlobalDigisProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     edm::LogInfo(MsgLoggerCat) << "Done gathering data from event.";
 
   // produce object to put into event
-  std::unique_ptr<PGlobalDigi> pOut(new PGlobalDigi);
+  std::unique_ptr<PGlobalDigi> pOut = std::make_unique<PGlobalDigi>();
 
   if (verbosity > 2)
     edm::LogInfo(MsgLoggerCat) << "Saving event contents:";

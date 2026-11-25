@@ -127,8 +127,12 @@ namespace edmtest {
     std::vector<std::string> expectedLabelsAfterGet_;
     unsigned expectedNumberOfThingsWithLabelA_;
     edm::GetterOfProducts<IntProduct> getterOfIntProducts_;
-    edm::GetterOfProducts<Thing> getterOfProducts_;
-    edm::GetterOfProducts<Thing> getterUsingLabel_;
+    edm::GetterOfProducts<Thing, edm::Transition::BeginRun> getterOfProductsRun_;
+    edm::GetterOfProducts<Thing, edm::Transition::BeginLuminosityBlock> getterOfProductsLumi_;
+    edm::GetterOfProducts<Thing> getterOfProductsEvent_;
+    edm::GetterOfProducts<Thing, edm::Transition::BeginRun> getterUsingLabelRun_;
+    edm::GetterOfProducts<Thing, edm::Transition::BeginLuminosityBlock> getterUsingLabelLumi_;
+    edm::GetterOfProducts<Thing> getterUsingLabelEvent_;
   };
 
   TestGetterOfProductsA::TestGetterOfProductsA(edm::ParameterSet const& par)
@@ -138,23 +142,46 @@ namespace edmtest {
         expectedLabelsAfterGet_(par.getParameter<std::vector<std::string> >("expectedLabelsAfterGet")),
         expectedNumberOfThingsWithLabelA_(par.getParameter<unsigned>("expectedNumberOfThingsWithLabelA")),
         getterOfIntProducts_(),
-        getterOfProducts_(),
-        getterUsingLabel_() {
+        getterOfProductsRun_(),
+        getterOfProductsLumi_(),
+        getterOfProductsEvent_(),
+        getterUsingLabelRun_(),
+        getterUsingLabelLumi_(),
+        getterUsingLabelEvent_() {
     int bt = par.getParameter<int>("branchType");
-    if (bt == 1)
-      branchType_ = edm::InLumi;
-    else if (bt == 2)
-      branchType_ = edm::InRun;
-
     getterOfIntProducts_ = edm::GetterOfProducts<IntProduct>(edm::ProcessMatch(processName_), this);
-    getterOfProducts_ = edm::GetterOfProducts<Thing>(edm::ProcessMatch(processName_), this, branchType_);
-    getterUsingLabel_ = edm::GetterOfProducts<Thing>(edm::ModuleLabelMatch("A"), this, branchType_);
 
-    callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
-      getterOfIntProducts_(bd);
-      getterOfProducts_(bd);
-      getterUsingLabel_(bd);
-    });
+    if (bt == 1) {
+      branchType_ = edm::InLumi;
+      getterOfProductsLumi_ = edm::GetterOfProducts<Thing, edm::Transition::BeginLuminosityBlock>(
+          edm::ProcessMatch(processName_), this, branchType_);
+      getterUsingLabelLumi_ = edm::GetterOfProducts<Thing, edm::Transition::BeginLuminosityBlock>(
+          edm::ModuleLabelMatch("A"), this, branchType_);
+      callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
+        getterOfIntProducts_(bd);
+        getterOfProductsLumi_(bd);
+        getterUsingLabelLumi_(bd);
+      });
+    } else if (bt == 2) {
+      branchType_ = edm::InRun;
+      getterOfProductsRun_ =
+          edm::GetterOfProducts<Thing, edm::Transition::BeginRun>(edm::ProcessMatch(processName_), this, branchType_);
+      getterUsingLabelRun_ =
+          edm::GetterOfProducts<Thing, edm::Transition::BeginRun>(edm::ModuleLabelMatch("A"), this, branchType_);
+      callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
+        getterOfIntProducts_(bd);
+        getterOfProductsRun_(bd);
+        getterUsingLabelRun_(bd);
+      });
+    } else {
+      getterOfProductsEvent_ = edm::GetterOfProducts<Thing>(edm::ProcessMatch(processName_), this, branchType_);
+      getterUsingLabelEvent_ = edm::GetterOfProducts<Thing>(edm::ModuleLabelMatch("A"), this, branchType_);
+      callWhenNewProductsRegistered([this](edm::ProductDescription const& bd) {
+        getterOfIntProducts_(bd);
+        getterOfProductsEvent_(bd);
+        getterUsingLabelEvent_(bd);
+      });
+    }
   }
 
   TestGetterOfProductsA::~TestGetterOfProductsA() {}
@@ -163,7 +190,7 @@ namespace edmtest {
     if (branchType_ != edm::InEvent)
       return;
 
-    auto const& tokens = getterOfProducts_.tokens();
+    auto const& tokens = getterOfProductsEvent_.tokens();
 
     if (expectedInputTagLabels_.size() != tokens.size()) {
       throw cms::Exception("Failed Test")
@@ -186,7 +213,7 @@ namespace edmtest {
     }
 
     std::vector<edm::Handle<Thing> > handles;
-    getterOfProducts_.fillHandles(event, handles);
+    getterOfProductsEvent_.fillHandles(event, handles);
 
     if (expectedLabelsAfterGet_.size() != handles.size()) {
       throw cms::Exception("Failed Test")
@@ -207,7 +234,7 @@ namespace edmtest {
       ++iter;
     }
 
-    getterUsingLabel_.fillHandles(event, handles);
+    getterUsingLabelEvent_.fillHandles(event, handles);
 
     if (expectedNumberOfThingsWithLabelA_ != handles.size()) {
       throw cms::Exception("Failed Test")
@@ -234,7 +261,7 @@ namespace edmtest {
     if (branchType_ != edm::InLumi)
       return;
 
-    auto const& tokens = getterOfProducts_.tokens();
+    auto const& tokens = getterOfProductsLumi_.tokens();
 
     if (expectedInputTagLabels_.size() != tokens.size()) {
       throw cms::Exception("Failed Test")
@@ -258,7 +285,7 @@ namespace edmtest {
     }
 
     std::vector<edm::Handle<Thing> > handles;
-    getterOfProducts_.fillHandles(lumi, handles);
+    getterOfProductsLumi_.fillHandles(lumi, handles);
 
     if (expectedLabelsAfterGet_.size() != handles.size()) {
       throw cms::Exception("Failed Test")
@@ -279,7 +306,7 @@ namespace edmtest {
       ++iter;
     }
 
-    getterUsingLabel_.fillHandles(lumi, handles);
+    getterUsingLabelLumi_.fillHandles(lumi, handles);
 
     if (expectedNumberOfThingsWithLabelA_ != handles.size()) {
       throw cms::Exception("Failed Test")
@@ -306,7 +333,7 @@ namespace edmtest {
     if (branchType_ != edm::InRun)
       return;
 
-    auto const& tokens = getterOfProducts_.tokens();
+    auto const& tokens = getterOfProductsRun_.tokens();
 
     if (expectedInputTagLabels_.size() != tokens.size()) {
       throw cms::Exception("Failed Test")
@@ -329,7 +356,7 @@ namespace edmtest {
     }
 
     std::vector<edm::Handle<Thing> > handles;
-    getterOfProducts_.fillHandles(run, handles);
+    getterOfProductsRun_.fillHandles(run, handles);
 
     if (expectedLabelsAfterGet_.size() != handles.size()) {
       throw cms::Exception("Failed Test")
@@ -350,7 +377,7 @@ namespace edmtest {
       ++iter;
     }
 
-    getterUsingLabel_.fillHandles(run, handles);
+    getterUsingLabelRun_.fillHandles(run, handles);
 
     if (expectedNumberOfThingsWithLabelA_ != handles.size()) {
       throw cms::Exception("Failed Test")

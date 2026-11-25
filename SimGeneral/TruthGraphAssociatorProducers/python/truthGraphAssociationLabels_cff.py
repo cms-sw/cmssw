@@ -52,6 +52,8 @@ truthGraphRecoLabelsPSet = cms.PSet(
     # against the same candidate roots as the tracksters, so a layer cluster and the
     # trackster built from it point at the same truth.
     layerClusters=cms.vstring("hgcalMergeLayerClusters"),
+    # TICL candidates, matched on the layer clusters of their tracksters; their tracks are matched as tracks.
+    candidates=cms.vstring("ticlCandidate"),
 )
 
 # The detectors each hit-based domain covers, as DetId::Detector names. The associator
@@ -60,6 +62,7 @@ truthGraphRecoLabelsPSet = cms.PSet(
 truthBranchDenominatorDetectors = dict(
     tracks=[],
     tracksters=["HGCalEE", "HGCalHSi", "HGCalHSc"],
+    candidates=["HGCalEE", "HGCalHSi", "HGCalHSc"],
     pfClustersEcal=["Ecal"],
     pfClustersHcal=["Hcal"],
 )

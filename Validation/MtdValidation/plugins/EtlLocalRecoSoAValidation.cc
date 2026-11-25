@@ -220,10 +220,10 @@ void EtlLocalRecoSoAValidation::analyze(const edm::Event& iEvent, const edm::Eve
   for (int i = 0; i < etlRecHitsSoAHandle->view().metadata().size(); i++) {
     auto recHit = etlRecHitsSoAHandle->view()[i];
     LogTrace("EtlLocalRecoSoAValidation")
-        << "@RH detid " << recHit.detId().rawId() << " r/c " << recHit.row() << "/" << recHit.column()
-        << " ToA,dToA,ToT " << recHit.toa() << ", " << recHit.toa_error() << ", " << recHit.tot();
+        << "@RH detid " << recHit.rawDetId() << " r/c " << recHit.row() << "/" << recHit.column() << " ToA,dToA,ToT "
+        << recHit.toa() << ", " << recHit.toa_error() << ", " << recHit.tot();
     double weight = 1.0;
-    ETLDetId detId = recHit.detId();
+    ETLDetId detId = recHit.rawDetId();
     DetId geoId = detId.geographicalId();
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
@@ -313,7 +313,7 @@ void EtlLocalRecoSoAValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
       for (int i = 0; i < etlBaseRecHitsSoAHandle->view().metadata().size(); i++) {
         auto uRecHit = etlBaseRecHitsSoAHandle->view()[i];
-        ETLDetId detId = uRecHit.detId();
+        ETLDetId detId = uRecHit.rawDetId();
         int idet = detId.zside() + detId.nDisc();
 
         LogTrace("EtlLocalRecoSoAValidation")

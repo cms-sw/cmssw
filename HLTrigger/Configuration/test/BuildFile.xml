@@ -57,6 +57,6 @@
 
 <!-- fast: checker self-test on a synthetic tree, then static checks of the real HLT_75e33 tree -->
 <test name="testHLTPhase2MenuCheckSelfTest" command="test_hltPhase2MenuCheck.py"/>
-<test name="testHLTPhase2MenuCheck" command="hltPhase2MenuCheck"/>
+<test name="testHLTPhase2MenuCheck" command="hltPhase2MenuCheck --strict"/>
 <!-- slower: cmsDriver (no_exec) + menu dump for the default and alpaka menus -->
 <test name="testHLTPhase2MenuTools" command="test_hltPhase2MenuTools.sh"/>

@@ -31,6 +31,11 @@ options.register('fName',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Use input file: detIds.txt, D120NE0.txt, D120NH0.txt")
+options.register('nSkip',
+                 10000,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.float,
+                 "Test every N IDs: 1, 10, 100, 1000, 10000")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -43,13 +48,15 @@ print(options)
 geomName = "Run4" + options.geometry
 geomFile = "Configuration.Geometry.GeometryExtended" + geomName + "Reco_cff"
 detector = options.detector
-fName   = options.fName
+fName    = options.fName
+nskip    = int(options.nSkip)
 
 import Configuration.Geometry.defaultPhase2ConditionsEra_cff as _settings
 GLOBAL_TAG, ERA = _settings.get_era_and_conditions(geomName)
 print("Geometry file: ", geomFile)
 print("Detector:      ", detector)
 print("fName:         ", fName)
+print("Skip:          ", nskip)
 
 process = cms.Process('HGCalArea',ERA)
 
@@ -94,5 +101,6 @@ process.maxEvents = cms.untracked.PSet(
 
 process.hgcalAreaTester.nameDetector = detector
 process.hgcalAreaTester.fileName     = fName
+process.hgcalAreaTester.nSkip        = nskip
 
 process.p1 = cms.Path(process.generator*process.hgcalAreaTester)

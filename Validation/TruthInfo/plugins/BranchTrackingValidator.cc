@@ -81,7 +81,7 @@ private:
   const edm::EDGetTokenT<truth::LogicalGraphHitIndex> hitIndexToken_;
   const edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
   const edm::EDGetTokenT<ClusterTPAssociation> clusterTPToken_;
-  // One warning per job for an input whose tracker truth carries no cells.
+  // One warning per stream for an input whose tracker truth carries no cells.
   std::once_flag moduleKeyedWarned_;
 
   const std::string folder_;
@@ -147,8 +147,8 @@ namespace {
       if (simNode < 0 || static_cast<uint32_t>(simNode) >= raw.nNodes())
         continue;
       auto const& nr = raw.nodeRef(static_cast<uint32_t>(simNode));
-      if (nr.kind == TruthGraph::NodeKind::SimTrack)
-        out[truth::simObjectKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key))] = i;
+      if (nr.kind() == TruthGraph::NodeKind::SimTrack)
+        out[truth::simObjectKey(raw.nodeEventId(static_cast<uint32_t>(simNode)), static_cast<uint32_t>(nr.key()))] = i;
     }
     return out;
   }

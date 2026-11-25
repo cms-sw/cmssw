@@ -16,13 +16,13 @@ Parses every file of `HLT_75e33/` (nothing is executed, no `cmsenv` needed) and 
 | E003 | error    | symbol used but not defined or imported in that file |
 | W101 | warning  | file not reached from any entry point (orphan) |
 | W102 | warning  | file imported but nothing from it is used (stale import) |
-| W103 | warning  | `X_cfi.py` does not define `X` |
+| W103 | warning  | `X_cfi.py` does not define `X` (nor sets `process.X`) |
 | W104 | warning  | same symbol defined in several files |
 | W105 | warning  | same file loaded twice by an entry point |
 
 ```bash
 hltPhase2MenuCheck                    # errors make it exit 1
-hltPhase2MenuCheck --strict           # warnings too
+hltPhase2MenuCheck --strict           # warnings too (this is what the unit test runs)
 hltPhase2MenuCheck --ignore W102 --json findings.json
 ```
 

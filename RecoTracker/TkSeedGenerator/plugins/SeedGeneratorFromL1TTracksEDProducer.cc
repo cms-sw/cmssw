@@ -29,6 +29,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <memory>
 #include <vector>
 
 class dso_hidden SeedGeneratorFromL1TTracksEDProducer : public edm::global::EDProducer<> {
@@ -128,7 +129,7 @@ void SeedGeneratorFromL1TTracksEDProducer::findSeedsOnLayer(const GeometricSearc
 }
 
 void SeedGeneratorFromL1TTracksEDProducer::produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const {
-  std::unique_ptr<std::vector<TrajectorySeed>> result(new std::vector<TrajectorySeed>());
+  std::unique_ptr<std::vector<TrajectorySeed>> result = std::make_unique<std::vector<TrajectorySeed>>();
 
   // TTrack Collection
   auto const& trks = ev.get(theInputCollectionTag_);
@@ -165,7 +166,7 @@ void SeedGeneratorFromL1TTracksEDProducer::produce(edm::StreamID, edm::Event& ev
 
   // Loop over the L1's and make seeds for all of them:
   for (auto const& l1 : trks) {
-    std::unique_ptr<std::vector<TrajectorySeed>> out(new std::vector<TrajectorySeed>());
+    std::unique_ptr<std::vector<TrajectorySeed>> out = std::make_unique<std::vector<TrajectorySeed>>();
     FreeTrajectoryState fts = trajectoryStateTransform::initialFreeStateL1TTrack(l1, &mag, true);
     dummyPlane->move(fts.position() - dummyPlane->position());
     TrajectoryStateOnSurface tsosAtIP = TrajectoryStateOnSurface(fts, *dummyPlane);

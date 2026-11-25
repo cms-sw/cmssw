@@ -93,9 +93,9 @@ void Type1PFMET::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken(tokenUncorJets, inputUncorJets);
   Handle<JetCorrector> corrector;
   iEvent.getByToken(correctorToken, corrector);
-  Handle<METCollection> inputUncorMet;                         //Define Inputs
-  iEvent.getByToken(tokenUncorMet, inputUncorMet);             //Get Inputs
-  std::unique_ptr<METCollection> output(new METCollection());  //Create empty output
+  Handle<METCollection> inputUncorMet;                                        //Define Inputs
+  iEvent.getByToken(tokenUncorMet, inputUncorMet);                            //Get Inputs
+  std::unique_ptr<METCollection> output = std::make_unique<METCollection>();  //Create empty output
   run(*(inputUncorMet.product()),
       *(corrector.product()),
       *(inputUncorJets.product()),

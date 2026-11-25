@@ -48,7 +48,7 @@ L1TMuonShowerProducer::~L1TMuonShowerProducer() {}
 // ------------ method called to produce the data  ------------
 void L1TMuonShowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  std::unique_ptr<MuonShowerBxCollection> outShowers(new MuonShowerBxCollection());
+  std::unique_ptr<MuonShowerBxCollection> outShowers = std::make_unique<MuonShowerBxCollection>();
 
   Handle<l1t::RegionalMuonShowerBxCollection> emtfShowers;
   iEvent.getByToken(showerInputToken_, emtfShowers);

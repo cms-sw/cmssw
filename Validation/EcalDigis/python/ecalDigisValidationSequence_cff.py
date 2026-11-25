@@ -9,7 +9,8 @@ from Validation.EcalDigis.ecalSelectiveReadoutValidation_cfi import *
 ecalDigisValidationSequence = cms.Sequence(ecalDigisValidation*ecalBarrelDigisValidation*ecalEndcapDigisValidation*ecalPreshowerDigisValidation*ecalSelectiveReadoutValidation)
 
 from Validation.EcalDigis.ecalDigisValidationPh2_cfi import *
-ecalDigisValidationSequencePhase2 = cms.Sequence(ecalDigisValidationPh2)
+ecalAPDDigisValidationPh2 = ecalDigisValidationPh2.clone(digiCollection=cms.InputTag("simEcalUnsuppressedDigis", "APD"), taskName=cms.string("EcalAPDDigiTask"))
+ecalDigisValidationSequencePhase2 = cms.Sequence(ecalDigisValidationPh2*ecalAPDDigisValidationPh2)
 
 from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 def _modifyEcalForPh2(process):

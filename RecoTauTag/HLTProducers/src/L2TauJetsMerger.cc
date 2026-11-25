@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoTauTag/HLTProducers/interface/L2TauJetsMerger.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
@@ -43,7 +45,7 @@ void L2TauJetsMerger::produce(edm::StreamID iSId, edm::Event& iEvent, const edm:
     }
   }
 
-  std::unique_ptr<CaloJetCollection> tauL2jets(new CaloJetCollection);
+  std::unique_ptr<CaloJetCollection> tauL2jets = std::make_unique<CaloJetCollection>();
 
   //Removing the collinear jets correctly!
 

@@ -36,7 +36,7 @@ CTPPSPixelLocalTrack::CTPPSPixelLocalTrack(float z0,
       numberOfPointsUsedForFit_(0),
       recoInfo_(CTPPSpixelLocalTrackReconstructionInfo::invalid) {}
 
-bool CTPPSPixelLocalTrack::operator<(const CTPPSPixelLocalTrack &r) {
+bool CTPPSPixelLocalTrack::operator<(const CTPPSPixelLocalTrack &r) const {
   if (z0_ < r.z0_)
     return true;
   if (z0_ > r.z0_)

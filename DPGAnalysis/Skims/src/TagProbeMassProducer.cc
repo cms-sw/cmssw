@@ -18,6 +18,8 @@
 //
 
 // User includes
+#include <memory>
+
 #include "DPGAnalysis/Skims/interface/TagProbeMassProducer.h"
 //#include "PhysicsTools/TagAndProbe/interface/CandidateAssociation.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -45,7 +47,7 @@ TagProbeMassProducer::TagProbeMassProducer(const edm::ParameterSet& iConfig) {
 
   requireOS_ = iConfig.getUntrackedParameter<bool>("RequireOS", true);
 
-  produces<std::vector<float> >("TPmass");
+  produces<std::vector<float>>("TPmass");
 }
 
 TagProbeMassProducer::~TagProbeMassProducer() {}
@@ -57,7 +59,7 @@ TagProbeMassProducer::~TagProbeMassProducer() {}
 // ------------ method called to produce the data  ------------
 void TagProbeMassProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // We need the output Muon association collection to fill
-  std::unique_ptr<std::vector<float> > TPmass(new std::vector<float>);
+  std::unique_ptr<std::vector<float>> TPmass = std::make_unique<std::vector<float>>();
 
   if (!iEvent.getByLabel(tagCollection_, tags)) {
     edm::LogWarning("TagProbe") << "Could not extract tag muons with input tag " << tagCollection_;

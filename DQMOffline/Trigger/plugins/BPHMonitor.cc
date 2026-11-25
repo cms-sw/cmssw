@@ -199,11 +199,11 @@ BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
       trInputTag_(iConfig.getParameter<edm::InputTag>("tracks")),
       phInputTag_(iConfig.getParameter<edm::InputTag>("photons")),
       vtxInputTag_(iConfig.getParameter<edm::InputTag>("offlinePVs")),
-      muoToken_(mayConsume<reco::MuonCollection>(muoInputTag_)),
-      bsToken_(mayConsume<reco::BeamSpot>(bsInputTag_)),
-      trToken_(mayConsume<reco::TrackCollection>(trInputTag_)),
-      phToken_(mayConsume<reco::PhotonCollection>(phInputTag_)),
-      vtxToken_(mayConsume<reco::VertexCollection>(vtxInputTag_)),
+      muoToken_(consumes<reco::MuonCollection>(muoInputTag_)),
+      bsToken_(consumes<reco::BeamSpot>(bsInputTag_)),
+      trToken_(consumes<reco::TrackCollection>(trInputTag_)),
+      phToken_(consumes<reco::PhotonCollection>(phInputTag_)),
+      vtxToken_(consumes<reco::VertexCollection>(vtxInputTag_)),
       pt_variable_binning_(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double>>("ptBinning")),
       dMu_pt_variable_binning_(
@@ -268,7 +268,7 @@ BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
       mincos(iConfig.getParameter<double>("mincos")),
       minDS(iConfig.getParameter<double>("minDS")),
       hltInputTag_1(iConfig.getParameter<edm::InputTag>("hltTriggerSummaryAOD")),
-      hltInputTag_(mayConsume<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerSummaryAOD"))),
+      hltInputTag_(consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("hltTriggerSummaryAOD"))),
       hltpaths_num(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet")
                        .getParameter<std::vector<std::string>>("hltPaths")),
       hltpaths_den(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet")

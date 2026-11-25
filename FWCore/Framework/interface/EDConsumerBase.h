@@ -66,7 +66,7 @@ namespace edm {
   class EDConsumerBaseWithTagESAdaptor;
   template <BranchType B>
   class EDConsumerBaseAdaptor;
-  template <typename T>
+  template <typename T, edm::Transition Tr>
   class WillGetIfMatch;
 
   namespace eventsetup {
@@ -104,11 +104,11 @@ namespace edm {
     void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
 
     //used for prefetching
-    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const {
-      return itemsToGetFromBranch_[iType];
+    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(Transition iTransition) const {
+      return itemsToGetFromBranch_[convertToBranchType(iTransition)];
     }
 
-    ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
+    ///\return true if the product corresponding to the index was registered via consumes call
     bool registeredToConsume(ProductResolverIndex, bool, BranchType) const;
 
     // ---------- static member functions --------------------
@@ -163,7 +163,7 @@ namespace edm {
     friend class EDConsumerBaseWithTagESAdaptor;
     template <BranchType B>
     friend class EDConsumerBaseAdaptor;
-    template <typename T>
+    template <typename T, edm::Transition Tr>
     friend class WillGetIfMatch;
     ///Use a ConsumesCollector to gather consumes information from helper functions
     ConsumesCollector consumesCollector();
@@ -179,6 +179,17 @@ namespace edm {
       return EDConsumerBaseAdaptor<B>(this, std::move(tag));
     }
 
+    template <typename ProductType, BranchType B, Transition Tr>
+    EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
+      TypeToGet tid = TypeToGet::make<ProductType>();
+      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), true)};
+    }
+
+    template <BranchType B, Transition Tr>
+    [[nodiscard]] EDConsumerBaseAdaptor<B> consumes(edm::InputTag tag) noexcept {
+      return EDConsumerBaseAdaptor<B>(this, std::move(tag));
+    }
+
     EDGetToken consumes(const TypeToGet& id, edm::InputTag const& tag) {
       return EDGetToken{recordConsumes(InEvent, id, checkIfEmpty(tag), true)};
     }
@@ -188,17 +199,9 @@ namespace edm {
       return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), true)};
     }
 
-    template <typename ProductType, BranchType B = InEvent>
-    EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
-      TypeToGet tid = TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), false)};
-    }
-
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) { return mayConsume<InEvent>(id, tag); }
-
-    template <BranchType B>
-    EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), false)};
+    template <BranchType B, Transition Tr>
+    EDGetToken consumes(TypeToGet const& id, edm::InputTag const& tag) {
+      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), true)};
     }
 
     // For consuming event-setup products

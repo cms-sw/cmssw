@@ -524,11 +524,11 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
   int const maxEmulBxInEvent = (m_emulateBxInEvent + 1) / 2 - 1;
 
   // Produce the Output Records for the GT
-  std::unique_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord(
-      new GlobalAlgBlkBxCollection(0, minEmulBxInEvent, maxEmulBxInEvent));
+  std::unique_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord =
+      std::make_unique<GlobalAlgBlkBxCollection>(0, minEmulBxInEvent, maxEmulBxInEvent);
 
   // * produce the GlobalObjectMapRecord
-  std::unique_ptr<GlobalObjectMapRecord> gtObjectMapRecord(new GlobalObjectMapRecord());
+  std::unique_ptr<GlobalObjectMapRecord> gtObjectMapRecord = std::make_unique<GlobalObjectMapRecord>();
 
   std::unique_ptr<AXOL1TLScoreBxCollection> uGtAXOScoreRecord(nullptr);
   if (m_produceAXOL1TLScore) {

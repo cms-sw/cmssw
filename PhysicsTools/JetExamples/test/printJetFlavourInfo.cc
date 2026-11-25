@@ -32,10 +32,10 @@ private:
 printJetFlavourInfo::printJetFlavourInfo(const edm::ParameterSet& iConfig) {
   jetFlavourInfosToken_ =
       consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>("jetFlavourInfos"));
-  subjetFlavourInfosToken_ = mayConsume<reco::JetFlavourInfoMatchingCollection>(
+  subjetFlavourInfosToken_ = consumes<reco::JetFlavourInfoMatchingCollection>(
       iConfig.exists("subjetFlavourInfos") ? iConfig.getParameter<edm::InputTag>("subjetFlavourInfos")
                                            : edm::InputTag());
-  groomedJetsToken_ = mayConsume<edm::View<reco::Jet> >(
+  groomedJetsToken_ = consumes<edm::View<reco::Jet> >(
       iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag());
   useSubjets_ = (iConfig.exists("subjetFlavourInfos") && iConfig.exists("groomedJets"));
 }

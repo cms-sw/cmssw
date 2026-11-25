@@ -85,13 +85,13 @@ void Styles::FormatPad(TPad *pad, bool grid, bool logx, bool logy) {
 
 void Styles::SavePlot(const char *name, const char *dir) {
   string eps = dir;
-  eps += "/";
+  eps += '/';
   eps += name;
   eps += ".eps";
   gPad->SaveAs(eps.c_str());
 
   string png = dir;
-  png += "/";
+  png += '/';
   png += name;
   png += ".png";
   gPad->SaveAs(png.c_str());

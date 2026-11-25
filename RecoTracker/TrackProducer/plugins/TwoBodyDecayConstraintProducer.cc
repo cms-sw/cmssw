@@ -84,7 +84,7 @@ TwoBodyDecayConstraintProducer::TwoBodyDecayConstraintProducer(const edm::Parame
   trackCollToken_ = consumes<reco::TrackCollection>(edm::InputTag(srcTag_));
   bsToken_ = consumes<reco::BeamSpot>(edm::InputTag(bsSrcTag_));
 
-  produces<std::vector<TrackParamConstraint> >();
+  produces<std::vector<TrackParamConstraint>>();
   produces<TrackParamConstraintAssociationCollection>();
 
   //   //debug
@@ -110,9 +110,8 @@ void TwoBodyDecayConstraintProducer::produce(edm::StreamID streamid,
 
   auto trackingGeometry = iSetup.getHandle(trackingGeometryToken_);
 
-  edm::RefProd<std::vector<TrackParamConstraint> > rPairs =
-      iEvent.getRefBeforePut<std::vector<TrackParamConstraint> >();
-  std::unique_ptr<std::vector<TrackParamConstraint> > pairs(new std::vector<TrackParamConstraint>);
+  edm::RefProd<std::vector<TrackParamConstraint>> rPairs = iEvent.getRefBeforePut<std::vector<TrackParamConstraint>>();
+  std::unique_ptr<std::vector<TrackParamConstraint>> pairs = std::make_unique<std::vector<TrackParamConstraint>>();
   std::unique_ptr<TrackParamConstraintAssociationCollection> output(
       new TrackParamConstraintAssociationCollection(trackColl, rPairs));
 
@@ -156,11 +155,11 @@ void TwoBodyDecayConstraintProducer::produce(edm::StreamID streamid,
 
     // produce constraint for first track
     pairs->push_back(tbdTrajState.trajectoryStates(true).first);
-    output->insert(reco::TrackRef(trackColl, 0), edm::Ref<std::vector<TrackParamConstraint> >(rPairs, 0));
+    output->insert(reco::TrackRef(trackColl, 0), edm::Ref<std::vector<TrackParamConstraint>>(rPairs, 0));
 
     // produce constraint for second track
     pairs->push_back(tbdTrajState.trajectoryStates(true).second);
-    output->insert(reco::TrackRef(trackColl, 1), edm::Ref<std::vector<TrackParamConstraint> >(rPairs, 1));
+    output->insert(reco::TrackRef(trackColl, 1), edm::Ref<std::vector<TrackParamConstraint>>(rPairs, 1));
 
     //     // debug
     //     if ( tbd.isValid() ) {

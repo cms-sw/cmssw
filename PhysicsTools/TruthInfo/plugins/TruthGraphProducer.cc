@@ -1,8 +1,5 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
-// Author: Felice Pantaleo - CERN
-// Date: 03/2026
-
 #include <cstdint>
 #include <cstring>
 #include <memory>
@@ -103,8 +100,8 @@ public:
   explicit TruthGraphProducer(const edm::ParameterSet& cfg)
       : hepmc3Tag_(cfg.getParameter<edm::InputTag>("genEventHepMC3")),
         hepmc2Tag_(cfg.getParameter<edm::InputTag>("genEventHepMC")),
-        hepmc3Token_(mayConsume<edm::HepMC3Product>(hepmc3Tag_)),
-        hepmc2Token_(mayConsume<edm::HepMCProduct>(hepmc2Tag_)),
+        hepmc3Token_(consumes<edm::HepMC3Product>(hepmc3Tag_)),
+        hepmc2Token_(consumes<edm::HepMCProduct>(hepmc2Tag_)),
         addGenToSimEdges_(cfg.getParameter<bool>("addGenToSimEdges")),
         collapseGenShower_(cfg.getParameter<bool>("collapseGenShower")) {
     if (auto const& tag = cfg.getParameter<edm::InputTag>("simTracks"); !tag.label().empty())
@@ -574,7 +571,7 @@ public:
     unsigned nSimVtxToGenLinks = 0;
 
     for (uint32_t i = 0; i < out->nNodes(); ++i) {
-      switch (out->nodeRef(i).kind) {
+      switch (out->nodeRef(i).kind()) {
         case TruthGraph::NodeKind::GenEvent:
           ++nGenEventOut;
           break;

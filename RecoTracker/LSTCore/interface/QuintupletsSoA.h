@@ -69,41 +69,20 @@ namespace lst {
   using QuintupletsByMD = QuintupletsByMDSoA::View;
   using QuintupletsByMDConst = QuintupletsByMDSoA::ConstView;
 
-  // Build-time record of a selected quintuplet, one per counting-kernel slot; the full quintuplet is written
-  // afterwards to an exactly sized QuintupletsSoA.
-  GENERATE_SOA_LAYOUT(QuintupletsLooseSoALayout,
-                      SOA_COLUMN(ArrayUx2, preAllocatedTripletIndices),  // candidate pairs (step 1)
-                      SOA_COLUMN(ArrayUx2, tripletIndices),              // selected pairs (step 2)
-                      SOA_COLUMN(ArrayUx2, byMDIndices),                 // slots in quintupletsByMD0/1
-                      SOA_COLUMN(float, bridgeRadius),
-#ifdef CUT_VALUE_DEBUG
-                      SOA_COLUMN(float, rzChiSquared),
-                      SOA_COLUMN(float, dBeta1),
-                      SOA_COLUMN(float, dBeta2),
-#endif
-                      SOA_COLUMN(float, dnnScore));
-
-  using QuintupletsLooseSoA = QuintupletsLooseSoALayout<>;
-  using QuintupletsLoose = QuintupletsLooseSoA::View;
-  using QuintupletsLooseConst = QuintupletsLooseSoA::ConstView;
-
   GENERATE_SOA_BLOCKS(QuintupletsSoABlocksLayout,
                       SOA_BLOCK(quintuplets, QuintupletsSoALayout),
-                      SOA_BLOCK(quintupletsOccupancy, QuintupletsOccupancySoALayout),
-                      SOA_BLOCK(quintupletsByMD0, QuintupletsByMDSoALayout),
-                      SOA_BLOCK(quintupletsByMD1, QuintupletsByMDSoALayout))
+                      SOA_BLOCK(quintupletsOccupancy, QuintupletsOccupancySoALayout))
 
   using QuintupletsSoABlocks = QuintupletsSoABlocksLayout<>;
   using QuintupletsSoABlocksView = QuintupletsSoABlocks::View;
   using QuintupletsSoABlocksConstView = QuintupletsSoABlocks::ConstView;
 
-  GENERATE_SOA_BLOCKS(QuintupletsLooseSoABlocksLayout,
-                      SOA_BLOCK(quintupletsLoose, QuintupletsLooseSoALayout),
-                      SOA_BLOCK(quintupletsOccupancy, QuintupletsOccupancySoALayout),
+  // By-MD lists of the quintuplets while they are built (the duplicate searches of the T5 stage).
+  GENERATE_SOA_BLOCKS(QuintupletsByMDSoABlocksLayout,
                       SOA_BLOCK(quintupletsByMD0, QuintupletsByMDSoALayout),
                       SOA_BLOCK(quintupletsByMD1, QuintupletsByMDSoALayout))
 
-  using QuintupletsLooseSoABlocks = QuintupletsLooseSoABlocksLayout<>;
+  using QuintupletsByMDSoABlocks = QuintupletsByMDSoABlocksLayout<>;
 
   // Template based accessor for getting specific SoA views. Needed in LSTEvent.dev.cc
   template <typename TSoA>

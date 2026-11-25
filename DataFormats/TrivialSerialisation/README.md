@@ -42,5 +42,6 @@ If present, it should be called to restore the object invariants after a
 ## Specialisations of `ngt::MemoryCopyTraits`
 
 This package provides the specialisation of `ngt::MemoryCopyTraits` for all
-arithmetic types, all `std::vector`s of arithmetic types (except
-`std::vector<bool>`), and `std::string`.
+arithmetic types, all `std::vector`s of trivially copyable types (except
+`std::vector<bool>` and vectors of pointers), and `std::string`. The elements
+of such a `std::vector` must not hold pointers or references to other data.

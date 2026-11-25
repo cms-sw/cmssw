@@ -8,29 +8,25 @@
 
 namespace edm {
 
-  ESParentContext::ESParentContext() : type_(Type::kInvalid) { parent_.esmodule = nullptr; }
+  ESParentContext::ESParentContext() : parent_(std::monostate{}) {}
 
-  ESParentContext::ESParentContext(ModuleCallingContext const* module) noexcept : type_(Type::kModule) {
-    parent_.module = module;
-  }
+  ESParentContext::ESParentContext(ModuleCallingContext const* module) noexcept : parent_(module) {}
 
-  ESParentContext::ESParentContext(ESModuleCallingContext const* module) noexcept : type_(Type::kESModule) {
-    parent_.esmodule = module;
-  }
+  ESParentContext::ESParentContext(ESModuleCallingContext const* module) noexcept : parent_(module) {}
 
   ModuleCallingContext const* ESParentContext::moduleCallingContext() const {
-    if (type_ != Type::kModule) {
+    if (type() != Type::kModule) {
       throw Exception(errors::LogicError)
           << "ESParentContext::moduleCallingContext called for incorrect type of context";
     }
-    return parent_.module;
+    return std::get<ModuleCallingContext const*>(parent_);
   }
 
   ESModuleCallingContext const* ESParentContext::esmoduleCallingContext() const {
-    if (type_ != Type::kESModule) {
+    if (type() != Type::kESModule) {
       throw Exception(errors::LogicError)
           << "ESParentContext::esmoduleCallingContext called for incorrect type of context";
     }
-    return parent_.esmodule;
+    return std::get<ESModuleCallingContext const*>(parent_);
   }
 }  // namespace edm

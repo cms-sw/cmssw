@@ -1,8 +1,5 @@
 // Original author: Felice Pantaleo (CERN) <felice.pantaleo@cern.ch>
 
-// Author: Felice Pantaleo - CERN
-// Date: 03/2026
-//
 // Build a logical truth::Graph from the raw heterogeneous TruthGraph.
 // The topology comes from the raw TruthGraph.
 // Standalone payload (momentum/position/checkpoints) is materialized from optional
@@ -227,7 +224,7 @@ namespace {
     std::vector<int32_t> genParticleToProductionGenVertex(nRawNodes, -1);
 
     for (uint32_t src = 0; src < nRawNodes; ++src) {
-      if (raw.nodeRef(src).kind != TruthGraph::NodeKind::GenVertex)
+      if (raw.nodeRef(src).kind() != TruthGraph::NodeKind::GenVertex)
         continue;
 
       const auto dsts = raw.children(src);
@@ -239,7 +236,7 @@ namespace {
         if (dst >= nRawNodes)
           continue;
 
-        if (raw.nodeRef(dst).kind != TruthGraph::NodeKind::GenParticle)
+        if (raw.nodeRef(dst).kind() != TruthGraph::NodeKind::GenParticle)
           continue;
 
         if (static_cast<TruthGraph::EdgeKind>(edgeKinds[i]) != TruthGraph::EdgeKind::Gen)
@@ -274,8 +271,8 @@ namespace {
         if (static_cast<TruthGraph::EdgeKind>(edgeKinds[i]) != TruthGraph::EdgeKind::Sim)
           continue;
 
-        const auto srcKind = raw.nodeRef(src).kind;
-        const auto dstKind = raw.nodeRef(dst).kind;
+        const auto srcKind = raw.nodeRef(src).kind();
+        const auto dstKind = raw.nodeRef(dst).kind();
 
         if (srcKind == TruthGraph::NodeKind::SimTrack && dstKind == TruthGraph::NodeKind::SimVertex) {
           ++simVertexIncomingSimTracks[dst];
@@ -292,13 +289,13 @@ class TruthLogicalGraphProducer : public edm::stream::EDProducer<> {
 public:
   explicit TruthLogicalGraphProducer(edm::ParameterSet const& cfg)
       : srcToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("src"))),
-        simTrackToken_(mayConsume<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
-        simVertexToken_(mayConsume<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
-        hepmc3Token_(mayConsume<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
-        hepmc2Token_(mayConsume<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
+        simTrackToken_(consumes<edm::SimTrackContainer>(cfg.getParameter<edm::InputTag>("simTracks"))),
+        simVertexToken_(consumes<edm::SimVertexContainer>(cfg.getParameter<edm::InputTag>("simVertices"))),
+        hepmc3Token_(consumes<edm::HepMC3Product>(cfg.getParameter<edm::InputTag>("genEventHepMC3"))),
+        hepmc2Token_(consumes<edm::HepMCProduct>(cfg.getParameter<edm::InputTag>("genEventHepMC"))),
         rawGenPayloadTag_(cfg.getParameter<edm::InputTag>("rawGenPayload")),
-        rawGenPayloadToken_(mayConsume<std::vector<math::XYZTLorentzVectorD>>(rawGenPayloadTag_)),
-        rawGenPayloadNodesToken_(mayConsume<std::vector<uint32_t>>(edm::InputTag(
+        rawGenPayloadToken_(consumes<std::vector<math::XYZTLorentzVectorD>>(rawGenPayloadTag_)),
+        rawGenPayloadNodesToken_(consumes<std::vector<uint32_t>>(edm::InputTag(
             rawGenPayloadTag_.label(), rawGenPayloadTag_.instance() + "Nodes", rawGenPayloadTag_.process()))),
         mergeGenSimVertices_(cfg.getParameter<bool>("mergeGenSimVertices")),
         verbosity_(cfg.getUntrackedParameter<unsigned>("verbosity")),
@@ -311,11 +308,11 @@ public:
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("simHitCollections"))
         caloSimHitTokens_.push_back(consumes<std::vector<PCaloHit>>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("trackerSimHitCollections"))
-        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("muonSimHitCollections"))
-        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
       for (auto const& tag : cfg.getParameter<std::vector<edm::InputTag>>("mtdSimHitCollections"))
-        trackerSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
+        pSimHitTokens_.push_back(consumes<edm::PSimHitContainer>(tag));
     }
 
     produces<truth::Graph>();
@@ -508,7 +505,7 @@ public:
     int nVertexTmp = 0;
 
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
-      const auto kind = raw.nodeRef(nodeId).kind;
+      const auto kind = raw.nodeRef(nodeId).kind();
 
       if (isParticleKind(kind)) {
         rawToParticleTmp[nodeId] = nParticleTmp++;
@@ -546,10 +543,10 @@ public:
       if (rawToVertexTmp[gv] < 0 || rawToVertexTmp[sv] < 0)
         return;
 
-      if (raw.nodeRef(gv).kind != TruthGraph::NodeKind::GenVertex)
+      if (raw.nodeRef(gv).kind() != TruthGraph::NodeKind::GenVertex)
         return;
 
-      if (raw.nodeRef(sv).kind != TruthGraph::NodeKind::SimVertex)
+      if (raw.nodeRef(sv).kind() != TruthGraph::NodeKind::SimVertex)
         return;
 
       productionVertexMergeCandidates.emplace_back(gv, sv);
@@ -561,7 +558,7 @@ public:
     for (uint32_t nodeId = 0; nodeId < nRawNodes; ++nodeId) {
       auto const& ref = raw.nodeRef(nodeId);
 
-      if (ref.kind != TruthGraph::NodeKind::SimTrack)
+      if (ref.kind() != TruthGraph::NodeKind::SimTrack)
         continue;
 
       const int32_t genNode = raw.nodeSimTrackToGen(nodeId);
@@ -572,7 +569,7 @@ public:
       if (genNodeU32 >= nRawNodes)
         continue;
 
-      if (raw.nodeRef(genNodeU32).kind != TruthGraph::NodeKind::GenParticle)
+      if (raw.nodeRef(genNodeU32).kind() != TruthGraph::NodeKind::GenParticle)
         continue;
 
       if (rawToParticleTmp[nodeId] < 0 || rawToParticleTmp[genNodeU32] < 0)
@@ -661,7 +658,7 @@ public:
       if (rawToParticle[nodeId] >= 0) {
         auto& p = out->particles()[static_cast<uint32_t>(rawToParticle[nodeId])];
 
-        if (ref.kind == TruthGraph::NodeKind::GenParticle) {
+        if (ref.kind() == TruthGraph::NodeKind::GenParticle) {
           p.genNode = static_cast<int32_t>(nodeId);
 
           if (nodeId < raw.genEventOfNode().size())
@@ -686,7 +683,7 @@ public:
           // The HepMC payload is the signal interaction's. A pileup GEN node with the
           // same barcode is a different particle and takes its own record's momentum.
           if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
-            const int barcode = static_cast<int>(ref.key);
+            const int barcode = static_cast<int>(ref.key());
             auto it = genParticlePayload.find(barcode);
 
             if (it != genParticlePayload.end()) {
@@ -710,7 +707,7 @@ public:
             }
           }
 
-        } else if (ref.kind == TruthGraph::NodeKind::SimTrack) {
+        } else if (ref.kind() == TruthGraph::NodeKind::SimTrack) {
           p.simNode = static_cast<int32_t>(nodeId);
 
           // Back-scattering (albedo) is a SimTrack property; OR it in so a merged
@@ -727,7 +724,7 @@ public:
             p.eventId = raw.nodeEventId(nodeId);
 
           if (hSimTracks.isValid()) {
-            const auto trackId = static_cast<uint32_t>(ref.key);
+            const auto trackId = static_cast<uint32_t>(ref.key());
             auto it = simTrackIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), trackId));
 
             if (it != simTrackIdToIndex.end()) {
@@ -765,7 +762,7 @@ public:
       if (rawToVertex[nodeId] >= 0) {
         auto& v = out->vertices()[static_cast<uint32_t>(rawToVertex[nodeId])];
 
-        if (ref.kind == TruthGraph::NodeKind::GenVertex) {
+        if (ref.kind() == TruthGraph::NodeKind::GenVertex) {
           v.genNode = static_cast<int32_t>(nodeId);
 
           if (nodeId < raw.genEventOfNode().size())
@@ -777,7 +774,7 @@ public:
             v.eventId = raw.nodeEventId(nodeId);
 
           if (haveGenPayload && raw.nodeEventId(nodeId) == 0) {
-            const int barcode = static_cast<int>(ref.key);
+            const int barcode = static_cast<int>(ref.key());
             auto it = genVertexPayload.find(barcode);
 
             if (it != genVertexPayload.end()) {
@@ -795,7 +792,7 @@ public:
             }
           }
 
-        } else if (ref.kind == TruthGraph::NodeKind::SimVertex) {
+        } else if (ref.kind() == TruthGraph::NodeKind::SimVertex) {
           v.simNode = static_cast<int32_t>(nodeId);
 
           // Physical reason this vertex exists, from the SimVertex G4 process subtype.
@@ -807,7 +804,7 @@ public:
 
           if (hSimVertices.isValid()) {
             auto it =
-                simVertexIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key)));
+                simVertexIdToIndex.find(truth::simObjectKey(raw.nodeEventId(nodeId), static_cast<uint32_t>(ref.key())));
 
             if (it != simVertexIdToIndex.end()) {
               auto const& sv = (*hSimVertices)[it->second];
@@ -845,7 +842,7 @@ public:
 
         auto const& dstRef = raw.nodeRef(dst);
 
-        if (isVertexKind(srcRef.kind) && isParticleKind(dstRef.kind)) {
+        if (isVertexKind(srcRef.kind()) && isParticleKind(dstRef.kind())) {
           const int32_t logicalVertex = rawToVertex[src];
           const int32_t logicalParticle = rawToParticle[dst];
 
@@ -856,7 +853,7 @@ public:
             // many-GEN-to-one-SIM, so drop that edge here. The GEN production edge is added
             // when the GEN side of this particle is visited. This replaces the former
             // position-based GEN/SIM vertex merge.
-            const bool redundantSimProduction = srcRef.kind == TruthGraph::NodeKind::SimVertex &&
+            const bool redundantSimProduction = srcRef.kind() == TruthGraph::NodeKind::SimVertex &&
                                                 out->particles()[static_cast<uint32_t>(logicalParticle)].hasGen();
 
             if (!redundantSimProduction) {
@@ -867,7 +864,7 @@ public:
             }
           }
 
-        } else if (isParticleKind(srcRef.kind) && isVertexKind(dstRef.kind)) {
+        } else if (isParticleKind(srcRef.kind()) && isVertexKind(dstRef.kind())) {
           const int32_t logicalParticle = rawToParticle[src];
           const int32_t logicalVertex = rawToVertex[dst];
 
@@ -943,11 +940,11 @@ public:
         if (simNodeU32 >= nRawNodes)
           continue;
         auto const& ref = raw.nodeRef(simNodeU32);
-        if (ref.kind != TruthGraph::NodeKind::SimTrack)
+        if (ref.kind() != TruthGraph::NodeKind::SimTrack)
           continue;
-        if (ref.key <= 0 || ref.key > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
+        if (ref.key() <= 0 || ref.key() > static_cast<int64_t>(std::numeric_limits<uint32_t>::max()))
           continue;
-        particleOfKey.emplace(truth::simObjectKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key)),
+        particleOfKey.emplace(truth::simObjectKey(raw.nodeEventId(simNodeU32), static_cast<uint32_t>(ref.key())),
                               particleId);
       }
       std::vector<uint8_t> hasHit(out->nParticles(), 0);
@@ -970,7 +967,7 @@ public:
         }
       }
 
-      for (auto const& token : trackerSimHitTokens_) {
+      for (auto const& token : pSimHitTokens_) {
         edm::Handle<edm::PSimHitContainer> hHits;
         evt.getByToken(token, hHits);
         if (!hHits.isValid())
@@ -1065,7 +1062,7 @@ private:
   edm::EDGetTokenT<std::vector<math::XYZTLorentzVectorD>> rawGenPayloadToken_;
   edm::EDGetTokenT<std::vector<uint32_t>> rawGenPayloadNodesToken_;
   std::vector<edm::EDGetTokenT<std::vector<PCaloHit>>> caloSimHitTokens_;
-  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> trackerSimHitTokens_;
+  std::vector<edm::EDGetTokenT<edm::PSimHitContainer>> pSimHitTokens_;
 
   bool mergeGenSimVertices_;
   unsigned verbosity_ = 0;

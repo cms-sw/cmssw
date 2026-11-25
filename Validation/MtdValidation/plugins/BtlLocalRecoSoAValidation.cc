@@ -215,11 +215,11 @@ void BtlLocalRecoSoAValidation::analyze(const edm::Event& iEvent, const edm::Eve
   //for (const auto& recHit : *btlRecHitsHandle) {
   for (int i = 0; i < btlRecHitsSoAHandle->view().metadata().size(); i++) {
     auto recHit = btlRecHitsSoAHandle->view()[i];
-    LogTrace("BtlLocalRecoSoAValidation") << "@RH detid " << recHit.detId().rawId() << " r/c/X/dX " << recHit.row()
-                                          << " " << recHit.position() << " " << recHit.position_error() << " E,T,dT "
+    LogTrace("BtlLocalRecoSoAValidation") << "@RH detid " << recHit.rawDetId() << " r/c/X/dX " << recHit.row() << " "
+                                          << recHit.position() << " " << recHit.position_error() << " E,T,dT "
                                           << recHit.energy() << " " << recHit.time1() << " " << recHit.time1_error();
 
-    BTLDetId detId = recHit.detId();
+    BTLDetId detId = BTLDetId(recHit.rawDetId());
     DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
     const MTDGeomDet* thedet = geom->idToDet(geoId);
     if (thedet == nullptr)
@@ -314,14 +314,15 @@ void BtlLocalRecoSoAValidation::analyze(const edm::Event& iEvent, const edm::Eve
     auto btlBaseRecHitsSoAHandle = makeValid(iEvent.getHandle(btlBaseRecHitsSoAToken_));
     for (int i = 0; i < btlBaseRecHitsSoAHandle->view().metadata().size(); i++) {
       auto uRecHit = btlBaseRecHitsSoAHandle->view()[i];
-      BTLDetId detId = uRecHit.detId();
+      uint32_t rawDetId = uRecHit.rawDetId();
+      BTLDetId detId = BTLDetId(rawDetId);
 
       LogTrace("BtlLocalRecoSoAValidation")
-          << "@URH detid " << detId.rawId() << " A " << uRecHit.ampPlus() << " " << uRecHit.ampMinus() << " T "
+          << "@URH detid " << rawDetId << " A " << uRecHit.ampPlus() << " " << uRecHit.ampMinus() << " T "
           << uRecHit.time1Plus() << " " << uRecHit.time1Minus();
 
       // --- Skip BaseRecHits not matched to SimHits
-      if (m_btlSimHits.count(detId.rawId()) != 1)
+      if (m_btlSimHits.count(rawDetId) != 1)
         continue;
 
       // --- Combine the information from the left and right BTL cell sides
@@ -348,7 +349,7 @@ void BtlLocalRecoSoAValidation::analyze(const edm::Event& iEvent, const edm::Eve
 
       LogDebug("BtlLocalRecoSoAValidation") << "#unc " << nHits << " A/T " << hit_amplitude << " " << hit_time;
       if (nHits == 0.) {
-        edm::LogWarning("BtlLocalRecoSoAValidation") << "Empty base hit in DetId " << detId;
+        edm::LogWarning("BtlLocalRecoSoAValidation") << "Empty base hit in DetId " << rawDetId;
         continue;
       }
 

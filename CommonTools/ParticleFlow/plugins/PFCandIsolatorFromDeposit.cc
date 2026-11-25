@@ -249,7 +249,7 @@ void PFCandIsolatorFromDeposits::produce(Event &event, const EventSetup &eventSe
     event.put(std::make_unique<CandDoubleMap>());
     return;
   }
-  std::unique_ptr<CandDoubleMap> ret(new CandDoubleMap());
+  std::unique_ptr<CandDoubleMap> ret = std::make_unique<CandDoubleMap>();
   CandDoubleMap::Filler filler(*ret);
 
   typedef reco::IsoDepositMap::const_iterator iterator_i;

@@ -202,7 +202,8 @@ namespace edm {
 
     // make new digi collection
 
-    std::unique_ptr<edm::DetSetVector<PixelDigi>> MyPixelDigis(new edm::DetSetVector<PixelDigi>(vPixelDigi));
+    std::unique_ptr<edm::DetSetVector<PixelDigi>> MyPixelDigis =
+        std::make_unique<edm::DetSetVector<PixelDigi>>(vPixelDigi);
 
     // put collection
 

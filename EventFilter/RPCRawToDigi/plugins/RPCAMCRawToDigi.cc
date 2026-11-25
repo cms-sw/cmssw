@@ -53,7 +53,7 @@ void RPCAMCRawToDigi::produce(edm::Event &event, edm::EventSetup const &setup) {
   edm::Handle<FEDRawDataCollection> raw_data_collection;
   event.getByToken(raw_token_, raw_data_collection);
 
-  std::unique_ptr<RPCAMCLinkCounters> counters(new RPCAMCLinkCounters());
+  std::unique_ptr<RPCAMCLinkCounters> counters = std::make_unique<RPCAMCLinkCounters>();
 
   std::map<RPCAMCLink, rpcamc13::AMCPayload> amc_payload;
 

@@ -178,7 +178,7 @@ void EmbeddingLHEProducer::produce(edm::Event &iEvent, const edm::EventSetup &iS
   fill_lhe_from_mumu(positiveLepton, negativeLepton, hepeup, engine);
 
   double originalXWGTUP_ = 1.;
-  std::unique_ptr<LHEEventProduct> product(new LHEEventProduct(hepeup, originalXWGTUP_));
+  std::unique_ptr<LHEEventProduct> product = std::make_unique<LHEEventProduct>(hepeup, originalXWGTUP_);
 
   if (write_lheout)
     std::copy(product->begin(), product->end(), std::ostream_iterator<std::string>(file));
@@ -214,7 +214,7 @@ void EmbeddingLHEProducer::beginRunProduce(edm::Run &run, edm::EventSetup const 
   heprup.XMAXUP[0] = 1;
   heprup.LPRUP[0] = 1;
 
-  std::unique_ptr<LHERunInfoProduct> runInfo(new LHERunInfoProduct(heprup));
+  std::unique_ptr<LHERunInfoProduct> runInfo = std::make_unique<LHERunInfoProduct>(heprup);
   runInfo->addHeader(give_slha());
 
   if (write_lheout)

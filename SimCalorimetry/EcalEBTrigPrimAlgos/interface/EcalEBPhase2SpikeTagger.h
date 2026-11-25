@@ -20,7 +20,7 @@ public:
   EcalEBPhase2SpikeTagger &operator=(EcalEBPhase2SpikeTagger &&) = delete;
   virtual ~EcalEBPhase2SpikeTagger() = default;
 
-  virtual bool process(const std::vector<int> &linInput) = 0;
+  virtual void process(const std::vector<int> &linInput, std::vector<bool> &spikeTags) = 0;
   virtual void getRecords(edm::EventSetup const &setup) = 0;
   virtual void setParameters(EBDetId id, const EcalTPGCrystalStatus *ecaltpBadX) = 0;
 

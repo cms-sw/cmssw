@@ -89,7 +89,7 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet &
   hlTriggerResults_ = consumes<edm::TriggerResults>(iConfig.getParameter<InputTag>("TriggerResults"));
   JetTagCollection_ =
       edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag>>("JetTag"),
-                            [this](edm::InputTag const &tag) { return mayConsume<reco::JetTagCollection>(tag); });
+                            [this](edm::InputTag const &tag) { return consumes<reco::JetTagCollection>(tag); });
   //        shallowTagInfosTokenCalo_ =
   //        consumes<std::vector<reco::ShallowTagInfo> >
   //        (edm::InputTag("hltDeepCombinedSecondaryVertexBJetTagsInfosCalo"));

@@ -140,7 +140,6 @@ void Herwig7Interface::callHerwigGenerator() {
   try {
     edm::LogInfo("Herwig7Interface") << "callHerwigGenerator function invoked with run mode " << HwUI_->runMode()
                                      << ".\n";
-
     // Call program switches according to runMode
     switch (HwUI_->runMode()) {
       case Herwig::RunMode::INIT:
@@ -178,6 +177,8 @@ void Herwig7Interface::callHerwigGenerator() {
   } catch (const char *what) {
     throw cms::Exception("HerwigException").format("caught char* exception.\n{}", what);
   }
+
+  return;
 }
 
 bool Herwig7Interface::initGenerator() {
@@ -251,7 +252,7 @@ void Herwig7Interface::createInputFile(const edm::ParameterSet &pset) {
   // Define output file to which input config is written, too, if dumpConfig parameter is set.
   // Otherwise use default file HerwigConfig.in which is read in by Herwig
   ofstream cfgDump;
-  cfgDump.open(dumpConfig_.c_str(), ios_base::app);
+  cfgDump.open(dumpConfig_.c_str(), ios_base::trunc);
 
   // Read Herwig config files as input
   vector<string> configFiles = pset.getParameter<vector<string> >("configFiles");

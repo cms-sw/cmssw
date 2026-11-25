@@ -12,6 +12,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "TrackerGeometry.h"
+#include <sstream>
 
 /**
  * A specific Pixel Tracker class to determine the number of ladders / modules in PXB

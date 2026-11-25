@@ -36,6 +36,32 @@ echo
 check_for_success convertToRaw -f 1 -l=1 -v $inputfile
 
 echo "============================================================"
+echo "testing production of raw data version header"
+echo "------------------------------------------------------------"
+echo
+
+cat > readRaw.py << @EOF
+import FWCore.ParameterSet.Config as cms
+
+process = cms.Process("TEST")
+
+process.FastMonitoringService = cms.Service("FastMonitoringService")
+process.EvFDaqDirector = cms.Service("EvFDaqDirector",
+    useFileBroker = cms.untracked.bool(False),
+    buBaseDir = cms.untracked.string("."),
+)
+
+process.source = cms.Source("DAQSource",
+    fileNames = cms.untracked.vstring('file:run379416/run379416_ls0097_index000000.raw'),
+    fileListMode = cms.untracked.bool(True),
+)
+@EOF
+
+check_for_failure cmsRun readRaw.py
+check_for_success convertToRaw -i 2 -f 1 -l=1 -v $inputfile
+check_for_success cmsRun readRaw.py
+
+echo "============================================================"
 echo "testing failing conversion of edm files"
 echo "------------------------------------------------------------"
 echo

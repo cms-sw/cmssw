@@ -4,6 +4,8 @@
  *   Laurent Forthomme
  ****************************************************************************/
 
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -200,8 +202,8 @@ void CTPPSProtonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
   iEvent.getByToken(tracksToken_, hTracks);
 
   // book output
-  std::unique_ptr<reco::ForwardProtonCollection> pOutSingleRP(new reco::ForwardProtonCollection);
-  std::unique_ptr<reco::ForwardProtonCollection> pOutMultiRP(new reco::ForwardProtonCollection);
+  std::unique_ptr<reco::ForwardProtonCollection> pOutSingleRP = std::make_unique<reco::ForwardProtonCollection>();
+  std::unique_ptr<reco::ForwardProtonCollection> pOutMultiRP = std::make_unique<reco::ForwardProtonCollection>();
 
   // continue only if there is something to process
   // NB: this avoids loading (possibly non-existing) conditions in workflows without proton data

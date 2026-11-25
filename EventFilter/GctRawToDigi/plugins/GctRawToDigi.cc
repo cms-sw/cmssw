@@ -1,6 +1,7 @@
 #include "EventFilter/GctRawToDigi/plugins/GctRawToDigi.h"
 
 // System headers
+#include <memory>
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -145,7 +146,7 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // Instantiate all the collections the unpacker needs; puts them in event when this object goes out of scope.
-  std::unique_ptr<GctUnpackCollections> colls(new GctUnpackCollections(iEvent));
+  std::unique_ptr<GctUnpackCollections> colls = std::make_unique<GctUnpackCollections>(iEvent);
   errors_ = colls->errors();
 
   // get raw data collection

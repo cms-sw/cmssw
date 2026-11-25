@@ -57,7 +57,7 @@ void ClusMultPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/pixel";
     plotfilename += pxlabfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -90,7 +90,7 @@ void ClusMultPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/pixelvtx";
     plotfilename += pxlabfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -109,7 +109,7 @@ void ClusMultPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/tk";
     plotfilename += strplabfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -142,7 +142,7 @@ void ClusMultPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/tkvtx";
     plotfilename += strplabfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -161,7 +161,7 @@ void ClusMultPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/pixelovertk";
     plotfilename += corrlabfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -180,7 +180,7 @@ void ClusMultPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/pixelvstk";
     plotfilename += corrlabfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -226,10 +226,10 @@ void ClusMultInvestPlots(const char* fullname,
     std::string plotfilename;
     plotfilename += outtrunk;
     plotfilename += shortname;
-    plotfilename += "/";
+    plotfilename += '/';
     plotfilename += subdet;
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -270,7 +270,7 @@ void ClusMultCorrPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/pixelovertk";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -289,7 +289,7 @@ void ClusMultCorrPlots(const char* fullname,
     plotfilename += shortname;
     plotfilename += "/pixelvstk";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -356,11 +356,11 @@ void ClusMultVtxCorrPlots(const char* fullname,
     std::string plotfilename;
     plotfilename += outtrunk;
     plotfilename += shortname;
-    plotfilename += "/";
+    plotfilename += '/';
     plotfilename += subdet;
     plotfilename += "vtx";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());
@@ -427,11 +427,11 @@ void ClusMultLumiCorrPlots(const char* fullname,
     std::string plotfilename;
     plotfilename += outtrunk;
     plotfilename += shortname;
-    plotfilename += "/";
+    plotfilename += '/';
     plotfilename += subdet;
     plotfilename += "lumi";
     plotfilename += labfull;
-    plotfilename += "_";
+    plotfilename += '_';
     plotfilename += shortname;
     plotfilename += ".gif";
     gPad->Print(plotfilename.c_str());

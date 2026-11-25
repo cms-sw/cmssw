@@ -7,6 +7,7 @@
 #include <iostream>
 #include <algorithm>
 #include <bitset>
+#include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -64,7 +65,8 @@ AlgoMuons::value_type OMTFSorter<GoldenPatternType>::sortRefHitResults(
     if (bestGP->getResults()[procIndx][iRefHit].getPdfSum() == 0)
       bestGP = gPatterns.at(0).get();
 
-    AlgoMuons::value_type candidate(new AlgoMuon(bestGP->getResults()[procIndx][iRefHit], bestGP, iRefHit));
+    AlgoMuons::value_type candidate =
+        std::make_shared<AlgoMuon>(bestGP->getResults()[procIndx][iRefHit], bestGP, iRefHit);
 
     if (bestGpUnconstr) {
       candidate->setGpResultUnconstr(bestGpUnconstr->getResults()[procIndx][iRefHit]);
@@ -73,7 +75,7 @@ AlgoMuons::value_type OMTFSorter<GoldenPatternType>::sortRefHitResults(
 
     return candidate;
   } else {
-    AlgoMuons::value_type candidate(new AlgoMuon());
+    AlgoMuons::value_type candidate = std::make_shared<AlgoMuon>();
     candidate->setRefHitNumber(iRefHit);
     return candidate;
   }

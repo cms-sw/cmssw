@@ -73,7 +73,14 @@ public:
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> const& l1GtReadoutRecordToken() const {
     return m_l1GtReadoutRecordToken;
   }
-  edm::EDGetTokenT<L1GtTriggerMenuLite> const& l1GtTriggerMenuLiteToken() const { return m_l1GtTriggerMenuLiteToken; }
+  //token to use during BeginRun calls
+  edm::EDGetTokenT<L1GtTriggerMenuLite> const& l1GtTriggerMenuLiteTokenDuringRun() const {
+    return m_l1GtTriggerMenuLiteTokenDuringRun;
+  }
+  //token to use during Event calls
+  edm::EDGetTokenT<L1GtTriggerMenuLite> const& l1GtTriggerMenuLiteTokenDuringEvent() const {
+    return m_l1GtTriggerMenuLiteTokenDuringEvent;
+  }
 
 private:
   // Callback which will be registered with the Framework if the InputTags
@@ -91,7 +98,8 @@ private:
 
   edm::EDGetTokenT<L1GlobalTriggerRecord> m_l1GtRecordToken;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtReadoutRecordToken;
-  edm::EDGetTokenT<L1GtTriggerMenuLite> m_l1GtTriggerMenuLiteToken;
+  edm::EDGetTokenT<L1GtTriggerMenuLite> m_l1GtTriggerMenuLiteTokenDuringRun;
+  edm::EDGetTokenT<L1GtTriggerMenuLite> m_l1GtTriggerMenuLiteTokenDuringEvent;
 };
 
 template <typename T>
@@ -134,7 +142,10 @@ L1GtUtilsHelper::L1GtUtilsHelper(edm::ParameterSet const& pset,
     m_l1GtReadoutRecordToken = iC.consumes<L1GlobalTriggerReadoutRecord>(m_l1GtReadoutRecordInputTag);
   }
   if (useL1GtTriggerMenuLite && !m_l1GtTriggerMenuLiteInputTag.label().empty()) {
-    m_l1GtTriggerMenuLiteToken = iC.consumes<L1GtTriggerMenuLite, edm::InRun>(m_l1GtTriggerMenuLiteInputTag);
+    m_l1GtTriggerMenuLiteTokenDuringRun =
+        iC.consumes<L1GtTriggerMenuLite, edm::InRun, edm::Transition::BeginRun>(m_l1GtTriggerMenuLiteInputTag);
+    m_l1GtTriggerMenuLiteTokenDuringEvent =
+        iC.consumes<L1GtTriggerMenuLite, edm::InRun, edm::Transition::Event>(m_l1GtTriggerMenuLiteInputTag);
   }
 
   // Do we still need to search for each InputTag?

@@ -69,9 +69,9 @@ private:
   edm::InputTag m_primaryVertex;
   edm::InputTag m_tracks;
   edm::InputTag m_jets;
-  edm::EDGetTokenT<std::vector<reco::Track> > tracksToken;
-  edm::EDGetTokenT<edm::View<reco::CaloJet> > jetsToken;
-  edm::EDGetTokenT<edm::View<reco::Jet> > generaljetsToken;
+  edm::EDGetTokenT<std::vector<reco::Track>> tracksToken;
+  edm::EDGetTokenT<edm::View<reco::CaloJet>> jetsToken;
+  edm::EDGetTokenT<edm::View<reco::Jet>> generaljetsToken;
   edm::EDGetTokenT<reco::VertexCollection> primaryVertexToken;
 
   double m_MinTrackPt;
@@ -93,10 +93,10 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
     : transientTrackRecordToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))) {
   //InputTag
   m_tracks = iConfig.getParameter<edm::InputTag>("tracks");
-  tracksToken = consumes<std::vector<reco::Track> >(m_tracks);
+  tracksToken = consumes<std::vector<reco::Track>>(m_tracks);
   m_jets = iConfig.getParameter<edm::InputTag>("jets");
-  jetsToken = consumes<edm::View<reco::CaloJet> >(m_jets);
-  generaljetsToken = consumes<edm::View<reco::Jet> >(m_jets);
+  jetsToken = consumes<edm::View<reco::CaloJet>>(m_jets);
+  generaljetsToken = consumes<edm::View<reco::Jet>>(m_jets);
   m_primaryVertex = iConfig.getParameter<edm::InputTag>("primaryVertex");
   primaryVertexToken = consumes<reco::VertexCollection>(m_primaryVertex);
 
@@ -113,8 +113,8 @@ PixelJetPuId::PixelJetPuId(const edm::ParameterSet& iConfig)
   m_mineta_fwjets = iConfig.getParameter<double>("MinEtaForwardJets");
   m_minet_fwjets = iConfig.getParameter<double>("MinEtForwardJets");
 
-  produces<std::vector<reco::CaloJet> >();
-  produces<std::vector<reco::CaloJet> >("PUjets");
+  produces<std::vector<reco::CaloJet>>();
+  produces<std::vector<reco::CaloJet>>("PUjets");
   produces<reco::JetTagCollection>();
 }
 
@@ -143,12 +143,12 @@ void PixelJetPuId::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 // ------------ method called on each new Event  ------------
 void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
-  std::unique_ptr<std::vector<reco::CaloJet> > pOut(new std::vector<reco::CaloJet>);
-  std::unique_ptr<std::vector<reco::CaloJet> > pOut_PUjets(new std::vector<reco::CaloJet>);
-  std::unique_ptr<reco::JetTagCollection> pOut_jetTagCollection(new reco::JetTagCollection);
+  std::unique_ptr<std::vector<reco::CaloJet>> pOut = std::make_unique<std::vector<reco::CaloJet>>();
+  std::unique_ptr<std::vector<reco::CaloJet>> pOut_PUjets = std::make_unique<std::vector<reco::CaloJet>>();
+  std::unique_ptr<reco::JetTagCollection> pOut_jetTagCollection = std::make_unique<reco::JetTagCollection>();
 
   //get tracks
-  Handle<std::vector<reco::Track> > tracks;
+  Handle<std::vector<reco::Track>> tracks;
   iEvent.getByToken(tracksToken, tracks);
   uint const asize = std::max(1u, (uint)tracks->size());
   float teta[asize], tphi[asize];
@@ -160,10 +160,10 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
   }
 
   //get jets
-  Handle<edm::View<reco::CaloJet> > jets;
+  Handle<edm::View<reco::CaloJet>> jets;
   iEvent.getByToken(jetsToken, jets);
 
-  Handle<edm::View<reco::Jet> > generaljets;
+  Handle<edm::View<reco::Jet>> generaljets;
   iEvent.getByToken(generaljetsToken, generaljets);
 
   //get primary vertices

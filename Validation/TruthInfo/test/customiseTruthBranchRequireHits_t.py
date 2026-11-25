@@ -54,10 +54,38 @@ class TestRequireHits(unittest.TestCase):
         process = customiseTruthBranchRequireHits(process)
         self.assertEqual(list(process.truthBranchTracksterValidator.denominatorDetectors.value()), ["HGCalEE"])
 
+    def test_theCandidateValidatorFollowsTheCandidateAssociator(self):
+        from SimGeneral.TruthGraphAssociatorProducers.truthGraphAssociationLabels_cff import (
+            truthBranchDenominatorDetectors,
+        )
+
+        process = makeProcess()
+        self.assertEqual(list(process.truthBranchCandidateAssociators.denominatorDetectors.value()),
+                         truthBranchDenominatorDetectors["candidates"])
+        process.truthBranchCandidateAssociators.denominatorDetectors = ["HGCalHSc"]
+        process = customiseTruthBranchRequireHits(process)
+        self.assertTrue(process.truthBranchCandidateValidator.requireHits.value())
+        self.assertEqual(list(process.truthBranchCandidateValidator.denominatorDetectors.value()), ["HGCalHSc"])
+
+    def test_aValidatorWithNoAssociatorIsAnError(self):
+        process = makeProcess()
+        del process.truthBranchTracksterAssociators
+        with self.assertRaises(RuntimeError):
+            customiseTruthBranchRequireHits(process)
+
+    def test_aHarvestingJobIsLeftAsItIs(self):
+        process = cms.Process("HARVESTING")
+        process.load("Validation.TruthInfo.truthBranchValidation_cff")
+        process.dqmSaver = cms.EDAnalyzer("Dummy")
+        process = customiseTruthBranchRequireHits(process)
+        for label, module in validators(process, hitBasedValidatorTypes).items():
+            self.assertFalse(module.hasParameter("requireHits") and module.requireHits.value(), label)
+
     def test_theTypesAreTheHitBasedModulesOfTheValidationCff(self):
         import Validation.TruthInfo.truthBranchValidation_cff as validation
 
         types = {d["module"] for d in validation._domains if "vertexResolution" not in d}
+        types.add(validation.truthBranchCandidateValidator.type_())
         self.assertEqual(types, set(hitBasedValidatorTypes))
 
 

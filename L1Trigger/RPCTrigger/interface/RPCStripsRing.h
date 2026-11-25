@@ -39,7 +39,7 @@ public:
   typedef std::map<int, RPCStripsRing> TIdToRindMap;
 
   struct TOtherConnStruct {
-    TOtherConnStruct() : m_logplane(0), m_logplaneSize(0), m_it(nullptr) {}
+    TOtherConnStruct() : m_logplane(0), m_logplaneSize(0), m_it{} {}
     short m_logplane;
     short m_logplaneSize;
     TIdToRindMap::iterator m_it;

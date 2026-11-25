@@ -67,7 +67,7 @@ namespace ecaldqm {
          chSItr.toNextChannel(GetElectronicsMap())) {
       DetId id(chSItr->getId());
 
-      EcalChannelStatusMap::const_iterator chIt(nullptr);
+      EcalChannelStatusMap::const_iterator chIt{};
 
       // Set appropriate channel map (EB or EE)
       if (id.subdetId() == EcalBarrel) {

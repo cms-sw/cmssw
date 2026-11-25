@@ -93,7 +93,7 @@ namespace edmtest {
     consumes<std::vector<std::unique_ptr<IntProduct>>>(edm::InputTag{"intvecstdvecuniqptr"});
     consumes<edm::View<IntProduct>>(edm::InputTag{"intvecstdvecuniqptr"});
 
-    mayConsume<edm::View<int>>(edm::InputTag{"intvecptrvecdoesNotExist"});
+    consumes<edm::View<int>>(edm::InputTag{"intvecptrvecdoesNotExist"});
   }
 
   void ViewAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

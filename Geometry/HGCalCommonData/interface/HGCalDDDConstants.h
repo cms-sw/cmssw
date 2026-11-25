@@ -66,9 +66,7 @@ public:
   bool cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, int zside, bool reco) const;
   const HGCalCellOffset* cellOffset() const { return cellOffset_.get(); }
   double cellSizeHex(int type) const;
-  inline std::pair<double, double> cellSizeTrap(int type, int irad) const {
-    return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
-  }
+  std::pair<double, double> cellSizeTrap(int type, int irad) const;
   std::vector<double> cellThickness() const;
   double cellThickness(int layer, int waferU, int waferV) const;
   int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;

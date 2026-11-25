@@ -37,30 +37,29 @@ L1TMuonOverlapPhase1TrackProducer::L1TMuonOverlapPhase1TrackProducer(const edm::
   produces<l1t::RegionalMuonCandBxCollection>("OMTF");
 
   if (edmParameterSet.exists("simTracksTag"))
-    mayConsume<edm::SimTrackContainer>(edmParameterSet.getParameter<edm::InputTag>("simTracksTag"));
+    consumes<edm::SimTrackContainer>(edmParameterSet.getParameter<edm::InputTag>("simTracksTag"));
   if (edmParameterSet.exists("simVertexesTag"))
-    mayConsume<edm::SimVertexContainer>(edmParameterSet.getParameter<edm::InputTag>("simVertexesTag"));
+    consumes<edm::SimVertexContainer>(edmParameterSet.getParameter<edm::InputTag>("simVertexesTag"));
   if (edmParameterSet.exists("trackingParticleTag"))
-    mayConsume<TrackingParticleCollection>(edmParameterSet.getParameter<edm::InputTag>("trackingParticleTag"));
+    consumes<TrackingParticleCollection>(edmParameterSet.getParameter<edm::InputTag>("trackingParticleTag"));
 
   if (edmParameterSet.exists("genParticleTag"))
-    mayConsume<reco::GenParticleCollection>(edmParameterSet.getParameter<edm::InputTag>("genParticleTag"));
+    consumes<reco::GenParticleCollection>(edmParameterSet.getParameter<edm::InputTag>("genParticleTag"));
 
   if (edmParameterSet.exists("rpcSimHitsInputTag"))
-    mayConsume<edm::PSimHitContainer>(edmParameterSet.getParameter<edm::InputTag>("rpcSimHitsInputTag"));
+    consumes<edm::PSimHitContainer>(edmParameterSet.getParameter<edm::InputTag>("rpcSimHitsInputTag"));
   if (edmParameterSet.exists("cscSimHitsInputTag"))
-    mayConsume<edm::PSimHitContainer>(edmParameterSet.getParameter<edm::InputTag>("cscSimHitsInputTag"));
+    consumes<edm::PSimHitContainer>(edmParameterSet.getParameter<edm::InputTag>("cscSimHitsInputTag"));
   if (edmParameterSet.exists("dtSimHitsInputTag"))
-    mayConsume<edm::PSimHitContainer>(edmParameterSet.getParameter<edm::InputTag>("dtSimHitsInputTag"));
+    consumes<edm::PSimHitContainer>(edmParameterSet.getParameter<edm::InputTag>("dtSimHitsInputTag"));
 
   if (edmParameterSet.exists("rpcDigiSimLinkInputTag"))
-    mayConsume<edm::DetSetVector<RPCDigiSimLink> >(
-        edmParameterSet.getParameter<edm::InputTag>("rpcDigiSimLinkInputTag"));
+    consumes<edm::DetSetVector<RPCDigiSimLink> >(edmParameterSet.getParameter<edm::InputTag>("rpcDigiSimLinkInputTag"));
   if (edmParameterSet.exists("cscStripDigiSimLinksInputTag"))
-    mayConsume<edm::DetSetVector<StripDigiSimLink> >(
+    consumes<edm::DetSetVector<StripDigiSimLink> >(
         edmParameterSet.getParameter<edm::InputTag>("cscStripDigiSimLinksInputTag"));
   if (edmParameterSet.exists("dtDigiSimLinksInputTag"))
-    mayConsume<MuonDigiCollection<DTLayerId, DTDigiSimLink> >(
+    consumes<MuonDigiCollection<DTLayerId, DTDigiSimLink> >(
         edmParameterSet.getParameter<edm::InputTag>("dtDigiSimLinksInputTag"));
 }
 /////////////////////////////////////////////////////

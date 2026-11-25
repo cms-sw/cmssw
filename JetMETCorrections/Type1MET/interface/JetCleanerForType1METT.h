@@ -74,8 +74,8 @@ public:
 
     jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");        //for MC
     jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes");  //for data
-    jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
-    jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
+    jetCorrToken_ = consumes<reco::JetCorrector>(jetCorrLabel_);
+    jetCorrResToken_ = consumes<reco::JetCorrector>(jetCorrLabelRes_);
 
     jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax");
 
@@ -194,19 +194,19 @@ private:
     evt.put(std::move(cleanedJets));
 
     if (calcMuonSubtrRawPtAsValueMap_) {
-      std::unique_ptr<edm::ValueMap<float>> muonSubtrRawPtV(new edm::ValueMap<float>());
+      std::unique_ptr<edm::ValueMap<float>> muonSubtrRawPtV = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler fillerMuonSubtrRawPt(*muonSubtrRawPtV);
       fillerMuonSubtrRawPt.insert(jets, muonSubtrRawPt.begin(), muonSubtrRawPt.end());
       fillerMuonSubtrRawPt.fill();
       evt.put(std::move(muonSubtrRawPtV), "MuonSubtrRawPt");
 
-      std::unique_ptr<edm::ValueMap<float>> muonSubtrRawEtaV(new edm::ValueMap<float>());
+      std::unique_ptr<edm::ValueMap<float>> muonSubtrRawEtaV = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler fillerMuonSubtrRawEta(*muonSubtrRawEtaV);
       fillerMuonSubtrRawEta.insert(jets, muonSubtrRawEta.begin(), muonSubtrRawEta.end());
       fillerMuonSubtrRawEta.fill();
       evt.put(std::move(muonSubtrRawEtaV), "MuonSubtrRawEta");
 
-      std::unique_ptr<edm::ValueMap<float>> muonSubtrRawPhiV(new edm::ValueMap<float>());
+      std::unique_ptr<edm::ValueMap<float>> muonSubtrRawPhiV = std::make_unique<edm::ValueMap<float>>();
       edm::ValueMap<float>::Filler fillerMuonSubtrRawPhi(*muonSubtrRawPhiV);
       fillerMuonSubtrRawPhi.insert(jets, muonSubtrRawPhi.begin(), muonSubtrRawPhi.end());
       fillerMuonSubtrRawPhi.fill();

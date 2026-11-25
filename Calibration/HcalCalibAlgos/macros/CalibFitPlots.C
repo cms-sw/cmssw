@@ -2357,6 +2357,7 @@ void PlotHistCorrFactor(std::string infile,
                         bool isRealData = true,
                         bool drawStatBox = false,
                         int iformat = 0,
+                        int range = 2,
                         int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
@@ -2377,6 +2378,8 @@ void PlotHistCorrFactor(std::string infile,
   int colors[7] = {1, 6, 4, 7, 2, 9, 3};
   int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax - etamin + 1;
+  double ylow = ylowPlot(range);
+  double yhigh = yhighPlot(range);
   std::vector<TH1D*> hists;
   std::vector<int> entries;
   std::vector<int> depths;
@@ -2422,7 +2425,7 @@ void PlotHistCorrFactor(std::string infile,
       h->GetYaxis()->SetTitle("Correction Factor");
       h->GetYaxis()->SetLabelOffset(0.005);
       h->GetYaxis()->SetTitleOffset(1.20);
-      h->GetYaxis()->SetRangeUser(0.0, 2.5);
+      h->GetYaxis()->SetRangeUser(ylow, yhigh);
       hists.push_back(h);
       entries.push_back(nent);
       depths.push_back(j + 1);
@@ -2502,6 +2505,7 @@ void PlotHistCorrFactor(std::string infile,
                         bool isRealData = true,
                         bool drawStatBox = false,
                         int iformat = 0,
+                        int range = 2,
                         int save = 0) {
   std::map<int, cfactors> cfacs;
   int etamin(100), etamax(-100), maxdepth(0);
@@ -2522,6 +2526,8 @@ void PlotHistCorrFactor(std::string infile,
   int colors[7] = {1, 6, 4, 7, 2, 9, 3};
   int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
   int nbin = etamax - etamin + 1;
+  double ylow = ylowPlot(range);
+  double yhigh = yhighPlot(range);
   std::vector<TH1D*> hists;
   std::vector<int> entries;
   char name[100];
@@ -2564,7 +2570,7 @@ void PlotHistCorrFactor(std::string infile,
   h->GetYaxis()->SetTitle("Correction Factor");
   h->GetYaxis()->SetLabelOffset(0.005);
   h->GetYaxis()->SetTitleOffset(1.20);
-  h->GetYaxis()->SetRangeUser(0.0, 2.0);
+  h->GetYaxis()->SetRangeUser(ylow, yhigh);
   hists.push_back(h);
   entries.push_back(nent);
   dy += 0.025;
@@ -2805,7 +2811,7 @@ void PlotHistCorrFactors(std::string infile1,
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
     double yhigh = yhighPlot(range);
-    ;
+
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3043,7 +3049,7 @@ void PlotHistCorr2Factors(std::string infile1,
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
     double yhigh = yhighPlot(range);
-    ;
+
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -3290,7 +3296,7 @@ void PlotHistCorrDFactors(std::string infile1,
     gStyle->SetOptTitle(0);
     double ylow = ylowPlot(range);
     double yhigh = yhighPlot(range);
-    ;
+
     if ((!ratio) && drawStatBox) {
       gStyle->SetOptStat(10);
       gStyle->SetOptFit(10);
@@ -5009,7 +5015,7 @@ void PlotHistCorrRatio(std::string infile1,
     }
     double ylow = ylowPlot(range);
     double yhigh = yhighPlot(range);
-    ;
+
     int colors[7] = {1, 6, 4, 7, 2, 9, 3};
     int mtype[7] = {20, 21, 22, 23, 24, 25, 26};
     int styles[7] = {2, 3, 1, 4, 1, 3, 2};

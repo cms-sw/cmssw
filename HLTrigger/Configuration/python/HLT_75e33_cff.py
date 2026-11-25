@@ -61,10 +61,7 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/TransientTrackBuilde
 ### Actual changes on top of Phase2
 ### It could come from RecoTracker/IterativeTracking/InitialStep_cff.py
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomESProducer_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomLookupESProducer_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomLayersESProducer_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomWithBarrelESProducer_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltTiclGeomWithBarrelLookupESProducer_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltInitialStepChi2Est_cfi")
 ### It could come from RecoTracker/IterativeTracking/python/HighPtTripletStep_cff.py
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltHighPtTripletStepChi2Est_cfi")
@@ -99,15 +96,15 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonHighP
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonInitialStepChi2Est_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonPixelTrackCleanerBySharedHits_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPhase2L3MuonTrackAlgoPriorityOrder_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParamsPhase2_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltPixelTracksCleanerBySharedHits_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithTrackAngle_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPMkFit_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltMkFitGeometryESProducer_cfi")
+fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltInitialStepTrackCandidatesMkFitConfig_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFFittingSmootherForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectoryFitterForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPKFTrajectorySmootherForL2Muon_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPStackedModuleGeometry_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPPixelCPEFastParams_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltLSTGeometry_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPModulesDevLST_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/eventsetup/hltESPTTRHBuilderWithoutRefit_cfi")
@@ -131,7 +128,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle25_CaloIdL_P
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleEle25_CaloIdL_PMS2_Unseeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMediumChargedIsoPFTauHPS40_eta2p1_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoubleMediumDeepTauPFTauHPS35_eta2p1_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele115_NonIso_L1Seeded_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLT_Ele26_WP70_L1Seeded_cfi")
@@ -215,8 +211,6 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTAK4PFPuppiJetsReco
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTAK8PFJetsReconstruction_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBeamSpotSequence_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBeginSequence_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepCSVSequencePFPuppi_cfi")
-fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepCSVSequencePFPuppiModEta2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepFlavourSequencePFPuppi_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTBtagDeepFlavourSequencePFPuppiModEta2p4_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/sequences/HLTCaloMETReconstruction_cfi")
@@ -313,7 +307,6 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_PFPuppiHT1070,
     fragment.HLT_PFPuppiMETTypeOne140_PFPuppiMHT140,
 
-    fragment.HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepCSV_2p4,
     fragment.HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4,
     fragment.HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4,
     fragment.HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4,

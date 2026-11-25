@@ -1,4 +1,5 @@
 #include <cmath>
+#include <memory>
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -205,9 +206,9 @@ void HLTEcalResonanceFilter::fillDescriptions(edm::ConfigurationDescriptions &de
 // ------------ method called to produce the data  ------------
 bool HLTEcalResonanceFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   //Create empty output collections
-  std::unique_ptr<EBRecHitCollection> selEBRecHitCollection(new EBRecHitCollection);
+  std::unique_ptr<EBRecHitCollection> selEBRecHitCollection = std::make_unique<EBRecHitCollection>();
   //Create empty output collections
-  std::unique_ptr<EERecHitCollection> selEERecHitCollection(new EERecHitCollection);
+  std::unique_ptr<EERecHitCollection> selEERecHitCollection = std::make_unique<EERecHitCollection>();
 
   ////all selected..
   vector<DetId> selectedEBDetIds;
@@ -348,7 +349,7 @@ bool HLTEcalResonanceFilter::filter(edm::Event &iEvent, const edm::EventSetup &i
   }
   // The set of used DetID's for a given event:
   m_used_strips.clear();
-  std::unique_ptr<ESRecHitCollection> selESRecHitCollection(new ESRecHitCollection);
+  std::unique_ptr<ESRecHitCollection> selESRecHitCollection = std::make_unique<ESRecHitCollection>();
 
   Handle<EERecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(endcapHitsToken_, endcapRecHitsHandle);

@@ -45,6 +45,8 @@
 //general
 #include <ap_int.h>
 
+#include <memory>
+
 using namespace std;
 using namespace edm;
 using namespace l1t;
@@ -125,7 +127,7 @@ L1TrackJetEmulatorProducer::L1TrackJetEmulatorProducer(const ParameterSet &iConf
 }
 
 void L1TrackJetEmulatorProducer::produce(Event &iEvent, const EventSetup &iSetup) {
-  unique_ptr<l1t::TkJetWordCollection> L1TrackJetContainer(new l1t::TkJetWordCollection);
+  unique_ptr<l1t::TkJetWordCollection> L1TrackJetContainer = std::make_unique<l1t::TkJetWordCollection>();
 
   // L1 tracks
   edm::Handle<L1TTTrackRefCollectionType> TTTrackHandle;

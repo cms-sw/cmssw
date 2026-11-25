@@ -46,7 +46,7 @@ HistoAnalyzer<C>::HistoAnalyzer(const edm::ParameterSet& par)
     : srcToken_(consumes<C>(par.template getParameter<edm::InputTag>("src"))),
       usingWeights_(par.exists("weights")),
       weightsToken_(
-          mayConsume<double>(par.template getUntrackedParameter<edm::InputTag>("weights", edm::InputTag("fake")))) {
+          consumes<double>(par.template getUntrackedParameter<edm::InputTag>("weights", edm::InputTag("fake")))) {
   usesResource(TFileService::kSharedResource);
   edm::Service<TFileService> fs;
   std::vector<edm::ParameterSet> histograms = par.template getParameter<std::vector<edm::ParameterSet> >("histograms");

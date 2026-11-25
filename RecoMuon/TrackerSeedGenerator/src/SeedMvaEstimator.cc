@@ -15,7 +15,9 @@ SeedMvaEstimator::SeedMvaEstimator(const edm::FileInPath& weightsfile,
   scale_istd_.reserve(scale_std.size());
   for (auto v : scale_std)
     scale_istd_.push_back(1. / v);
-  gbrForest_ = createGBRForest(weightsfile);
+  std::vector<std::string> varNames;
+  gbrForest_ = createGBRForest(weightsfile, varNames);
+  nVariables_ = varNames.size();
 }
 
 SeedMvaEstimator::~SeedMvaEstimator() {}

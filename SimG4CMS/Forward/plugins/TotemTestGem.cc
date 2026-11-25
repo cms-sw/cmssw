@@ -84,7 +84,7 @@ TotemTestGem::~TotemTestGem() {}
 //
 
 void TotemTestGem::produce(edm::Event& e, const edm::EventSetup&) {
-  std::unique_ptr<TotemTestHistoClass> product(new TotemTestHistoClass);
+  std::unique_ptr<TotemTestHistoClass> product = std::make_unique<TotemTestHistoClass>();
   fillEvent(*product);
   e.put(std::move(product));
 }

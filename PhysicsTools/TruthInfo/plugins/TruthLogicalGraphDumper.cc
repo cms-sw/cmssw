@@ -179,7 +179,7 @@ namespace {
     auto const& r = raw->nodeRef(static_cast<uint32_t>(nodeId));
 
     std::ostringstream ss;
-    ss << rawKindName(r.kind) << " #" << nodeId << " key=" << r.key;
+    ss << rawKindName(r.kind()) << " #" << nodeId << " key=" << r.key();
     return ss.str();
   }
 
@@ -402,9 +402,9 @@ class TruthLogicalGraphDumper : public edm::one::EDAnalyzer<> {
 public:
   explicit TruthLogicalGraphDumper(const edm::ParameterSet& cfg)
       : token_(consumes<truth::Graph>(cfg.getParameter<edm::InputTag>("src"))),
-        rawToken_(mayConsume<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
+        rawToken_(consumes<TruthGraph>(cfg.getParameter<edm::InputTag>("rawSrc"))),
         hitIndexTag_(cfg.getParameter<edm::InputTag>("hitIndex")),
-        hitIndexToken_(mayConsume<truth::LogicalGraphHitIndex>(hitIndexTag_)),
+        hitIndexToken_(consumes<truth::LogicalGraphHitIndex>(hitIndexTag_)),
         useHitIndex_(!hitIndexTag_.label().empty()),
         dotFile_(cfg.getParameter<std::string>("dotFile")),
         jsonFile_(cfg.getParameter<std::string>("jsonFile")),
@@ -417,7 +417,7 @@ public:
 
     for (auto const& tag : hgcalRecHitTags) {
       hgcalRecHitTags_.push_back(tag);
-      hgcalRecHitTokens_.push_back(mayConsume<HGCRecHitCollection>(tag));
+      hgcalRecHitTokens_.push_back(consumes<HGCRecHitCollection>(tag));
     }
 
     const auto pfRecHitTags = cfg.getParameter<std::vector<edm::InputTag>>("pfRecHits");
@@ -426,7 +426,7 @@ public:
 
     for (auto const& tag : pfRecHitTags) {
       pfRecHitTags_.push_back(tag);
-      pfRecHitTokens_.push_back(mayConsume<reco::PFRecHitCollection>(tag));
+      pfRecHitTokens_.push_back(consumes<reco::PFRecHitCollection>(tag));
     }
   }
 

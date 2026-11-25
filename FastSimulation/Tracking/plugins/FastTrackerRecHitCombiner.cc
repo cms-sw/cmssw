@@ -56,7 +56,8 @@ void FastTrackerRecHitCombiner::produce(edm::Event& iEvent, const edm::EventSetu
   iEvent.getByToken(simHit2RecHitMapToken, simHit2RecHitMap);
 
   // output
-  std::unique_ptr<FastTrackerRecHitCombinationCollection> output(new FastTrackerRecHitCombinationCollection);
+  std::unique_ptr<FastTrackerRecHitCombinationCollection> output =
+      std::make_unique<FastTrackerRecHitCombinationCollection>();
 
   FastTrackerRecHitCombination currentCombination;
   for (unsigned int simHitCounter = 0; simHitCounter < simHits->size(); simHitCounter++) {

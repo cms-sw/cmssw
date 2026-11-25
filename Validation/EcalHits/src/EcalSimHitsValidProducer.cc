@@ -15,6 +15,7 @@
 #include "G4Step.hh"
 
 #include <iostream>
+#include <memory>
 
 EcalSimHitsValidProducer::EcalSimHitsValidProducer(const edm::ParameterSet &iPSet)
     : ee1(0.0),
@@ -61,7 +62,7 @@ EcalSimHitsValidProducer::EcalSimHitsValidProducer(const edm::ParameterSet &iPSe
 EcalSimHitsValidProducer::~EcalSimHitsValidProducer() {}
 
 void EcalSimHitsValidProducer::produce(edm::Event &e, const edm::EventSetup &) {
-  std::unique_ptr<PEcalValidInfo> product(new PEcalValidInfo);
+  std::unique_ptr<PEcalValidInfo> product = std::make_unique<PEcalValidInfo>();
   fillEventInfo(*product);
   e.put(std::move(product), label);
 }

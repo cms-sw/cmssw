@@ -68,7 +68,7 @@ TrackingRecoMaterialAnalyser::TrackingRecoMaterialAnalyser(const edm::ParameterS
     : refitter_(iPSet, consumesCollector()),
       tracksToken_(consumes<reco::TrackCollection>(iPSet.getParameter<edm::InputTag>("tracks"))),
       beamspotToken_(consumes<reco::BeamSpot>(iPSet.getParameter<edm::InputTag>("beamspot"))),
-      verticesToken_(mayConsume<reco::VertexCollection>(iPSet.getParameter<edm::InputTag>("vertices"))),
+      verticesToken_(consumes<reco::VertexCollection>(iPSet.getParameter<edm::InputTag>("vertices"))),
       trackerGeometryTokenRun_(esConsumes<edm::Transition::BeginRun>()),
       tTopoToken_(esConsumes()),
       usePV_(iPSet.getParameter<bool>("usePV")),

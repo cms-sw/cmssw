@@ -122,7 +122,7 @@ namespace l1t {
     LogDebug("L1T") << "AMC13 size " << size << " bytes";
 
     // prepare the raw data collection
-    std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+    std::unique_ptr<FEDRawDataCollection> raw_coll = std::make_unique<FEDRawDataCollection>();
     FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
     fed_data.resize(size);

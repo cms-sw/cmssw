@@ -20,6 +20,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/Association.h"
 #include <iostream>
+#include <memory>
 
 class PFCandidateMuonUntagger : public edm::global::EDProducer<> {
 public:
@@ -35,7 +36,7 @@ private:
   template <typename H1>
   void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> values, const std::string &name) {
     typedef edm::ValueMap<int> IntMap;
-    std::unique_ptr<IntMap> intmap(new IntMap());
+    std::unique_ptr<IntMap> intmap = std::make_unique<IntMap>();
     typename IntMap::Filler filler(*intmap);
     filler.insert(from, values.begin(), values.end());
     filler.fill();
@@ -60,8 +61,8 @@ void PFCandidateMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, con
   iEvent.getByToken(pfcandidates_, pfcandidates);
 
   int n = pfcandidates->size();
-  std::unique_ptr<std::vector<reco::PFCandidate>> copy(new std::vector<reco::PFCandidate>());
-  std::unique_ptr<std::vector<reco::PFCandidate>> discarded(new std::vector<reco::PFCandidate>());
+  std::unique_ptr<std::vector<reco::PFCandidate>> copy = std::make_unique<std::vector<reco::PFCandidate>>();
+  std::unique_ptr<std::vector<reco::PFCandidate>> discarded = std::make_unique<std::vector<reco::PFCandidate>>();
   copy->reserve(n);
   std::vector<int> oldToNew(n), newToOld, badToOld;
   newToOld.reserve(n);
@@ -93,7 +94,7 @@ void PFCandidateMuonUntagger::produce(edm::StreamID iID, edm::Event &iEvent, con
   edm::OrphanHandle<std::vector<reco::PFCandidate>> newpf = iEvent.put(std::move(copy));
   edm::OrphanHandle<std::vector<reco::PFCandidate>> badpf = iEvent.put(std::move(discarded), "discarded");
 
-  std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf(new edm::ValueMap<reco::PFCandidateRef>());
+  std::unique_ptr<edm::ValueMap<reco::PFCandidateRef>> pf2pf = std::make_unique<edm::ValueMap<reco::PFCandidateRef>>();
   edm::ValueMap<reco::PFCandidateRef>::Filler filler(*pf2pf);
   std::vector<reco::PFCandidateRef> refs;
   refs.reserve(n);
