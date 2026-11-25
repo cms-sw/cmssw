@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun dumpHGCalPassive_cfg.py geometry=V18 type=DDD
 #
-#   Options for geometry V18, V19, V19c
+#   Options for geometry V18, V19, V19c, V20
 #               type     DDD, DD4hep
 #
 ###############################################################################
@@ -14,10 +14,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "V18",
+                 "V19",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V18, V19, V19c")
+                  "type of operations: V18, V19, V19c, V20")
 options.register('type',
                  "DDD",
                   VarParsing.VarParsing.multiplicity.singleton,

@@ -13,7 +13,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('type',
-                 "V17",
+                 "V19",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "type of operations: V17, V18, V19")
@@ -21,7 +21,6 @@ options.register('type',
 ### get and parse the command line arguments
 options.parseArguments()
 print(options)
-
 from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 process = cms.Process("DumpHGCalEE",Phase2C17I13M9)
 

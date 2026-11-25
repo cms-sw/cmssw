@@ -17,7 +17,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('type',
-                 "V17",
+                 "V19",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
                   "type of operations: V17, V17n, V7ng, V17Only, V18, V18n, V18ng, V18ngr, V18O, V19, V19n, V19ng, V19ngr, V19X, Wafer, WaferFR, WaferPR")
