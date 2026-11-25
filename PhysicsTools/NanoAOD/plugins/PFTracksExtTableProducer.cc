@@ -18,7 +18,6 @@ public:
         propSetup_(iConfig.getParameter<edm::ParameterSet>("propagation"), consumesCollector()) {
     produces<nanoaod::FlatTable>();
   }
-  ~PFTracksExtTableProducer() override {}
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -40,15 +39,16 @@ private:
 
 void PFTracksExtTableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   const auto& tracks = iEvent.get(src_);
-  const PropagateToMuon propagator = propSetup_.init(iSetup);
+  const auto propagator = propSetup_.init(iSetup);
 
-  const size_t ntrk = tracks.size();
+  const auto ntrk = tracks.size();
   std::vector<float> propEta(ntrk, -99.), propPhi(ntrk, -99.), propR(ntrk, -99.);
 
   for (size_t i = 0; i < ntrk; ++i) {
     const TrajectoryStateOnSurface tsos = propagator.extrapolate(tracks[i]);
-    if (!tsos.isValid())
+    if (!tsos.isValid()) {
       continue;
+    }
     const GlobalPoint pos = tsos.globalPosition();
     propEta[i] = pos.eta();
     propPhi[i] = pos.phi();
