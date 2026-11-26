@@ -20,6 +20,7 @@ from HLTrigger.NGTScouting.hltPhotons_cfi import *
 from HLTrigger.NGTScouting.hltElectrons_cfi import *
 from HLTrigger.NGTScouting.hltMuons_cfi import *
 from HLTrigger.NGTScouting.hltTracks_cfi import *
+from HLTrigger.NGTScouting.hltV0s_cfi import *
 from HLTrigger.NGTScouting.hltGsfTracks_cfi import *
 from HLTrigger.NGTScouting.hltJets_cfi import *
 from HLTrigger.NGTScouting.hltTaus_cfi import *
@@ -64,6 +65,8 @@ NanoHltTables = cms.Sequence(
     + hltPixelVertexTable
     + hltGeneralTrackTable
     + hltGeneralTrackExtTable
+    + hltKshortTable
+    + hltLambdaTable
     + hltGsfTracksL1SeededTable
     + hltGsfTracksUnseededTable
     + hltEgammaPacker
