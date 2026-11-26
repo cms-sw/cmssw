@@ -1103,6 +1103,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+    // Collect the cells from which Kernel_find_ntuplets starts a search (same conditions as before: not killed,
+    // with at least one neighbour, on a starting layer pair, with the innermost hit within startMaxInnerR), so that
+    // the search kernel runs only on them and its warps are not mostly made of threads that exit at once.
+    template <typename TrackerTraits>
+    class Kernel_select_starts {
+    public:
+      using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                    HitsMultiView hh,
+                                    const ::reco::CAGraphSoAConstView &cc,
+                                    const ::reco::CANtupletCutsSoAConstView &ntupletCuts,
+                                    CellToCell const *__restrict__ cellNeighborsHisto,
+                                    CACell<TrackerTraits> const *__restrict__ cells,
+                                    uint32_t const *nCells,
+                                    uint32_t *__restrict__ starts,
+                                    uint32_t *nStarts) const {
+        for (auto idx : cms::alpakatools::uniform_elements(acc, (*nCells))) {
+          auto const &thisCell = cells[idx];
+
+          // cut by earlyFishbone
+          if (thisCell.isKilled())
+            continue;
+
+          // we require at least three hits
+          if (cellNeighborsHisto->size(idx) == 0)
+            continue;
+
+          // check if the layer pair of the cell is among the set of starting pairs
+          if (not cc[thisCell.layerPairId()].startingPair())
+            continue;
+
+          // check if the most inner hit does not fulfill the starting requirement
+          if (thisCell.inner_r(hh) > ntupletCuts[thisCell.innerLayer(cc)].startMaxInnerR())
+            continue;
+
+          auto slot = alpaka::atomicAdd(acc, nStarts, 1u, alpaka::hierarchy::Blocks{});
+          starts[slot] = idx;
+        }
+      }
+    };
+
     template <typename TrackerTraits>
     class Kernel_find_ntuplets {
     public:
@@ -1121,76 +1163,48 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     uint32_t *nCellTracks,
                                     uint32_t const *nTriplets,
                                     uint32_t const *nCells,
+                                    uint32_t const *__restrict__ starts,
+                                    uint32_t const *nStarts,
                                     cms::alpakatools::AtomicPairCounter *apc,
                                     AlgoParams const &params) const {
         using Cell = CACell<TrackerTraits>;
 
 #ifdef GPU_DEBUG
         if (cms::alpakatools::once_per_grid(acc))
-          printf("starting producing ntuplets from %d cells and %d triplets \n", *nCells, *nTriplets);
+          printf("starting producing ntuplets from %d cells (%d starting) and %d triplets \n",
+                 *nCells,
+                 *nStarts,
+                 *nTriplets);
 #endif
 
-        for (auto idx : cms::alpakatools::uniform_elements(acc, (*nCells))) {
-          auto const &thisCell = cells[idx];
-
-          // cut by earlyFishbone
-          if (thisCell.isKilled())
-            continue;
-
-          // we require at least three hits
-          if (cellNeighborsHisto->size(idx) == 0)
-            continue;
-
-          // check if the layer pair of the cell is among the set of starting pairs
-          auto pid = thisCell.layerPairId();
-          bool doit = cc[pid].startingPair();
-
-          // check if the most inner hit does not fulfill the starting requirement
-          auto lid = thisCell.innerLayer(cc);
-          if (thisCell.inner_r(hh) > ntupletCuts[lid].startMaxInnerR()) {
-            doit = false;
-          }
-
+        // only the starting cells selected by Kernel_select_starts
+        for (auto i : cms::alpakatools::uniform_elements(acc, (*nStarts))) {
+          auto const idx = starts[i];
           constexpr uint32_t maxDepth = TrackerTraits::maxLayersPerTrack - 1;
-#ifdef CA_DEBUG
-          printf(
-              "LayerPairId %d and inner layer %d doit ? %d From cell %d with nNeighbors = %d and innerR=%f < "
-              "maxInnerR=%f ?\n",
-              pid,
-              lid,
-              doit,
-              idx,
-              cellNeighborsHisto->size(idx),
-              thisCell.inner_r(hh),
-              ntupletCuts[lid].startMaxInnerR());
-#endif
+          typename Cell::TmpTuple stack;
+          // per-thread buffer that save_ntuplet fills when it saves an ntuplet
+          typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];
 
-          if (doit) {
-            typename Cell::TmpTuple stack;
-            // per-thread buffer that save_ntuplet fills when it saves an ntuplet
-            typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];
-
-            stack.reset();
-            Cell::template find_ntuplets<maxDepth>(acc,
-                                                   hh,
-                                                   ntupletCuts,
-                                                   cc,
-                                                   cells,
-                                                   *foundNtuplets,
-                                                   cellNeighborsHisto,
-                                                   cellTracksHisto,
-                                                   nCellTracks,
-                                                   ct,
-                                                   *apc,
-                                                   tracks_view.quality().data(),
-                                                   tracks_view.nLayers().data(),
-                                                   tracks_view.pt().data(),
-                                                   stack,
-                                                   hits,
-                                                   params.minHitsPerNtuplet_,
-                                                   idx);
-            ALPAKA_ASSERT_ACC(stack.empty());
-          }
+          stack.reset();
+          Cell::template find_ntuplets<maxDepth>(acc,
+                                                 hh,
+                                                 ntupletCuts,
+                                                 cc,
+                                                 cells,
+                                                 *foundNtuplets,
+                                                 cellNeighborsHisto,
+                                                 cellTracksHisto,
+                                                 nCellTracks,
+                                                 ct,
+                                                 *apc,
+                                                 tracks_view.quality().data(),
+                                                 tracks_view.nLayers().data(),
+                                                 tracks_view.pt().data(),
+                                                 stack,
+                                                 hits,
+                                                 params.minHitsPerNtuplet_,
+                                                 idx);
+          ALPAKA_ASSERT_ACC(stack.empty());
         }
       }
     };
@@ -3126,6 +3140,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
     }
 
+    // compact the starting cells of the ntuplet search, then search only from them
+    auto starts = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, std::max<uint32_t>(launchCells, 1u));
+    auto nStarts = cms::alpakatools::make_device_buffer<uint32_t>(queue);
+    alpaka::memset(queue, nStarts, 0);
+    blockSize = 256;
+    numberOfBlocks = cms::alpakatools::divide_up_by(launchCells, blockSize);
+    workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+    alpaka::exec<Acc1D>(queue,
+                        workDiv1D,
+                        Kernel_select_starts<TrackerTraits>{},
+                        hh,
+                        cc,
+                        ntupletCuts,
+                        this->device_cellToNeighbors_->data(),
+                        this->device_simpleCells_->data(),
+                        this->device_nCells_->data(),
+                        starts.data(),
+                        nStarts.data());
+
     blockSize = 64;
     numberOfBlocks = cms::alpakatools::divide_up_by(launchCells, blockSize);
     workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
@@ -3144,6 +3177,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         this->device_nCellTracks_->data(),
                         this->device_nTriplets_->data(),
                         this->device_nCells_->data(),
+                        starts.data(),
+                        nStarts.data(),
                         this->device_hitTuple_apc_,
                         this->m_params.algoParams_);
 
