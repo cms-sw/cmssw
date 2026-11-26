@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckPassive_cfg.py geometry=V18 tol=0.01
 #
-#   Options for geometry V18, V19, V19c
+#   Options for geometry V18, V19, V19c, V20
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "V19",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: V18, V19, V19c")
+                  "type of operations: V18, V19, V19c, V20")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,

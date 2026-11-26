@@ -1,9 +1,9 @@
 #ifndef DataFormats_Portable_interface_PortableCollectionCommon_h
 #define DataFormats_Portable_interface_PortableCollectionCommon_h
 
-#include <format>
 #include <limits>
 #include <stdexcept>
+#include <string>
 #include <typeinfo>
 
 #include <alpaka/alpaka.hpp>
@@ -38,11 +38,11 @@ namespace portablecollection {
   template <std::integral Int>
   constexpr int size_cast(Int input) {
     if ((std::is_signed_v<Int> && input < 0) || input > std::numeric_limits<int>::max()) {
+      // std::format is not used here because this header is included in CUDA device code, where nvcc fails to compile
+      // it with GCC 16 in c++23 mode with --expt-relaxed-constexpr
       throw std::runtime_error(
-          std::format("Invalid input value for size of PortableCollection: cannot be narrowed to positive int32. "
-                      "Source type: {}, value: {} ",
-                      edm::typeDemangle(typeid(Int).name()),
-                      input));
+          "Invalid input value for size of PortableCollection: cannot be narrowed to positive int32. Source type: " +
+          edm::typeDemangle(typeid(Int).name()) + ", value: " + std::to_string(input) + " ");
     }
     return static_cast<int>(input);
   }
