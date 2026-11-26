@@ -1219,6 +1219,132 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+    // One depth of the level-by-level ntuplet search (GPU backends, see CACell::expand_cell). The nodes of depth 0
+    // are the starting cells starts[0..nStarts); those of depth L >= 1 are stored from base(L) = sum of
+    // levelCount[1..L) in nodeCell/nodeParent/nodeCurvature (the parent of a depth-1 node is its index in starts).
+    // A node that does not fit in the storage (capacity) is searched at once, depth first (CACell::find_ntuplets),
+    // by the thread that finds it.
+    template <typename TrackerTraits>
+    class Kernel_find_ntuplets_level {
+    public:
+      using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+      static constexpr uint32_t kNodesPerCell = 1;  // node storage of the level-by-level search, per cell
+
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                    HitsMultiView hh,
+                                    const ::reco::CAGraphSoAConstView &cc,
+                                    const ::reco::CANtupletCutsSoAConstView &ntupletCuts,
+                                    TkSoAView tracks_view,
+                                    HitContainer *foundNtuplets,
+                                    CellToCell const *__restrict__ cellNeighborsHisto,
+                                    CellToTrack *cellTracksHisto,
+                                    caStructures::CAPairSoAView ct,
+                                    CACell<TrackerTraits> *__restrict__ cells,
+                                    uint32_t *nCellTracks,
+                                    uint32_t const *__restrict__ starts,
+                                    uint32_t const *nStarts,
+                                    uint32_t *__restrict__ nodeCell,
+                                    uint32_t *__restrict__ nodeParent,
+                                    float *__restrict__ nodeCurvature,
+                                    uint32_t *levelCount,
+                                    uint32_t capacity,
+                                    int level,
+                                    cms::alpakatools::AtomicPairCounter *apc,
+                                    AlgoParams const &params) const {
+        using Cell = CACell<TrackerTraits>;
+        constexpr int maxDepth = TrackerTraits::maxLayersPerTrack - 1;
+        uint32_t base = 0;
+        for (int l = 1; l < level; ++l)
+          base += levelCount[l];
+        uint32_t const nextBase = base + (level >= 1 ? levelCount[level] : 0u);
+        uint32_t const n = (level == 0) ? *nStarts : levelCount[level];
+        for (uint32_t k : cms::alpakatools::uniform_elements(acc, n)) {
+          uint32_t const node = base + k;
+          if (level >= 1 && node >= capacity)
+            continue;  // searched depth first when it was found
+          // the path of cells to this node
+          uint32_t path[maxDepth];
+          if (level == 0) {
+            path[0] = starts[k];
+          } else {
+            path[level] = nodeCell[node];
+            uint32_t p = node;
+            for (int l = level; l >= 1; --l) {
+              uint32_t const parent = nodeParent[p];
+              if (l == 1) {
+                path[0] = starts[parent];
+              } else {
+                path[l - 1] = nodeCell[parent];
+                p = parent;
+              }
+            }
+          }
+          float const curvature = (level == 0) ? Cell::kUninitializeCurvature : nodeCurvature[node];
+          typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];
+          bool const found = Cell::template expand_cell<maxDepth>(
+              hh,
+              ntupletCuts,
+              cc,
+              cells,
+              cellNeighborsHisto,
+              path[level],
+              level,
+              curvature,
+              [&](uint32_t child, float childCurvature) {
+                uint32_t const g =
+                    nextBase + alpaka::atomicAdd(acc, &levelCount[level + 1], 1u, alpaka::hierarchy::Blocks{});
+                if (g < capacity) {
+                  nodeCell[g] = child;
+                  nodeParent[g] = (level == 0) ? k : node;
+                  nodeCurvature[g] = childCurvature;
+                } else {
+                  typename Cell::TmpTuple stack;
+                  stack.reset();
+                  Cell::template find_ntuplets<maxDepth>(acc,
+                                                         hh,
+                                                         ntupletCuts,
+                                                         cc,
+                                                         cells,
+                                                         *foundNtuplets,
+                                                         cellNeighborsHisto,
+                                                         cellTracksHisto,
+                                                         nCellTracks,
+                                                         ct,
+                                                         *apc,
+                                                         tracks_view.quality().data(),
+                                                         tracks_view.nLayers().data(),
+                                                         tracks_view.pt().data(),
+                                                         stack,
+                                                         hits,
+                                                         params.minHitsPerNtuplet_,
+                                                         path,
+                                                         level + 1,
+                                                         child,
+                                                         childCurvature);
+                }
+              });
+          if (not found) {
+            Cell::save_ntuplet(acc,
+                               hh,
+                               cells,
+                               *foundNtuplets,
+                               cellTracksHisto,
+                               nCellTracks,
+                               ct,
+                               *apc,
+                               tracks_view.quality().data(),
+                               tracks_view.nLayers().data(),
+                               tracks_view.pt().data(),
+                               path,
+                               level + 1,
+                               curvature,
+                               hits,
+                               params.minHitsPerNtuplet_);
+          }
+        }
+      }
+    };
+
     template <typename TrackerTraits>
     class Kernel_find_ntuplets {
     public:
@@ -1277,7 +1403,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                  stack,
                                                  hits,
                                                  params.minHitsPerNtuplet_,
-                                                 idx);
+                                                 nullptr,
+                                                 0,
+                                                 idx,
+                                                 Cell::kUninitializeCurvature);
           ALPAKA_ASSERT_ACC(stack.empty());
         }
       }
@@ -3225,28 +3354,68 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                         starts.data(),
                         nStarts.data());
 
-    blockSize = 64;
-    numberOfBlocks = cms::alpakatools::divide_up_by(launchCells, blockSize);
-    workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
-    alpaka::exec<Acc1D>(queue,
-                        workDiv1D,
-                        Kernel_find_ntuplets<TrackerTraits>{},
-                        hh,
-                        cc,
-                        ntupletCuts,
-                        tracks_view,
-                        this->device_hitContainer_->data(),
-                        this->device_cellToNeighbors_->data(),
-                        this->device_cellToTracks_->data(),
-                        this->deviceTracksCells_->view(),
-                        this->device_simpleCells_->data(),
-                        this->device_nCellTracks_->data(),
-                        this->device_nTriplets_->data(),
-                        this->device_nCells_->data(),
-                        starts.data(),
-                        nStarts.data(),
-                        this->device_hitTuple_apc_,
-                        this->m_params.algoParams_);
+    if constexpr (not alpaka::isSingleThreadAcc<Acc1D>) {
+      // level-by-level search: one launch per depth, over the nodes of that depth
+      constexpr int maxDepth = TrackerTraits::maxLayersPerTrack - 1;
+      uint32_t const nodeCapacity =
+          std::max<uint32_t>(Kernel_find_ntuplets_level<TrackerTraits>::kNodesPerCell * launchCells, 1u);
+      auto nodeCell = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, nodeCapacity);
+      auto nodeParent = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, nodeCapacity);
+      auto nodeCurvature = cms::alpakatools::make_device_buffer<float[]>(queue, nodeCapacity);
+      auto levelCount = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, maxDepth + 1);
+      alpaka::memset(queue, levelCount, 0);
+      blockSize = 128;
+      numberOfBlocks = std::min<uint32_t>(cms::alpakatools::divide_up_by(launchCells, blockSize), 4096u);
+      workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+      for (int level = 0; level < maxDepth; ++level) {
+        alpaka::exec<Acc1D>(queue,
+                            workDiv1D,
+                            Kernel_find_ntuplets_level<TrackerTraits>{},
+                            hh,
+                            cc,
+                            ntupletCuts,
+                            tracks_view,
+                            this->device_hitContainer_->data(),
+                            this->device_cellToNeighbors_->data(),
+                            this->device_cellToTracks_->data(),
+                            this->deviceTracksCells_->view(),
+                            this->device_simpleCells_->data(),
+                            this->device_nCellTracks_->data(),
+                            starts.data(),
+                            nStarts.data(),
+                            nodeCell.data(),
+                            nodeParent.data(),
+                            nodeCurvature.data(),
+                            levelCount.data(),
+                            nodeCapacity,
+                            level,
+                            this->device_hitTuple_apc_,
+                            this->m_params.algoParams_);
+      }
+    } else {
+      blockSize = 64;
+      numberOfBlocks = cms::alpakatools::divide_up_by(launchCells, blockSize);
+      workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+      alpaka::exec<Acc1D>(queue,
+                          workDiv1D,
+                          Kernel_find_ntuplets<TrackerTraits>{},
+                          hh,
+                          cc,
+                          ntupletCuts,
+                          tracks_view,
+                          this->device_hitContainer_->data(),
+                          this->device_cellToNeighbors_->data(),
+                          this->device_cellToTracks_->data(),
+                          this->deviceTracksCells_->view(),
+                          this->device_simpleCells_->data(),
+                          this->device_nCellTracks_->data(),
+                          this->device_nTriplets_->data(),
+                          this->device_nCells_->data(),
+                          starts.data(),
+                          nStarts.data(),
+                          this->device_hitTuple_apc_,
+                          this->m_params.algoParams_);
+    }
 
 #ifdef GPU_DEBUG
     alpaka::wait(queue);
@@ -3458,7 +3627,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   //   device_hitToCell_ (+Storage/Offsets)        last read by the late-fishbone CAFishbone launch
   //                                               (classifyTuples' shared-hit cleaner uses
   //                                               device_hitToTuple_, a different container);
-  //   device_cellToNeighbors_ (+Storage/Offsets)  last read by Kernel_find_ntuplets. The cell->TRACKS
+  //   device_cellToNeighbors_ (+Storage/Offsets)  last read by Kernel_find_ntuplets(_level). The cell->TRACKS
   //                                               container is NOT released: the duplicate remover
   //                                               reads it in classifyTuples;
   //   device_hitPhiHist_ / device_phiBinnerStorage_  read only by buildDoublets' doublet kernels;

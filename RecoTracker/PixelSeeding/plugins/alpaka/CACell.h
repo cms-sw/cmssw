@@ -254,8 +254,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
     }
 
-    // Depth-first search of the ntuplets that start from the cell startCell, saving the ones it finds. The visit uses
-    // an explicit stack, one frame per depth, instead of a recursion that the compiler would inline once per depth.
+    // Depth-first search of the subtree of the cell startCell, reached through the cells prefix[0..prefixLen) with the
+    // pre-fit curvature startCurvature, saving the ntuplets it finds. A search from a starting cell has an empty
+    // prefix and kUninitializeCurvature. The visit uses an explicit stack, one frame per depth, instead of a recursion
+    // that the compiler would inline once per depth. Used by Kernel_find_ntuplets (back-ends with a single thread per
+    // block) and by Kernel_find_ntuplets_level for the nodes that do not fit in its node storage.
     template <int MAXDEPTH>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static void find_ntuplets(Acc1D const& acc,
                                                              const HitsMultiView& hh,
@@ -274,7 +277,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                              TmpTuple& tmpNtuplet,
                                                              hindex_type* __restrict__ hits,
                                                              const unsigned int minHitsPerNtuplet,
-                                                             uint32_t startCell) {
+                                                             uint32_t const* prefix,
+                                                             int prefixLen,
+                                                             uint32_t startCell,
+                                                             float startCurvature) {
       static_assert(MAXDEPTH > 0);
       // one frame per depth: where the neighbour loop of its cell is, and the curvature passed to it by its parent
       uint32_t frameNext[MAXDEPTH];    // next neighbour index to try
@@ -282,14 +288,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       bool frameFound[MAXDEPTH];       // a compatible neighbour was found (and visited)
       float frameCurvature[MAXDEPTH];  // pre-fit curvature with which the cell was reached
 
-      int level = 0;
+      // the cells of the prefix are done: when the search returns to them it stops, without saving them
+      for (int l = 0; l < prefixLen; ++l) {
+        tmpNtuplet.push_back_unsafe(prefix[l]);
+        frameNext[l] = 0;
+        framePass[l] = 2;
+        frameFound[l] = true;
+        frameCurvature[l] = kUninitializeCurvature;
+      }
+      int level = prefixLen;
       tmpNtuplet.push_back_unsafe(startCell);
       frameNext[level] = 0;
       framePass[level] = 0;
       frameFound[level] = false;
-      frameCurvature[level] = kUninitializeCurvature;
+      frameCurvature[level] = startCurvature;
 
-      while (level >= 0) {
+      while (level >= prefixLen) {
         uint32_t const doubletId = tmpNtuplet[level];
         CACell const& cell = cells[doubletId];
         auto const* __restrict__ neighborCells = cellNeighborsHisto->begin(doubletId);
@@ -368,6 +382,55 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         tmpNtuplet.pop_back();
         --level;
       }
+    }
+
+    // ---- Level-by-level search (GPU backends) ----
+    // The same visit as find_ntuplets, one depth at a time: each node of the search tree (a cell reached through a path
+    // of cells, with the pre-fit curvature passed to it) is expanded by one thread, which applies the neighbour loop of
+    // one frame of the depth-first search and either records the compatible neighbours as nodes of the next depth or,
+    // if there is none, saves the ntuplet.
+
+    // Calls emit(neighbour, curvature) for each compatible neighbour of the cell doubletId at depth level, reached
+    // with the pre-fit curvature curvature, in the order and with the cuts of find_ntuplets. Returns whether any was
+    // found. At the last depth the cell is not extended.
+    template <int MAXDEPTH, typename F>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static bool expand_cell(const HitsMultiView& hh,
+                                                           const ::reco::CANtupletCutsSoAConstView& ntupletCuts,
+                                                           const ::reco::CAGraphSoAConstView& cc,
+                                                           CACell* __restrict__ cells,
+                                                           CellToCell const* __restrict__ cellNeighborsHisto,
+                                                           uint32_t doubletId,
+                                                           int level,
+                                                           float curvature,
+                                                           F&& emit) {
+      if (level == MAXDEPTH - 1)
+        return false;
+      CACell const& cell = cells[doubletId];
+      auto const* __restrict__ neighborCells = cellNeighborsHisto->begin(doubletId);
+      auto const nNeighbors = cellNeighborsHisto->size(doubletId);
+      bool found = false;
+      for (int pass = 0; pass < 2; ++pass) {
+        // the layer-skipping pass is skipped if a non layer-skipping neighbour has been found at triplet-or-more depth
+        if (pass == 1 && found && level > 0)
+          break;
+        const uint32_t wantSkip = (pass == 0) ? 0u : caStructures::kSkipsLayerFlag;
+        for (uint32_t n = 0; n < nNeighbors; ++n) {
+          auto encoded = neighborCells[n];
+          if ((encoded & caStructures::kSkipsLayerFlag) != wantSkip)
+            continue;
+          auto otherCell = encoded & caStructures::kCellIndexMask;
+          if (cells[otherCell].isKilled())
+            continue;
+          float thisCurvature{kUninitializeCurvature};
+          if (cells[otherCell].quadrupletCut(
+                  curvature, thisCurvature, ntupletCuts, cc, hh, cell.inner_x(hh), cell.inner_y(hh))) {
+            continue;
+          }
+          found = true;
+          emit(otherCell, thisCurvature);
+        }
+      }
+      return found;
     }
 
   private:
