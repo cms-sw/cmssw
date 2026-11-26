@@ -2,6 +2,19 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nanoDQM_tools_cff import *
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+
+# TrackingParticle matching columns (validation flavours only; Plot1D skips missing columns).
+# Unmatched tracks carry tpPt = -1 and tpEta/tpPhi = -10, so they end up in the underflow.
+_tpMatchPlots = [
+    Plot1D('matched', 'matched', 2, 0, 2, 'track matched to a TrackingParticle'),
+    Plot1D('duplicate', 'duplicate', 2, 0, 2, 'matched TrackingParticle shared by several tracks'),
+    Plot1D('tpPdgId', 'tpPdgId', 4601, -2300.5, 2300.5, 'matched TrackingParticle pdgId'),
+    Plot1D('tpCharge', 'tpCharge', 5, -2, 3, 'matched TrackingParticle charge'),
+    Plot1D('tpPt', 'tpPt', 20, 0, 400, 'matched TrackingParticle pt'),
+    Plot1D('tpEta', 'tpEta', 20, -4., 4., 'matched TrackingParticle eta'),
+    Plot1D('tpPhi', 'tpPhi', 20, -3.14159, 3.14159, 'matched TrackingParticle phi'),
+]
+
 hltNanoDQM = DQMEDAnalyzer("NanoAODDQM",
     folder = cms.string("HLT/NanoAODDQM"),
     vplots = cms.PSet(
@@ -23,7 +36,8 @@ hltNanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('nPixelHits', 'nPixelHits', 10, 0, 10, 'track # pixel hits'),
                 Plot1D('nTrkLays', 'nTrkLays', 20, 0, 20, 'track # tracker layers'),
                 Plot1D('charge', 'charge', 5, -2, 3, 'track charge'),
-                Plot1D('t0', 't0', 40, -1, 1, 'track t0')
+                Plot1D('t0', 't0', 40, -1, 1, 'track t0'),
+                *_tpMatchPlots
             )
         ),
         hltGeneralTrack = cms.PSet(
@@ -44,7 +58,8 @@ hltNanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('nPixelHits', 'nPixelHits', 10, 0, 10, 'track # pixel hits'),
                 Plot1D('nTrkLays', 'nTrkLays', 20, 0, 20, 'track # tracker layers'),
                 Plot1D('charge', 'charge', 5, -2, 3, 'track charge'),
-                Plot1D('t0', 't0', 40, -1, 1, 'track t0')
+                Plot1D('t0', 't0', 40, -1, 1, 'track t0'),
+                *_tpMatchPlots
             )
         ),
         hltPixelVertex = cms.PSet(
