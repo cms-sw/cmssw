@@ -81,13 +81,19 @@ def createRecoJetPlots(ptbins, etabins):
 # Jet analyzers and post-processors
 #
 # Each flavour has its own jet collections: RECO/AOD (reco::PFJet, uncorrected) and miniAOD (pat::Jet, with JEC).
+# The gen-jet spectra of the miniAOD flavour are stored under ParticleFlow/MiniAOD/.
 # The jet-response folders are named after the reco jet collection.
 
-def createJetAnalyzer(recoJets, genJets, genJetsOn=True):
+genjetDirMiniAOD = 'ParticleFlow/MiniAOD/GenJets/'
+
+def createJetAnalyzer(recoJets, genJets, genjetDir, hasJEC, genJetsOn=True):
     return DQMEDAnalyzer("PFJetAnalyzerDQM",
         #match these reco-jets to the gen-jets and compute jet response
         recoJetCollection = cms.InputTag(recoJets),
         genJetCollection = cms.InputTag(genJets),
+        genjetDir = cms.string(genjetDir),
+        # whether the reco jets carry jet energy corrections (JEC plots are only booked if so)
+        hasJEC = cms.bool(hasJEC),
         jetDeltaR = cms.double(0.2),
         # turn gen jets on or off
         genJetsOn = cms.bool(genJetsOn),
@@ -97,13 +103,13 @@ def createJetAnalyzer(recoJets, genJets, genJetsOn=True):
         recoJetPlots = cms.VPSet(createRecoJetPlots(ptbins, etabins)),
     )
 
-def createJetPostProcessor(recoJets, hasJEC, offsetDir):
+def createJetPostProcessor(recoJets, hasJEC, offsetDir, genjetDir):
     dirs = [jetResponseDir + jets + "/" + corr + "/"
             for jets in recoJets
             for corr in (["JEC", "noJEC"] if hasJEC else ["noJEC"])]
     return DQMEDHarvester("PFJetDQMPostProcessor",
         jetResponseDir = cms.vstring( dirs ),
-        genjetDir = cms.string( genjetDir ),
+        genjetDir = cms.string(genjetDir),
         offsetDir = cms.string(offsetDir),
         ptBins = cms.vdouble( ptbins ),
         etaBins = cms.vdouble( etabins ),
@@ -111,14 +117,14 @@ def createJetPostProcessor(recoJets, hasJEC, offsetDir):
     )
 
 # RECO/AOD
-pfJetAnalyzerDQM = createJetAnalyzer('ak4PFJets', 'ak4GenJets')
-pfPuppiJetAnalyzerDQM = createJetAnalyzer('ak4PFJetsPuppi', 'ak4GenJets', genJetsOn = False)
-pfJetDQMPostProcessor = createJetPostProcessor(['ak4PFJets', 'ak4PFJetsPuppi'], hasJEC = False, offsetDir = 'ParticleFlow/Offset/')
+pfJetAnalyzerDQM = createJetAnalyzer('ak4PFJets', 'ak4GenJets', genjetDir, hasJEC = False)
+pfPuppiJetAnalyzerDQM = createJetAnalyzer('ak4PFJetsPuppi', 'ak4GenJets', genjetDir, hasJEC = False, genJetsOn = False)
+pfJetDQMPostProcessor = createJetPostProcessor(['ak4PFJets', 'ak4PFJetsPuppi'], hasJEC = False, offsetDir = 'ParticleFlow/Offset/', genjetDir = genjetDir)
 
 # miniAOD
-pfJetAnalyzerMiniAODDQM = createJetAnalyzer('slimmedJets', 'slimmedGenJets')
-pfPuppiJetAnalyzerMiniAODDQM = createJetAnalyzer('slimmedJetsPuppi', 'slimmedGenJets', genJetsOn = False)
-pfJetDQMPostProcessorMiniAOD = createJetPostProcessor(['slimmedJets', 'slimmedJetsPuppi'], hasJEC = True, offsetDir = 'ParticleFlow/MiniAOD/Offset/')
+pfJetAnalyzerMiniAODDQM = createJetAnalyzer('slimmedJets', 'slimmedGenJets', genjetDirMiniAOD, hasJEC = True)
+pfPuppiJetAnalyzerMiniAODDQM = createJetAnalyzer('slimmedJetsPuppi', 'slimmedGenJets', genjetDirMiniAOD, hasJEC = True, genJetsOn = False)
+pfJetDQMPostProcessorMiniAOD = createJetPostProcessor(['slimmedJets', 'slimmedJetsPuppi'], hasJEC = True, offsetDir = 'ParticleFlow/MiniAOD/Offset/', genjetDir = genjetDirMiniAOD)
 
 # Particle Flow Candidates
 from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer

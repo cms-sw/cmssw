@@ -14,7 +14,10 @@ PFAnalyzer::PFAnalyzer(const edm::ParameterSet& pSet) {
   triggerResultsToken_ = consumes<edm::TriggerResults>(edm::InputTag(theTriggerResultsLabel_));
   m_triggerOptions = pSet.getParameter<vstring>("TriggerNames");
 
-  puppiWeightToken_ = consumes<edm::ValueMap<float>>(pSet.getParameter<edm::InputTag>("puppiWeight"));
+  // no external puppi value map when the label is empty (e.g. miniAOD, where the weights are stored in the candidates)
+  const auto puppiWeightTag = pSet.getParameter<edm::InputTag>("puppiWeight");
+  if (!puppiWeightTag.label().empty())
+    puppiWeightToken_ = consumes<edm::ValueMap<float>>(puppiWeightTag);
 
   vertexTag_ = pSet.getParameter<edm::InputTag>("PVCollection");
   vertexToken_ = consumes<std::vector<reco::Vertex>>(edm::InputTag(vertexTag_));
