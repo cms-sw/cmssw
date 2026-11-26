@@ -10,9 +10,9 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/CMSCommonData/data/cmsMother.xml',
         'Geometry/CMSCommonData/data/eta3/etaMax.xml',
         'Geometry/CMSCommonData/data/caloBase/2030/v7/caloBase.xml',
-        'Geometry/HGCalCommonData/data/hgcalMaterial/v3/hgcalMaterial.xml',
+        'Geometry/HGCalCommonData/data/hgcalMaterial/v4/hgcalMaterial.xml',
         'Geometry/HGCalCommonData/data/hgcal/v19/hgcal.xml',
-        'Geometry/HGCalCommonData/data/hgcalPassive/v19/hgcalPassive.xml',
+        'Geometry/HGCalCommonData/data/hgcalPassive/v20/hgcalPassive.xml',
         'Geometry/HGCalCommonData/data/hgcalPassive/v19/hgcalpos.xml'),
     rootNodeName = cms.string('cms:OCMS')
 )
