@@ -37,10 +37,14 @@ namespace caStructures {
     bool fitNas4_;
     bool earlyFishbone_;
     bool lateFishbone_;
+    bool onlySameLayersFishbone_;
     bool doStats_;
     bool doSharedHitCut_;
     bool dupPassThrough_;
     bool useSimpleTripletCleaner_;
+    bool doTripletCleaner_;
+    bool doFastDuplicateRemover_;
+    bool doEarlyDuplicateRemover_;
   };
 
   // Hits data formats
@@ -48,15 +52,21 @@ namespace caStructures {
   using HitModulesConstView = ::reco::HitModuleSoAConstView;
   using HitsConstView = ::reco::TrackingRecHitConstView;
 
-  //Tracks data formats
+  // Tracks data formats
   using TkSoAView = ::reco::TrackSoAView;
   using TkHitsSoAView = ::reco::TrackHitSoAView;
   using TkSoABlocksView = ::reco::TrackBlocksView;
 
-  //Indices for hits, tracks and cells
+  // Indices for hits, tracks and cells
   using hindex_type = uint32_t;
   using tindex_type = uint32_t;
   using cindex_type = uint32_t;
+
+  // cellNeighbors storage encoding: bit 31 of each stored neighbor cell index
+  // distinguishes layer-skipping (1) from non-layer-skipping (0) neighbors,
+  // so the histogram needs a single bin per cell instead of two.
+  inline constexpr uint32_t kSkipsLayerFlag = 0x80000000u;
+  inline constexpr uint32_t kCellIndexMask = 0x7FFFFFFFu;
 
   using GenericContainer = cms::alpakatools::
       OneToManyAssocRandomAccess<hindex_type, cms::alpakatools::kDynamicSize, cms::alpakatools::kDynamicSize>;

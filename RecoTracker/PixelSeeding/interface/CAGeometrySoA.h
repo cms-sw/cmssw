@@ -32,13 +32,20 @@ namespace reco {
 
   GENERATE_SOA_LAYOUT(CALayersLayout,
                       SOA_COLUMN(uint32_t, layerStarts),
+                      SOA_COLUMN(float, startMaxInnerR),
                       SOA_COLUMN(float, caThetaCut),
                       SOA_COLUMN(float, caDCACut),
+                      SOA_COLUMN(float, maxDCurv),
+                      SOA_COLUMN(float, floorDCurv),
+                      SOA_COLUMN(float, fishboneCut),
                       SOA_COLUMN(bool, isBarrel))
 
   GENERATE_SOA_LAYOUT(CAGraphLayout,
                       SOA_COLUMN(GraphNode, graph),
                       SOA_COLUMN(bool, startingPair),
+                      // effectively skipsLayers is a boolean but it's used as an index offset,
+                      // therefore stored as same type as the layerPairId in CACell
+                      SOA_COLUMN(int16_t, skipsLayers),
                       SOA_COLUMN(int16_t, phiCuts),
                       SOA_COLUMN(float, minInner),
                       SOA_COLUMN(float, maxInner),
