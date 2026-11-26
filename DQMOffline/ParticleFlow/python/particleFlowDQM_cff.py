@@ -74,39 +74,49 @@ def createRecoJetPlots(ptbins, etabins):
 # Config for analyzer and postprocessor
 #
 
-name = "genjet_pt"
-title = "genjet pt"
-pfJetAnalyzerDQM = cms.EDProducer("PFJetAnalyzerDQM",
-    #match these reco-jets to the gen-jets and compute jet response
-    recoJetCollection = cms.InputTag('slimmedJets'),
-    genJetCollection = cms.InputTag('slimmedGenJets'),
-    jetDeltaR = cms.double(0.2),
-    # turn gen jets on or off
-    genJetsOn = cms.bool(True),
-    recoJetsOn = cms.bool(True),
-    responsePlots = cms.VPSet(createResponsePlots(ptbins, etabins)),
-    genJetPlots = cms.VPSet(createGenJetPlots(ptbins, etabins)),
-    recoJetPlots = cms.VPSet(createRecoJetPlots(ptbins, etabins)),
-)
+#----- ----- ----- ----- ----- ----- ----- -----
+#
+# Jet analyzers and post-processors
+#
+# Each flavour has its own jet collections: RECO/AOD (reco::PFJet, uncorrected) and miniAOD (pat::Jet, with JEC).
+# The jet-response folders are named after the reco jet collection.
 
-vjetResponseDir = [jetResponseDir + "slimmedJets/JEC/",
-                   jetResponseDir + "slimmedJets/noJEC/",
-                   jetResponseDir + "slimmedJetsPuppi/JEC/",
-                   jetResponseDir + "slimmedJetsPuppi/noJEC/"]
+def createJetAnalyzer(recoJets, genJets, genJetsOn=True):
+    return cms.EDProducer("PFJetAnalyzerDQM",
+        #match these reco-jets to the gen-jets and compute jet response
+        recoJetCollection = cms.InputTag(recoJets),
+        genJetCollection = cms.InputTag(genJets),
+        jetDeltaR = cms.double(0.2),
+        # turn gen jets on or off
+        genJetsOn = cms.bool(genJetsOn),
+        recoJetsOn = cms.bool(True),
+        responsePlots = cms.VPSet(createResponsePlots(ptbins, etabins)),
+        genJetPlots = cms.VPSet(createGenJetPlots(ptbins, etabins)),
+        recoJetPlots = cms.VPSet(createRecoJetPlots(ptbins, etabins)),
+    )
 
-pfJetDQMPostProcessor = cms.EDProducer("PFJetDQMPostProcessor",
-    jetResponseDir = cms.vstring( vjetResponseDir ),
-    genjetDir = cms.string( genjetDir ),
-    offsetDir = cms.string('ParticleFlow/Offset/'),
-    ptBins = cms.vdouble( ptbins ),
-    etaBins = cms.vdouble( etabins ),
-    recoPtCut = cms.double(10.)
-)
+def createJetPostProcessor(recoJets, hasJEC, offsetDir):
+    dirs = [jetResponseDir + jets + "/" + corr + "/"
+            for jets in recoJets
+            for corr in (["JEC", "noJEC"] if hasJEC else ["noJEC"])]
+    return cms.EDProducer("PFJetDQMPostProcessor",
+        jetResponseDir = cms.vstring( dirs ),
+        genjetDir = cms.string( genjetDir ),
+        offsetDir = cms.string(offsetDir),
+        ptBins = cms.vdouble( ptbins ),
+        etaBins = cms.vdouble( etabins ),
+        recoPtCut = cms.double(10.)
+    )
 
-pfPuppiJetAnalyzerDQM = pfJetAnalyzerDQM.clone(
-    recoJetCollection = 'slimmedJetsPuppi',
-    genJetsOn = False
-)
+# RECO/AOD
+pfJetAnalyzerDQM = createJetAnalyzer('ak4PFJets', 'ak4GenJets')
+pfPuppiJetAnalyzerDQM = createJetAnalyzer('ak4PFJetsPuppi', 'ak4GenJets', genJetsOn = False)
+pfJetDQMPostProcessor = createJetPostProcessor(['ak4PFJets', 'ak4PFJetsPuppi'], hasJEC = False, offsetDir = 'ParticleFlow/Offset/')
+
+# miniAOD
+pfJetAnalyzerMiniAODDQM = createJetAnalyzer('slimmedJets', 'slimmedGenJets')
+pfPuppiJetAnalyzerMiniAODDQM = createJetAnalyzer('slimmedJetsPuppi', 'slimmedGenJets', genJetsOn = False)
+pfJetDQMPostProcessorMiniAOD = createJetPostProcessor(['slimmedJets', 'slimmedJetsPuppi'], hasJEC = True, offsetDir = 'ParticleFlow/MiniAOD/Offset/')
 
 # Particle Flow Candidates
 from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer
@@ -145,6 +155,8 @@ pfAnalyzerMiniAODDQM = pfAnalyzer.clone(
     folder = "ParticleFlow/MiniAOD",
     pfCandidates = "packedPFCandidates",
     pfJetCollection = cms.InputTag("slimmedJets"),
+    PVCollection = "offlineSlimmedPrimaryVertices",
+    puppiWeight = cms.InputTag(""), # no external value map in miniAOD: the weights are stored in the packed candidates
     TriggerResultsLabel = cms.InputTag("TriggerResults::HLT"),
     TriggerNames = [""],
     pfAnalysis = cms.PSet(

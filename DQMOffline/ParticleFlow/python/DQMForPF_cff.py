@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfJetAnalyzerDQM
-from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfPuppiJetAnalyzerDQM
-from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfJetDQMPostProcessor
+from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfJetAnalyzerDQM, pfJetAnalyzerMiniAODDQM
+from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfPuppiJetAnalyzerDQM, pfPuppiJetAnalyzerMiniAODDQM
+from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfJetDQMPostProcessor, pfJetDQMPostProcessorMiniAOD
 from DQMOffline.ParticleFlow.particleFlowDQM_cff import pfAnalyzerDQM, pfAnalyzerMiniAODDQM
 from DQMOffline.ParticleFlow.offsetAnalyzerDQM_cff import offsetAnalyzerDQM, offsetAnalyzerMiniAODDQM
-from DQMOffline.ParticleFlow.offsetAnalyzerDQM_cff import offsetDQMPostProcessor
+from DQMOffline.ParticleFlow.offsetAnalyzerDQM_cff import offsetDQMPostProcessor, offsetDQMPostProcessorMiniAOD
 # Use also other POGs' analyzers for extended checks
 from Validation.RecoMET.METRelValForDQM_cff import *
 from Validation.RecoJets.JetValidation_cff import *
@@ -16,21 +16,26 @@ DQMOfflinePFAnalyzer = cms.Sequence(
 
 DQMOfflinePFMiniAOD = cms.Sequence(
   pfAnalyzerMiniAODDQM +
-  pfJetAnalyzerDQM +
-  pfPuppiJetAnalyzerDQM +
+  pfJetAnalyzerMiniAODDQM +
+  pfPuppiJetAnalyzerMiniAODDQM +
   offsetAnalyzerMiniAODDQM
 )
 
 DQMOfflinePF = cms.Sequence(
   pfAnalyzerDQM +
-  pfJetAnalyzerDQM + # using pat:Jets
-  pfPuppiJetAnalyzerDQM + # using pat:Jets
+  pfJetAnalyzerDQM +
+  pfPuppiJetAnalyzerDQM +
   offsetAnalyzerDQM
 )
 
 DQMHarvestPF = cms.Sequence(
   pfJetDQMPostProcessor +
   offsetDQMPostProcessor
+)
+
+DQMHarvestPFMiniAOD = cms.Sequence(
+  pfJetDQMPostProcessorMiniAOD +
+  offsetDQMPostProcessorMiniAOD
 )
 
 # MET & Jets sequence

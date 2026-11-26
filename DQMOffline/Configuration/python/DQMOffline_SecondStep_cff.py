@@ -283,7 +283,7 @@ from PhysicsTools.NanoAOD.nanoDQM_cff import *
 from DQMOffline.ParticleFlow.DQMForPF_cff import *
 from DQMOffline.RecoB.bTagMiniDQM_cff import *
 
-DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPF * bTagMiniDQMHarvesting)
+DQMHarvestMiniAOD = cms.Sequence( dataCertificationJetMETSequence * muonQualityTests_miniAOD * DQMHarvestPFMiniAOD * bTagMiniDQMHarvesting)
 DQMHarvestMiniAODBTagOnly = cms.Sequence(bTagMiniDQMHarvesting)
 DQMHarvestNanoAOD = cms.Sequence( nanoHarvest )
 

@@ -64,8 +64,8 @@ def createTH1DVPSet():
 
 offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
     dqmDir = cms.string("ParticleFlow/Offset/"),
-    pvTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
-    muTag = cms.InputTag('slimmedAddPileupInfo'),
+    pvTag = cms.InputTag('offlinePrimaryVertices'),
+    muTag = cms.InputTag('addPileupInfo'),
     pfTag = cms.InputTag('particleFlow'),
 
     pdgKeys = cms.vuint32( default.candidateDict.keys() ),
@@ -82,7 +82,10 @@ offsetAnalyzerDQM = DQMEDAnalyzer("OffsetAnalyzerDQM",
 )
 
 offsetAnalyzerMiniAODDQM = offsetAnalyzerDQM.clone(
-    pfTag = cms.InputTag('packedPFCandidates'),
+    dqmDir = "ParticleFlow/MiniAOD/Offset/",
+    pvTag = 'offlineSlimmedPrimaryVertices',
+    muTag = 'slimmedAddPileupInfo',
+    pfTag = 'packedPFCandidates',
 )
 
 offsetDQMPostProcessor = DQMEDHarvester("OffsetDQMPostProcessor",
@@ -95,3 +98,6 @@ offsetDQMPostProcessor = DQMEDHarvester("OffsetDQMPostProcessor",
     npvHigh = cms.untracked.int32( default.npvHighOffset )
 )
 
+offsetDQMPostProcessorMiniAOD = offsetDQMPostProcessor.clone(
+    offsetDir = "ParticleFlow/MiniAOD/Offset/"
+)

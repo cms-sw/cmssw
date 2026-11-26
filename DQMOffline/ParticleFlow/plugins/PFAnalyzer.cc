@@ -783,7 +783,7 @@ void PFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   if (!puppiWeightToken_.isUninitialized())
     iEvent.getByToken(puppiWeightToken_, puppiWeight);
 
-  if (!puppiWeight.isValid()) {
+  if (!puppiWeightToken_.isUninitialized() && !puppiWeight.isValid()) {
     edm::LogError("PFAnalyzer") << "Invalid collection: Puppi weights \n";
   }
 

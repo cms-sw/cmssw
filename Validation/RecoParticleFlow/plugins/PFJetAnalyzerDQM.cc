@@ -130,11 +130,13 @@ private:
 
   edm::InputTag recoJetsLabel;
   edm::InputTag genJetsLabel;
-  edm::EDGetTokenT<edm::View<pat::Jet>> recoJetsToken;
+  edm::EDGetTokenT<edm::View<reco::Jet>> recoJetsToken;
   edm::EDGetTokenT<edm::View<reco::Jet>> genJetsToken;
   edm::EDGetTokenT<reco::CandViewMatchMap> srcRefToJetMap;
 
-  void fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection);
+  // The reco jets can be reco::Jet (RECO/AOD) or pat::Jet (miniAOD): the pat-only
+  // information (jet energy corrections) is accessed through a dynamic_cast
+  void fillJetResponse(edm::View<reco::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection);
   void prepareJetResponsePlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
   void prepareGenJetPlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
   void prepareGenJetMatchedPlots(const std::vector<edm::ParameterSet>& genjet_plots_pset);
@@ -340,11 +342,12 @@ PFJetAnalyzerDQM::PFJetAnalyzerDQM(const edm::ParameterSet& iConfig) {
   prepareRecoJetMatchedPlots(recojet_plots);
   prepareRecoJetUnmatchedPlots(recojet_plots);
 
-  recoJetsToken = consumes<edm::View<pat::Jet>>(recoJetsLabel);
+  recoJetsToken = consumes<edm::View<reco::Jet>>(recoJetsLabel);
   genJetsToken = consumes<edm::View<reco::Jet>>(genJetsLabel);
 }
 
-void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, edm::View<reco::Jet>& genJetCollection) {
+void PFJetAnalyzerDQM::fillJetResponse(edm::View<reco::Jet>& recoJetCollection,
+                                       edm::View<reco::Jet>& genJetCollection) {
   //match gen jets to reco jets, require minimum jetDeltaR, choose closest, do not try to match charge
   std::vector<int> matchIndices;
   std::vector<int> matchIndicesReco;
@@ -414,15 +417,20 @@ void PFJetAnalyzerDQM::fillJetResponse(edm::View<pat::Jet>& recoJetCollection, e
       const auto& recoJet = recoJetCollection[iMatch];
       auto pt_reco = recoJet.pt();
 
+      // Only pat::Jets carry the jet energy corrections. Other jets (e.g. reco::PFJet) are
+      // uncorrected, so they only populate the noJEC plots.
+      const auto* patJet = dynamic_cast<const pat::Jet*>(&recoJet);
       const auto response = pt_reco / pt_gen;
-      const auto response_raw = pt_reco * recoJet.jecFactor("Uncorrected") / pt_gen;
+      const auto response_raw = patJet ? pt_reco * patJet->jecFactor("Uncorrected") / pt_gen : response;
 
       //Loop linearly through all plots and check if they match the pt and eta bin
       //this is not algorithmically optimal but we don't expect to more than a few hundred plots
       //If this turns out to be a problem, can easily make a 2D-map for indices
-      for (auto& plot : jetResponsePlots) {
-        if (plot.isInPtEtaBin(pt_gen, eta_gen)) {
-          plot.fill(response);
+      if (patJet) {
+        for (auto& plot : jetResponsePlots) {
+          if (plot.isInPtEtaBin(pt_gen, eta_gen)) {
+            plot.fill(response);
+          }
         }
       }
       // this loop should be for NoJEC plots
@@ -476,7 +484,7 @@ void PFJetAnalyzerDQM::bookHistograms(DQMStore::IBooker& booker, edm::Run const&
 }
 
 void PFJetAnalyzerDQM::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  edm::Handle<edm::View<pat::Jet>> recoJetCollectionHandle;
+  edm::Handle<edm::View<reco::Jet>> recoJetCollectionHandle;
   iEvent.getByToken(recoJetsToken, recoJetCollectionHandle);
   auto recoJetCollection = *recoJetCollectionHandle;
 
