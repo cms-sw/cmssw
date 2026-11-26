@@ -816,12 +816,22 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+    // Connect the cells into triplets. Each block takes kChunk consecutive outer cells at a time.
+    // On the GPU backends the work is balanced across the threads of the block: giving each outer cell a fixed
+    // group of threads that loops over its candidate inner cells leaves most threads of a warp waiting for the
+    // few cells with many candidates, as the number of candidates varies a lot from cell to cell. Instead the
+    // block counts the candidates of its outer cells and spreads the (outer cell, candidate) pairs evenly over
+    // its threads, with a prefix sum in shared memory to map a pair back to its outer cell.
+    // On the CPU backends a block has a single thread, which walks the outer cells of the chunk in order and
+    // their candidates in order, reading each outer cell once.
+    // In the CA_TRIPLET_DUMP build every accepted triplet also fills a row of the training-dataset dump.
     template <typename TrackerTraits>
     class Kernel_connect {
     public:
       using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+      static constexpr uint32_t kChunk = 128;  // outer cells per chunk = threads per block on the GPU backends
 
-      ALPAKA_FN_ACC void operator()(Acc2D const &acc,
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
                                     cms::alpakatools::AtomicPairCounter *apc,  // just to zero them
                                     HitsMultiView hh,
                                     reco::CAGraphSoAConstView cc,
@@ -840,166 +850,230 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     uint32_t *__restrict__ candidates,
                                     uint32_t *__restrict__ nCandidates,
                                     uint32_t maxCandidates) const {
-        using Cell = CACell<TrackerTraits>;
-        uint32_t maxTriplets = cn.metadata().size();
-
         if (cms::alpakatools::once_per_grid(acc)) {
           *apc = 0;
         }  // ready for next kernel
 
-        // loop on outer cells
-        for (uint32_t oCellIndex : cms::alpakatools::uniform_elements_y(acc, *nCells)) {
-          auto &outerCell = cells[oCellIndex];
-          auto middleHitId = outerCell.inner_hit_id() - hh.view(0).offsetBPIX2();
+        uint32_t const nBlocks = alpaka::getWorkDiv<alpaka::Grid, alpaka::Blocks>(acc)[0u];
+        uint32_t const n = *nCells;
 
-          if (int(middleHitId) < 0) {
-            continue;
+        if constexpr (alpaka::isSingleThreadAcc<Acc1D>) {
+          // one thread per block: walk the outer cells of each chunk, and the candidates of each cell, in order
+          for (uint32_t first = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u] * kChunk; first < n;
+               first += nBlocks * kChunk) {
+            uint32_t const last = std::min(first + kChunk, n);
+            for (uint32_t oCellIndex = first; oCellIndex < last; ++oCellIndex) {
+              auto &outerCell = cells[oCellIndex];
+              auto const middleHitId = outerCell.inner_hit_id() - hh.view(0).offsetBPIX2();
+              if (int(middleHitId) < 0) {
+                continue;
+              }
+              auto const *__restrict__ innerCells = outerHitHisto->begin(middleHitId);
+              uint32_t const count = outerHitHisto->size(middleHitId);
+              auto const outer = TripletCuts<TrackerTraits>::makeOuter(acc, hh, tripletCuts, outerCell);
+              for (uint32_t j = 0; j < count; ++j) {
+                connect(acc,
+                        hh,
+                        cc,
+                        tripletCuts,
+                        useTripletDNN,
+                        tripletDNNThreshold,
+#ifdef CA_TRIPLET_DUMP
+                        tripletDump,
+#endif
+                        cn,
+                        cells,
+                        nTrips,
+                        cellNeighborsHisto,
+                        candidates,
+                        nCandidates,
+                        maxCandidates,
+                        oCellIndex,
+                        outer,
+                        innerCells[j]);
+              }
+            }
           }
+        } else {
+          assert((alpaka::getWorkDiv<alpaka::Block, alpaka::Threads>(acc)[0u] == kChunk));
+          auto &sCount = alpaka::declareSharedVar<uint32_t[kChunk], __COUNTER__>(acc);
+          auto &ws = alpaka::declareSharedVar<uint32_t[32], __COUNTER__>(acc);
+          uint32_t const t = alpaka::getIdx<alpaka::Block, alpaka::Threads>(acc)[0u];
 
-          auto const *__restrict__ outerHitCells = outerHitHisto->begin(middleHitId);
-          auto const numberOfPossibleNeighbors = outerHitHisto->size(middleHitId);
+          // the loop bounds are the same for all the threads of a block, so the barriers below are safe
+          for (uint32_t first = alpaka::getIdx<alpaka::Grid, alpaka::Blocks>(acc)[0u] * kChunk; first < n;
+               first += nBlocks * kChunk) {
+            // count the candidate inner cells of each outer cell of the chunk
+            uint32_t count = 0;
+            if (first + t < n) {
+              auto const middleHitId = cells[first + t].inner_hit_id() - hh.view(0).offsetBPIX2();
+              if (int(middleHitId) >= 0) {
+                count = outerHitHisto->size(middleHitId);
+              }
+            }
+            sCount[t] = count;
+            alpaka::syncBlockThreads(acc);
+            cms::alpakatools::blockPrefixScan(acc, sCount, kChunk, ws);  // inclusive; ends with a barrier
+            uint32_t const total = sCount[kChunk - 1];
 
-          auto skips = cc[outerCell.layerPairId()].skipsLayers();
-
-          // outer-cell values shared by all candidates
-          auto const outer = TripletCuts<TrackerTraits>::makeOuter(acc, hh, tripletCuts, outerCell);
-
-#ifdef CA_DEBUG
-          printf("numberOfPossibleFromHisto;%d;%d;%d;%d;%d\n",
-                 *nCells,
-                 middleHitId,
-                 oCellIndex,
-                 outerCell.innerLayer(cc),
-                 numberOfPossibleNeighbors);
+            for (uint32_t p = t; p < total; p += kChunk) {
+              // the outer cell of pair p is the first slot whose inclusive count exceeds p
+              uint32_t lo = 0, hi = kChunk - 1;
+              while (lo < hi) {
+                uint32_t const mid = (lo + hi) / 2;
+                if (sCount[mid] > p)
+                  hi = mid;
+                else
+                  lo = mid + 1;
+              }
+              uint32_t const j = p - (lo > 0 ? sCount[lo - 1] : 0u);
+              uint32_t const oCellIndex = first + lo;
+              auto const middleHitId = cells[oCellIndex].inner_hit_id() - hh.view(0).offsetBPIX2();
+              auto const outer = TripletCuts<TrackerTraits>::makeOuter(acc, hh, tripletCuts, cells[oCellIndex]);
+              connect(acc,
+                      hh,
+                      cc,
+                      tripletCuts,
+                      useTripletDNN,
+                      tripletDNNThreshold,
+#ifdef CA_TRIPLET_DUMP
+                      tripletDump,
 #endif
+                      cn,
+                      cells,
+                      nTrips,
+                      cellNeighborsHisto,
+                      candidates,
+                      nCandidates,
+                      maxCandidates,
+                      oCellIndex,
+                      outer,
+                      outerHitHisto->begin(middleHitId)[j]);
+            }
+            alpaka::syncBlockThreads(acc);  // sCount is reused by the next chunk
+          }
+        }
+      }
 
-          // loop on inner cells
-          for (uint32_t j : cms::alpakatools::independent_group_elements_x(acc, numberOfPossibleNeighbors)) {
-            auto iCellIndex = outerHitCells[j];
-            auto &innerCell = cells[iCellIndex];
-            float curvature = 0.f;
+    private:
+      // apply the cuts to the triplet (inner cell, outer cell) and, if it is accepted, link the two cells
+      template <typename TOuter>
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE static void connect(Acc1D const &acc,
+                                                         HitsMultiView const &hh,
+                                                         reco::CAGraphSoAConstView const &cc,
+                                                         reco::CATripletCutsSoAConstView const &tripletCuts,
+                                                         bool useTripletDNN,
+                                                         float tripletDNNThreshold,
+#ifdef CA_TRIPLET_DUMP
+                                                         caStructures::TripletDumpSoAView &tripletDump,
+#endif
+                                                         caStructures::CAPairSoAView &cn,
+                                                         CACell<TrackerTraits> *cells,
+                                                         uint32_t *nTrips,
+                                                         CellToCell *cellNeighborsHisto,
+                                                         uint32_t *__restrict__ candidates,
+                                                         uint32_t *__restrict__ nCandidates,
+                                                         uint32_t maxCandidates,
+                                                         uint32_t oCellIndex,
+                                                         TOuter const &outer,
+                                                         uint32_t iCellIndex) {
+        using Cell = CACell<TrackerTraits>;
+        auto &outerCell = cells[oCellIndex];
+        auto &innerCell = cells[iCellIndex];
+        float curvature = 0.f;
 
-            // apply compatibility cuts for this triplet (innerCell, outerCell); cc (CA layer-pair graph)
-            // supplies the per-hit CA layer ids for the DNN layer-gap features and the CA_TRIPLET_DUMP row
 #ifndef CA_TRIPLET_DUMP
-            // Deferred triplet-network evaluation: only the cut ladder runs here; the pairs that pass it
-            // are queued and Kernel_connectDeferred evaluates the network on them with every lane of a
-            // warp busy, instead of on the few lanes of a warp that reach it here. A full queue falls
-            // through to the inline evaluation below.
-            if constexpr (std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>) {
-              if (maxCandidates > 0) {
-                float curvatureCuts = 0.f;
-                if (!TripletCuts<TrackerTraits>::accept(
-                        acc, innerCell, outer, curvatureCuts, hh, tripletCuts, cc, false, tripletDNNThreshold)) {
-                  continue;
-                }
-                auto const c = alpaka::atomicAdd(acc, nCandidates, 1u, alpaka::hierarchy::Blocks{});
-                if (c < maxCandidates) {
-                  candidates[2 * c] = iCellIndex;
-                  candidates[2 * c + 1] = oCellIndex;
-                  continue;
-                }
-              }
+        // Deferred triplet-network evaluation: only the cut ladder runs here; the pairs that pass it are queued and
+        // Kernel_connectDeferred evaluates the network on them with every lane of a warp busy. A full queue falls
+        // through to the inline evaluation below. The dump build evaluates every triplet inline, to capture its
+        // features and score.
+        if constexpr (std::is_same_v<pixelTopology::Phase2OTVectorHits, TrackerTraits>) {
+          if (maxCandidates > 0) {
+            float curvatureCuts = 0.f;
+            if (!TripletCuts<TrackerTraits>::accept(
+                    acc, innerCell, outer, curvatureCuts, hh, tripletCuts, cc, false, tripletDNNThreshold)) {
+              return;
             }
-#endif
-#ifdef CA_TRIPLET_DUMP
-            float dumpFeat[18] =
-                {};  // accept() fills 18 BASE DNN features; written to SoA below (zero-init defense-in-depth)
-            float dumpScore = -1.f;  // accept() fills the in-kernel DNN score (consistency check)
-#endif
-            if (TripletCuts<TrackerTraits>::accept(acc,
-                                                   innerCell,
-                                                   outer,
-                                                   curvature,
-                                                   hh,
-                                                   tripletCuts,
-                                                   cc,
-                                                   useTripletDNN,
-#ifdef CA_TRIPLET_DUMP
-                                                   dumpFeat,
-                                                   &dumpScore,
-#endif
-                                                   tripletDNNThreshold)) {
-              auto t_ind = alpaka::atomicAdd(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
-
-#ifdef CA_DEBUG
-              printf("Triplet no. %d %.5f %.5f (%d %d) - %d %d -> (%d, %d, %d, %d) \n",
-                     t_ind,
-                     tripletCuts[outerCell.layerPairId()].maxRZTolerance(),
-                     tripletCuts[innerCell.layerPairId()].maxDCA(),
-                     outerCell.layerPairId(),
-                     innerCell.layerPairId(),
-                     iCellIndex,
-                     oCellIndex,
-                     outerCell.inner_hit_id(),
-                     outerCell.outer_hit_id(),
-                     innerCell.inner_hit_id(),
-                     innerCell.outer_hit_id());
-              printf("filling cell no. %d %d: %d -> %d\n", t_ind, cellNeighborsHisto->size(), iCellIndex, oCellIndex);
+            auto const c = alpaka::atomicAdd(acc, nCandidates, 1u, alpaka::hierarchy::Blocks{});
+            if (c < maxCandidates) {
+              candidates[2 * c] = iCellIndex;
+              candidates[2 * c + 1] = oCellIndex;
+              return;
+            }
+          }
+        }
 #endif
 
-              if (t_ind >= maxTriplets) {
+#ifdef CA_TRIPLET_DUMP
+        float dumpFeat[18] = {};  // accept() fills the 18 base DNN features (zero-initialised as a safeguard)
+        float dumpScore = -1.f;   // accept() fills the in-kernel DNN score (consistency check)
+#endif
+        if (!TripletCuts<TrackerTraits>::accept(acc,
+                                                innerCell,
+                                                outer,
+                                                curvature,
+                                                hh,
+                                                tripletCuts,
+                                                cc,
+                                                useTripletDNN,
+#ifdef CA_TRIPLET_DUMP
+                                                dumpFeat,
+                                                &dumpScore,
+#endif
+                                                tripletDNNThreshold)) {
+          return;
+        }
+        uint32_t const maxTriplets = cn.metadata().size();
+        auto t_ind = alpaka::atomicAdd(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
+        if (t_ind >= maxTriplets) {
 #ifdef CA_WARNINGS
-                printf("Warning!!!! Too many cell->cell (triplets) associations (limit = %d)!\n", cn.metadata().size());
+          printf("Warning!!!! Too many cell->cell (triplets) associations (limit = %d)!\n", cn.metadata().size());
 #endif
-                alpaka::atomicSub(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
-                break;
-              }
-
+          alpaka::atomicSub(acc, nTrips, 1u, alpaka::hierarchy::Blocks{});
+          return;
+        }
 #ifdef CA_TRIPLET_DUMP
-              // Per-built-triplet training row: 18 BASE features (from accept) + the three merged-hit
-              // indices (truth join key) + CA layers (layGap derived). t_ind < maxTriplets
-              // guaranteed by the guard above; the SoA is sized like cn (tripletsN_).
-              {
-                auto row = tripletDump[t_ind];
-                row.absCurvature() = dumpFeat[0];
-                row.tipTimesCurvature() = dumpFeat[1];
-                row.dca() = dumpFeat[2];
-                row.curvatureVectorHits() = dumpFeat[3];
-                row.curvatureVectorHitsErrSquared() = dumpFeat[4];
-                row.curvature13() = dumpFeat[5];
-                row.dPhi12() = dumpFeat[6];
-                row.dPhi13() = dumpFeat[7];
-                row.dPhi23() = dumpFeat[8];
-                row.dr12() = dumpFeat[9];
-                row.dr13() = dumpFeat[10];
-                row.r1() = dumpFeat[11];
-                row.r2() = dumpFeat[12];
-                row.r3() = dumpFeat[13];
-                row.z1() = dumpFeat[14];
-                row.z2() = dumpFeat[15];
-                row.z3() = dumpFeat[16];
-                row.nVectorHits() = dumpFeat[17];
-                row.curvature() = curvature;  // SIGNED (Kernel_connect local, by-ref from accept); for derived feats
-                row.lay1() = int32_t(innerCell.innerLayer(cc));
-                row.lay2() = int32_t(outerCell.innerLayer(cc));
-                row.lay3() = int32_t(outerCell.outerLayer(cc));
-                row.h1() = uint32_t(innerCell.inner_hit_id());
-                row.h2() = uint32_t(outerCell.inner_hit_id());
-                row.h3() = uint32_t(outerCell.outer_hit_id());
-                row.inKernelScore() = dumpScore;
-              }
+        // Per-built-triplet training row: the 18 base features (from accept), the three merged-hit indices (truth join
+        // key) and the CA layers (layer gaps derived offline). t_ind < maxTriplets is guaranteed by the check above;
+        // the SoA is sized like cn (tripletsN_).
+        {
+          auto row = tripletDump[t_ind];
+          row.absCurvature() = dumpFeat[0];
+          row.tipTimesCurvature() = dumpFeat[1];
+          row.dca() = dumpFeat[2];
+          row.curvatureVectorHits() = dumpFeat[3];
+          row.curvatureVectorHitsErrSquared() = dumpFeat[4];
+          row.curvature13() = dumpFeat[5];
+          row.dPhi12() = dumpFeat[6];
+          row.dPhi13() = dumpFeat[7];
+          row.dPhi23() = dumpFeat[8];
+          row.dr12() = dumpFeat[9];
+          row.dr13() = dumpFeat[10];
+          row.r1() = dumpFeat[11];
+          row.r2() = dumpFeat[12];
+          row.r3() = dumpFeat[13];
+          row.z1() = dumpFeat[14];
+          row.z2() = dumpFeat[15];
+          row.z3() = dumpFeat[16];
+          row.nVectorHits() = dumpFeat[17];
+          row.curvature() = curvature;  // signed (from accept), for the derived features
+          row.lay1() = int32_t(innerCell.innerLayer(cc));
+          row.lay2() = int32_t(outerCell.innerLayer(cc));
+          row.lay3() = int32_t(outerCell.outerLayer(cc));
+          row.h1() = uint32_t(innerCell.inner_hit_id());
+          row.h2() = uint32_t(outerCell.inner_hit_id());
+          row.h3() = uint32_t(outerCell.outer_hit_id());
+          row.inKernelScore() = dumpScore;
+        }
 #endif
-
-              // One bin per cell (bin = iCellIndex). The non-layer-skipping vs
-              // layer-skipping distinction is encoded in bit 31 of the stored
-              // outer-cell index:
-              //   bit 31 = 0 -> non-layer-skipping neighbor
-              //   bit 31 = 1 -> layer-skipping neighbor
-              // Key-range guard. One bin per cell, and iCellIndex is a cell index below the cell
-              // count the histogram was sized from, so this holds by construction; it is here so a
-              // sizing mismatch drops the association instead of writing outside off[].
-              if (iCellIndex < cellNeighborsHisto->nOnes()) {
-                cellNeighborsHisto->count(acc, iCellIndex);
-              }
-
-              cn[t_ind].inner() = iCellIndex;
-              cn[t_ind].outer() = oCellIndex | (skips ? caStructures::kSkipsLayerFlag : 0u);
-              outerCell.setStatusBits(Cell::StatusBit::kUsed);
-              innerCell.setStatusBits(Cell::StatusBit::kUsed);
-            }
-          }  // loop on inner cells
-        }  // loop on outer cells
+        if (iCellIndex < cellNeighborsHisto->nOnes()) {
+          cellNeighborsHisto->count(acc, iCellIndex);
+        }
+        auto const skips = cc[outerCell.layerPairId()].skipsLayers();
+        cn[t_ind].inner() = iCellIndex;
+        cn[t_ind].outer() = oCellIndex | (skips ? caStructures::kSkipsLayerFlag : 0u);
+        outerCell.setStatusBits(Cell::StatusBit::kUsed);
+        innerCell.setStatusBits(Cell::StatusBit::kUsed);
       }
     };
 
@@ -2986,27 +3060,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // applying combinatoric cleaning such as fishbone at this stage is too expensive
     //
 
-    const auto nthTot = 64;
-    const auto stride = 4;
-    auto blockSize = nthTot / stride;
     // The cell/tuple kernels here and below launch over the FULL container capacity. The
     // loops inside are bounded by the true counts, so coverage never relies on the
     // grid-stride wrap-around -- and with the extent at least the capacity, each index is
     // visited by exactly one thread, which keeps the serial backend's visit order (and so
     // its bit-exact output) independent of the capacity value.
-    //
-    // Grow blockSize (in multiples of 16, keeping blockSize*stride <= 1024) until the grid
-    // fits CUDA's 65535-block limit, whatever maxDoublets is.
+    auto blockSize = 64;
     auto numberOfBlocks = cms::alpakatools::divide_up_by(launchCells, blockSize);
-    while (numberOfBlocks >= 65536 && blockSize * stride < 1024) {
-      blockSize += 16;
-      numberOfBlocks = cms::alpakatools::divide_up_by(launchCells, blockSize);
-    }
-    assert(numberOfBlocks < 65536);
-    assert(blockSize > 0 && 0 == blockSize % 16);
-    const Vec2D blks{numberOfBlocks, 1u};
-    const Vec2D thrs{blockSize, stride};
-    const auto kernelConnectWorkDiv = cms::alpakatools::make_workdiv<Acc2D>(blks, thrs);
 
     // Queue for the deferred triplet-network evaluation (the network exists for vector hits only; GPU
     // backends only, the serial backend keeps the inline evaluation and so its visit order). The pairs
@@ -3027,27 +3087,33 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     }
 #endif
 
-    alpaka::exec<Acc2D>(queue,
-                        kernelConnectWorkDiv,
-                        Kernel_connect<TrackerTraits>{},
-                        this->device_hitTuple_apc_,  // needed only to be reset, ready for next kernel
-                        hh,
-                        cc,
-                        tripletCuts,
-                        this->m_params.algoParams_.useTripletDNN_,
-                        this->m_params.algoParams_.tripletDNNThreshold_,
+    {
+      // kChunk threads per block on the GPU backends, one thread with kChunk elements on the CPU backends
+      constexpr uint32_t kChunk = Kernel_connect<TrackerTraits>::kChunk;
+      auto const connectWorkDiv =
+          cms::alpakatools::make_workdiv<Acc1D>(cms::alpakatools::divide_up_by(launchCells, kChunk), kChunk);
+      alpaka::exec<Acc1D>(queue,
+                          connectWorkDiv,
+                          Kernel_connect<TrackerTraits>{},
+                          this->device_hitTuple_apc_,  // needed only to be reset, ready for next kernel
+                          hh,
+                          cc,
+                          tripletCuts,
+                          this->m_params.algoParams_.useTripletDNN_,
+                          this->m_params.algoParams_.tripletDNNThreshold_,
 #ifdef CA_TRIPLET_DUMP
-                        this->device_tripletDump_->view(),
+                          this->device_tripletDump_->view(),
 #endif
-                        this->deviceTriplets_->view(),
-                        this->device_simpleCells_->data(),
-                        this->device_nCells_->data(),
-                        this->device_nTriplets_->data(),
-                        this->device_hitToCell_->data(),
-                        this->device_cellToNeighbors_->data(),
-                        candidates ? candidates->data() : nullptr,
-                        nCandidates ? nCandidates->data() : nullptr,
-                        maxCandidates);
+                          this->deviceTriplets_->view(),
+                          this->device_simpleCells_->data(),
+                          this->device_nCells_->data(),
+                          this->device_nTriplets_->data(),
+                          this->device_hitToCell_->data(),
+                          this->device_cellToNeighbors_->data(),
+                          candidates ? candidates->data() : nullptr,
+                          nCandidates ? nCandidates->data() : nullptr,
+                          maxCandidates);
+    }
 
 #ifndef CA_TRIPLET_DUMP
     // A dump build evaluates every triplet inline (no queue above), so it has no deferred launch.
