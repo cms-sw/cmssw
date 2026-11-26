@@ -1554,12 +1554,12 @@ upgradeWFs['PatatrackHCALOnlyGPUandAlpakaValidation'] = PatatrackWorkflow(
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     reco = {
-        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnlyLegacy+reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation+HeterogeneousMonitoringSequence,DQM:@hcalOnly+@hcal2Only+hcalOnlyOfflineSourceSequenceAlpaka+@hltGPUvsCPU',
+        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnlyLegacy+reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only+hcalOnlyOfflineSourceSequenceAlpaka+@hltGPUvsCPU+@gpuvsCPU',
         '--procModifiers': 'alpaka',
         '--customise' : 'HeterogeneousCore/AlpakaServices/customiseAlpakaServiceMemoryFilling.customiseAlpakaServiceMemoryFilling',
     },
     harvest = {
-        '-s': 'HARVESTING:@hcalOnlyValidation+@hltGPUvsCPU'
+        '-s': 'HARVESTING:@hcalOnlyValidation+@hltGPUvsCPU+@gpuvsCPU'
     },
     suffix = 'Patatrack_HCALOnlyGPUandAlpaka_Validation',
     offset = 0.423,
