@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # HLT flavour of the ParticleFlow DQM.
 #
-# The offline sequence (DQMForPF_MiniAOD_cff) reads MiniAOD: pat::Jet and
+# The offline miniAOD sequence (DQMOfflinePFMiniAOD in DQMForPF_cff) reads MiniAOD: pat::Jet and
 # pat::PackedCandidate.  HLT produces neither, so only the two candidate-level
 # analyzers are provided here, pointed at the HLT collections:
 #
@@ -56,9 +56,9 @@ offsetAnalyzerDQMHLT = offsetAnalyzerDQM.clone(
 # ---------------------------------------------------------------------------
 # DQMOffline/ParticleFlow PFAnalyzer, HLT instance.
 #
-# This one needs no code change at all: it is dual-mode via isMiniAOD, and with
-# isMiniAOD=False it reads reco::PFCandidate / reco::PFJet / reco::Vertex
-# directly, which is exactly what HLT produces.
+# This one needs no code change at all: the plugin reads its inputs polymorphically
+# (edm::View), so it handles reco::PFCandidate / reco::PFJet / reco::Vertex directly,
+# which is exactly what HLT produces, as well as the miniAOD types.
 #
 # The cut list uses the fine |eta| binning around the HGCAL edge (2.6, 2.7, 2.8,
 # 2.9, 3.0) that the package's own config carries commented out -- that is the

@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 import Validation.RecoParticleFlow.defaults_cfi as default
 from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name, recojet_distribution_name, jetResponseDir, genjetDir
 
@@ -82,7 +84,7 @@ def createRecoJetPlots(ptbins, etabins):
 # The jet-response folders are named after the reco jet collection.
 
 def createJetAnalyzer(recoJets, genJets, genJetsOn=True):
-    return cms.EDProducer("PFJetAnalyzerDQM",
+    return DQMEDAnalyzer("PFJetAnalyzerDQM",
         #match these reco-jets to the gen-jets and compute jet response
         recoJetCollection = cms.InputTag(recoJets),
         genJetCollection = cms.InputTag(genJets),
@@ -99,7 +101,7 @@ def createJetPostProcessor(recoJets, hasJEC, offsetDir):
     dirs = [jetResponseDir + jets + "/" + corr + "/"
             for jets in recoJets
             for corr in (["JEC", "noJEC"] if hasJEC else ["noJEC"])]
-    return cms.EDProducer("PFJetDQMPostProcessor",
+    return DQMEDHarvester("PFJetDQMPostProcessor",
         jetResponseDir = cms.vstring( dirs ),
         genjetDir = cms.string( genjetDir ),
         offsetDir = cms.string(offsetDir),

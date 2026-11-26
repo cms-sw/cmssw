@@ -858,8 +858,6 @@ private:
     return true;
   }
 
-  bool m_isHLT;
-  bool m_isMiniAOD;
   unsigned int m_runNumber;
 
   edm::EDGetTokenT<CandView> pfCandidateToken_;
