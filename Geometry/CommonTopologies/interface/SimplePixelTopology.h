@@ -111,8 +111,7 @@ namespace pixelTopology {
 #ifdef __CUDA_ARCH__
   __device__
 #endif
-      constexpr inline uint32_t
-      layerStart(uint32_t i) {
+      constexpr inline uint32_t layerStart(uint32_t i) {
     return TrackerTraits::layerStart[i];
   }
 
@@ -211,17 +210,17 @@ namespace phase1PixelTopology {
   // The layerStart array is only used in the CUDA version (which supports only the non-extended CA).
   // In the alpaka version of the CA the array is built in globalBeginRun from the geometry directly
   // and the values here become irrelevant.
-  static constexpr uint32_t layerStart[numberOfLayers + 1] = {0,
-                                                              96,
-                                                              320,
-                                                              672,  // barrel
-                                                              1184,
-                                                              1296,
-                                                              1408,  // positive endcap
-                                                              1520,
-                                                              1632,
-                                                              1744,  // negative endcap
-                                                              numberOfModules};
+  HOST_DEVICE_CONSTANT uint32_t layerStart[numberOfLayers + 1] = {0,
+                                                                  96,
+                                                                  320,
+                                                                  672,  // barrel
+                                                                  1184,
+                                                                  1296,
+                                                                  1408,  // positive endcap
+                                                                  1520,
+                                                                  1632,
+                                                                  1744,  // negative endcap
+                                                                  numberOfModules};
   HOST_DEVICE_CONSTANT float minz[nPairs] = {
       -20., 0., -30., -22., 10., -30., -70., -70., -22., 15., -30, -70., -70., -20., -22., 0, -30., -70., -70.};
   HOST_DEVICE_CONSTANT float maxz[nPairs] = {
