@@ -36,25 +36,38 @@
 #include "EvtGenBase/EvtDecayBase.hh"
 #include "EvtGenBase/EvtId.hh"
 #include "EvtGenBase/EvtDecayTable.hh"
+#include "EvtGenBase/EvtPDL.hh"
+#include "EvtGenBase/EvtRandom.hh"
 #include "EvtGenBase/EvtParticle.hh"
 #include "EvtGenBase/EvtParticleFactory.hh"
 #include "EvtGenBase/EvtHepMCEvent.hh"
 
 #include "HepPID/ParticleIDTranslations.hh"
 
+#include "ATOOLS/Org/My_MPI.H"
+
 #include "TString.h"
 #include <string>
 #include <cstdlib>
 #include <cstdio>
 
+thread_local std::unique_ptr<EvtGen> gen::EvtGenInterface::m_EvtGen{};
+
 using namespace gen;
 using namespace edm;
 
-CLHEP::HepRandomEngine* EvtGenInterface::fRandomEngine;
+// Sherpa is built with MPI and aborts unless MPI is initialized.
+// We only need a dummy init, and it must happen exactly once per process not per thread.
+void initDummyMPIOnce() {
+  [[maybe_unused]] static const bool init = [] {
+    MPI_Init(nullptr, nullptr);
+    return true;
+  }();
+}
 
 EvtGenInterface::EvtGenInterface(const ParameterSet& pset) {
-  fPSet = new ParameterSet(pset);
-  the_engine = new myEvtRandomEngine(nullptr);
+  fPSet = std::make_unique<ParameterSet>(pset);
+  the_engine = std::make_unique<myEvtRandomEngine>(nullptr);
 }
 
 void EvtGenInterface::SetDefault_m_PDGs() {
@@ -284,19 +297,28 @@ void EvtGenInterface::SetDefault_m_PDGs() {
   }
 }
 
+// Destructor is a no-op: m_EvtGen is a thread_local std::unique_ptr that cleans up at thread exit.
 EvtGenInterface::~EvtGenInterface() {}
 
-void EvtGenInterface::init() {
-  // flags for pythia8
-  fSpecialSettings.push_back("Pythia8:ParticleDecays:mixB = off");
-  //
+void EvtGenInterface::ensureEvtGenOnThread() {
+  // This thread already has its EvtGen
+  if (m_EvtGen)
+    return;
 
   edm::FileInPath decay_table(fPSet->getParameter<std::string>("decay_table"));
   edm::FileInPath pdt(fPSet->getParameter<edm::FileInPath>("particle_property_file"));
 
   bool usePythia = fPSet->getUntrackedParameter<bool>("use_internal_pythia", true);
   bool useTauola = fPSet->getUntrackedParameter<bool>("use_internal_tauola", true);
-  bool usePhotos = fPSet->getUntrackedParameter<bool>("use_internal_photos", true);
+
+  if (fPSet->existsAs<bool>("use_internal_fsr", false)) {
+    edm::LogWarning("EvtGenInterface::ensureEvtGenOnThread")
+        << "The 'use_internal_fsr' parameter is deprecated and has no effect. "
+           "Please use 'fsr_model' instead (set to 'none' to disable FSR, or "
+           "'photos', 'sherpa', or 'vincia' to select the FSR model).";
+  }
+
+  std::string fsrModel = fPSet->getParameter<std::string>("fsr_model");
 
   //Setup evtGen following instructions on http://evtgen.warwick.ac.uk/docs/external/
   bool convertPythiaCodes = fPSet->getUntrackedParameter<bool>(
@@ -305,8 +327,7 @@ void EvtGenInterface::init() {
       std::getenv("PYTHIA8DATA");  // Specify the pythia xml data directory to use the default PYTHIA8DATA location
 
   if (tmp == nullptr) {
-    edm::LogError("EvtGenInterface::~EvtGenInterface")
-        << "EvtGenInterface::init() PYTHIA8DATA not defined. Terminating program ";
+    edm::LogError("EvtGenInterface::ensureEvtGenOnThread") << "PYTHIA8DATA not defined. Terminating program ";
     exit(0);
   }
 
@@ -317,8 +338,19 @@ void EvtGenInterface::init() {
   // Set up the default external generator list: Photos, Pythia and/or Tauola
   EvtExternalGenList genList(convertPythiaCodes, pythiaDir, photonType, useEvtGenRandom);
   EvtAbsRadCorr* radCorrEngine = nullptr;
-  if (usePhotos)
-    radCorrEngine = genList.getPhotosModel();                        // Get interface to radiative correction engine
+  if (fsrModel == "none") {
+    // FSR disabled
+  } else if (fsrModel == "photos") {
+    radCorrEngine = genList.getPhotosModel();
+  } else if (fsrModel == "sherpa") {
+    initDummyMPIOnce();  // Sherpa is built with MPI and complains if not initialized; do this once per process.
+    radCorrEngine = genList.getSherpaPhotonsModel(1e-7, 1, 0);
+  } else if (fsrModel == "vincia") {
+    radCorrEngine = genList.getVinciaQEDModel(1.0e-7);
+  } else {
+    throw cms::Exception("Configuration") << "EvtGenInterface: unknown fsr_model '" << fsrModel
+	                                  << "'. Allowed values are 'none', 'photos', 'sherpa', or 'vincia'.";
+  }
   std::list<EvtDecayBase*> extraModels = genList.getListOfModels();  // get interface to Pythia and Tauola
   std::list<EvtDecayBase*> myExtraModels;
   for (unsigned int i = 0; i < extraModels.size(); i++) {
@@ -339,28 +371,23 @@ void EvtGenInterface::init() {
     std::list<EvtDecayBase*>::iterator it = userModels.begin();
     std::advance(it, i);
     TString name = (*it)->getName();
-    edm::LogInfo("EvtGenInterface::~EvtGenInterface") << "Adding user model: " << name;
+    edm::LogInfo("EvtGenInterface::ensureEvtGenOnThread") << "Adding user model: " << name;
     myExtraModels.push_back(*it);
   }
 
-  // Set up the incoherent (1) or coherent (0) B mixing option
-  BmixingOption = fPSet->getUntrackedParameter<int>("B_Mixing", 1);
-  if (BmixingOption != 0 && BmixingOption != 1) {
-    throw cms::Exception("Configuration") << "EvtGenProducer requires B_Mixing to be 0 (coherent) or 1 (incoherent) \n"
-                                             "Please fix this in your configuration.";
-  }
-
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // Create the EvtGen generator object, passing the external generators
-  m_EvtGen = new EvtGen(
-      decay_table.fullPath().c_str(), pdt.fullPath().c_str(), the_engine, radCorrEngine, &myExtraModels, BmixingOption);
+  m_EvtGen = std::make_unique<EvtGen>(decay_table.fullPath().c_str(),
+                                      pdt.fullPath().c_str(),
+                                      the_engine.get(),
+                                      radCorrEngine,
+                                      &myExtraModels,
+                                      BmixingOption);
 
   // Add additional user information
   if (fPSet->exists("user_decay_file")) {
     std::vector<std::string> user_decays = fPSet->getParameter<std::vector<std::string> >("user_decay_file");
     for (unsigned int i = 0; i < user_decays.size(); i++) {
       edm::FileInPath user_decay(user_decays.at(i));
-      m_EvtGen->readUDecay(user_decay.fullPath().c_str());
+      m_EvtGen->readUDecay(user_decay.fullPath());
     }
   }
 
@@ -370,9 +397,8 @@ void EvtGenInterface::init() {
     int tmp_creation = mkstemp(user_decay_tmp);
     FILE* tmpf = std::fopen(user_decay_tmp, "w");
     if (!tmpf || (tmp_creation == -1)) {
-      edm::LogError("EvtGenInterface::~EvtGenInterface")
-          << "EvtGenInterface::init() fails when trying to open a temporary file for embedded user.dec. Terminating "
-             "program ";
+      edm::LogError("EvtGenInterface::ensureEvtGenOnThread")
+          << "fails when trying to open a temporary file for embedded user.dec. Terminating program ";
       exit(0);
     }
     for (unsigned int i = 0; i < user_decay_lines.size(); i++) {
@@ -382,6 +408,23 @@ void EvtGenInterface::init() {
     std::fclose(tmpf);
     m_EvtGen->readUDecay(user_decay_tmp);
   }
+}
+
+void EvtGenInterface::init() {
+  // flags for pythia8
+  fSpecialSettings.push_back("Pythia8:ParticleDecays:mixB = off");
+
+  // Set up the incoherent (1) or coherent (0) B mixing option. Must be set before
+  // ensureEvtGenOnThread() because the EvtGen ctor consumes it.
+  BmixingOption = fPSet->getUntrackedParameter<int>("B_Mixing", 1);
+  if (BmixingOption != 0 && BmixingOption != 1) {
+    throw cms::Exception("Configuration") << "EvtGenProducer requires B_Mixing to be 0 (coherent) or 1 (incoherent) \n"
+                                             "Please fix this in your configuration.";
+  }
+
+  // Construct the EvtGen instance for this thread (no-op if already constructed). Streams
+  // running decay() later on a different thread will lazy-construct on that thread instead.
+  ensureEvtGenOnThread();
 
   // setup pdgid which the generator/hadronizer should not decay
   if (fPSet->exists("operates_on_particles")) {
@@ -452,6 +495,10 @@ void EvtGenInterface::init() {
 }
 
 HepMC::GenEvent* EvtGenInterface::decay(HepMC::GenEvent* evt) {
+  // If the framework scheduled this stream onto a thread that has not yet built an EvtGen,
+  // construct one now. No-op on threads that already initialised in init().
+  ensureEvtGenOnThread();
+
   if (the_engine->engine() == nullptr) {
     throw edm::Exception(edm::errors::LogicError)
         << "The EvtGen code attempted to use a random number engine while\n"
@@ -496,8 +543,8 @@ HepMC::GenEvent* EvtGenInterface::decay(HepMC::GenEvent* evt) {
         }
         EvtId idEvt = EvtPDL::evtIdFromStdHep(idHep);
         int ipart = idEvt.getId();
-        EvtDecayTable* evtDecayTable = EvtDecayTable::getInstance();
-        if (!isforced && isDefaultEvtGen && ipart != -1 && evtDecayTable->getNMode(ipart) != 0) {
+        EvtDecayTable& evtDecayTable = EvtDecayTable::getInstance();
+        if (!isforced && isDefaultEvtGen && ipart != -1 && evtDecayTable.getNMode(ipart) != 0) {
           addToHepMC(*p, idEvt, evt, true);  // generate decay and remove daugther if they are forced
         }
       }
@@ -616,18 +663,10 @@ void EvtGenInterface::update_particles(HepMC::GenParticle* partHep, HepMC::GenEv
 
 void EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
   the_engine->setRandomEngine(v);
-  fRandomEngine = v;
+  EvtRandom::setRandomEngine(the_engine.get());
 }
 
-double EvtGenInterface::flat() {
-  if (!fRandomEngine) {
-    throw cms::Exception("LogicError")
-        << "EvtGenInterface::flat: Attempt to generate random number when engine pointer is null\n"
-        << "This might mean that the code was modified to generate a random number outside the\n"
-        << "event and beginLuminosityBlock methods, which is not allowed.\n";
-  }
-  return fRandomEngine->flat();
-}
+double EvtGenInterface::flat() { return the_engine->random(); }
 
 bool EvtGenInterface::findLastinChain(HepMC::GenParticle*& p) {
   if (p->end_vertex()) {
