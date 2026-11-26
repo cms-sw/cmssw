@@ -22,7 +22,13 @@ hltLambdaMonitoring = _v0Monitor_cff.LambdaMonitoring.clone(
     pvNDOF        = 1
 )
 
-v0MonitoringHLT = cms.Sequence(
+# hltGeneralV0Candidates is only produced by the phase-2 NGT scouting menu:
+# the sequence is empty unless both the phase2_common era and the ngtScouting process modifier are active
+v0MonitoringHLT = cms.Sequence()
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+(phase2_common & ngtScouting).toReplaceWith(v0MonitoringHLT, cms.Sequence(
     hltKshortMonitoring
     + hltLambdaMonitoring
-)
+))
