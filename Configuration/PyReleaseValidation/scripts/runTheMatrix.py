@@ -161,6 +161,7 @@ if __name__ == '__main__':
                      prefixDet+34.7504,  # HLT phase-2 development menu
                      # heterogeneous backend
                      prefixDet+34.751,   # HLT phase-2 timing menu Alpaka variant
+                     prefixDet+34.7511,  # HLT phase-2 timing menu with portable e/gamma pixel seeding
                      # tracking variants
                      prefixDet+34.753,   # HLT phase-2 timing menu legacy tracking
                      prefixDet+34.7531,  # HLT phase-2 timing menu LST building variant
