@@ -19,9 +19,16 @@ from DQMOffline.ParticleFlow.pfHcalGPUComparisonTask_cfi import pfHcalGPUCompari
 
 hltPfHcalGPUComparisonTask = pfHcalGPUComparisonTask.clone(
     compDir = cms.untracked.string('HLT/HeterogeneousComparisons/ParticleFlow/HCAL'),
-    #pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCALSerialSync'),
-    pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCAL'), # ToDo: Use a GPU collection for a meaningul comparison
+    pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCALSerialSync'),
     pfClusterToken_target = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),
+)
+
+# TODO: hltParticleFlowClusterHCALSerialSync is not (yet) available in the Phase-2 menu,
+# so the reference below is the same collection as the target (no meaningful GPU-vs-CPU comparison).
+# Use the SerialSync collection once it is defined for Phase-2.
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(hltPfHcalGPUComparisonTask,
+    pfClusterToken_ref = cms.untracked.InputTag('hltParticleFlowClusterHCAL'),
 )
 
 # Tracker
@@ -136,5 +143,4 @@ _phase2_HLTHeterogeneousMonitoringSequence = HLTHeterogeneousMonitoringSequence.
     hltHcalGPUComparisonTask,
 ])
 
-from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toReplaceWith(HLTHeterogeneousMonitoringSequence, _phase2_HLTHeterogeneousMonitoringSequence)
