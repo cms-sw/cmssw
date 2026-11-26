@@ -1,0 +1,22 @@
+#ifndef DataFormats_EgammaReco_interface_alpaka_SuperClusterDeviceCollection_h
+#define DataFormats_EgammaReco_interface_alpaka_SuperClusterDeviceCollection_h
+
+#include "DataFormats/EgammaReco/interface/SuperClusterHostCollection.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterSoA.h"
+#include "DataFormats/Portable/interface/alpaka/PortableCollection.h"
+#include "HeterogeneousCore/AlpakaInterface/interface/config.h"
+
+namespace ALPAKA_ACCELERATOR_NAMESPACE {
+
+  namespace reco {
+
+    using namespace ::reco;
+    using SuperClusterDeviceCollection = PortableCollection<SuperClusterSoA>;
+
+  }  // namespace reco
+
+}  // namespace ALPAKA_ACCELERATOR_NAMESPACE
+
+ASSERT_DEVICE_MATCHES_HOST_COLLECTION(reco::SuperClusterDeviceCollection, reco::SuperClusterHostCollection);
+
+#endif  // DataFormats_EgammaReco_interface_alpaka_SuperClusterDeviceCollection_h
