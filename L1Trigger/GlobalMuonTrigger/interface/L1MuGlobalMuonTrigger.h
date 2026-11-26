@@ -18,6 +18,7 @@
 //---------------
 
 #include <memory>
+#include <mutex>
 
 //----------------------
 // Base Class Headers --
@@ -100,7 +101,7 @@ public:
   L1MuGMTReadoutRecord* currentReadoutRecord() const { return m_ReadoutRingbuffer.back(); };
 
   /// for debug: return the debug block (in order to fill it)
-  L1MuGMTDebugBlock* DebugBlockForFill() const { return m_db.load().get(); };
+  L1MuGMTDebugBlock* DebugBlockForFill() const { return m_db.get(); };
 
 private:
   L1MuGMTPSB* m_PSB;
@@ -116,9 +117,13 @@ private:
   bool m_writeLUTsAndRegs;
   bool m_sendMipIso;
 
-  static std::atomic<std::shared_ptr<L1MuGMTConfig>> m_config;
+  // shared by all instances: created once, by the first instance constructed,
+  // and only read after that
+  static std::shared_ptr<L1MuGMTConfig> m_config;
+  static std::once_flag m_configOnce;
 
-  static std::atomic<std::shared_ptr<L1MuGMTDebugBlock>> m_db;
+  static std::shared_ptr<L1MuGMTDebugBlock> m_db;
+  static std::once_flag m_dbOnce;
 
   unsigned long long m_L1MuGMTScalesCacheID;
   unsigned long long m_L1MuTriggerScalesCacheID;
