@@ -69,6 +69,7 @@ numWFIB.extend([prefixDet+34.7503]) # HLTHeterogeneousValid
 numWFIB.extend([prefixDet+34.7504]) # HLTDev75e33
 # timing menu, heterogeneous backend
 numWFIB.extend([prefixDet+34.751])  # HLTTiming75e33, alpaka
+numWFIB.extend([prefixDet+34.7511]) # HLTTiming75e33, portable e/gamma pixel seeding
 # timing menu, tracking variants
 numWFIB.extend([prefixDet+34.753])  # HLTTiming75e33, legacy tracking
 numWFIB.extend([prefixDet+34.7531]) # HLTTiming75e33, trackingLST
