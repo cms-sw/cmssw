@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <ostream>
 #include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 
@@ -221,6 +222,14 @@ namespace cms::soa {
                   BOOST_PP_IF(BOOST_PP_EQUAL(VALUE_TYPE, _VALUE_TYPE_COLUMN), column, eigen))))
 
 #define _DECLARE_COLUMN_TYPE(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_COLUMN_TYPE_IMPL TYPE_NAME)
+
+/*
+ * Names of the columns, in the same order as the descriptors of each column
+ */
+#define _DECLARE_COLUMN_NAME_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS) \
+  BOOST_PP_IF(BOOST_PP_GREATER(VALUE_TYPE, _VALUE_LAST_COLUMN_TYPE), BOOST_PP_EMPTY(), (BOOST_PP_STRINGIZE(NAME)))
+
+#define _DECLARE_COLUMN_NAME(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_COLUMN_NAME_IMPL TYPE_NAME)
 
 // clang-format off
 #define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME, ARGS)                                    \
@@ -1733,6 +1742,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                     _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_SPANS, ~, __VA_ARGS__)>>::value;   \
       static constexpr std::array<cms::soa::SoAColumnType, num_cols> columnTypes = {{                                  \
         _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_TYPE, ~, __VA_ARGS__)}};                                                 \
+      static constexpr std::array<std::string_view, num_cols> names = {{                                               \
+        _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_NAME, ~, __VA_ARGS__)}};                                                 \
     };                                                                                                                 \
                                                                                                                        \
     /* Helper struct to loop over the columns without using name for mutable data */                                   \
@@ -1749,6 +1760,8 @@ _SWITCH_ON_TYPE(VALUE_TYPE,                                                     
                                     _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_SPANS, ~, __VA_ARGS__)>>::value;         \
       static constexpr std::array<cms::soa::SoAColumnType, num_cols> columnTypes = {{                                  \
         _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_TYPE, ~, __VA_ARGS__)}};                                                 \
+      static constexpr std::array<std::string_view, num_cols> names = {{                                               \
+        _ITERATE_ON_ALL_COMMA(_DECLARE_COLUMN_NAME, ~, __VA_ARGS__)}};                                                 \
     };                                                                                                                 \
                                                                                                                        \
     /* Trivial constuctor */                                                                                           \
