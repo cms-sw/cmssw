@@ -35,7 +35,7 @@ HLTMhtFilter::~HLTMhtFilter() = default;
 
 // Fill descriptions
 void HLTMhtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  std::vector<edm::InputTag> tmp1(1, edm::InputTag("hltMhtProducer"));
+  std::vector<edm::InputTag> tmp1(1, edm::InputTag("hltHtMhtProducer"));
   std::vector<double> tmp2(1, 0.);
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
