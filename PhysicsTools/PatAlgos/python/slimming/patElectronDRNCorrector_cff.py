@@ -5,9 +5,7 @@ from RecoEgamma.EgammaTools.patElectronDRNCorrectionProducer_cfi import patElect
 patElectronsDRN = patElectronDRNCorrectionProducer.clone(
                             particleSource = 'selectedPatElectrons',
                             rhoName = 'fixedGridRhoFastjetAll',
-                            Client = patElectronDRNCorrectionProducer.Client.clone(
-                              mode = 'Async',
-                              allowedTries = 1,
+                            Client = dict(
                               modelName = 'electronObjectEnsemble',
                               modelConfigPath = 'RecoEgamma/EgammaElectronProducers/data/models/electronObjectEnsemble/config.pbtxt',
                               timeout = 10

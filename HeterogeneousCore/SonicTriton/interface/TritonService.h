@@ -11,6 +11,9 @@
 #include <functional>
 #include <utility>
 #include <atomic>
+#include <optional>
+#include <mutex>
+#include <shared_mutex>
 
 #include "grpc_client.h"
 
@@ -90,18 +93,28 @@ public:
     static const std::string fallbackAddress;
     static const std::string siteconfName;
   };
+  //Dynamic quantities of servers
+  struct ServerHealth {
+    bool ready{false};
+
+    //successful and failed requests, cumulative since the server started
+    uint64_t inferenceCount{0};
+    uint64_t failureCount{0};
+    //average end-to-end time of a successful request as a proxy to server load
+    double avgSuccessTimeMs{0.0};
+  };
   struct Model {
     Model(const std::string& path_ = "") : path(path_) {}
-
     //members
     std::string path;
-    std::unordered_set<std::string> servers;
+    std::set<std::string> servers;
     std::unordered_set<unsigned> modules;
+    int refCount{0};  // for dynamic loading on fallback server
+    bool isLoaded() const { return refCount > 0; }
   };
   struct Module {
     //currently assumes that a module can only have one associated model
     Module(const std::string& model_) : model(model_) {}
-
     //members
     std::string model;
   };
@@ -111,11 +124,28 @@ public:
 
   //accessors
   void addModel(const std::string& modelName, const std::string& path);
-  Server serverInfo(const std::string& model, const std::string& preferred = "") const;
+
+  std::optional<std::string> resolveServerName(const std::string& model, const std::string& preferred = "") const;
+  const std::pair<const std::string, Server>& resolveServer(const std::string& model,
+                                                            const std::string& preferred = "") const;
+  std::vector<std::string> unassignedModels() const;
+
+  // return the best server for retry, ignore the current server
+  std::optional<std::string> getBestServer(const std::string& modelName, const std::string& ignoreServer = "") const;
+
   const std::string& pid() const { return pid_; }
   void notifyCallStatus(bool status) const;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  // Dynamic model loading/unloading - only supported for the fallback server
+  // The fallback server must be started with explicit model control mode
+  // (--model-control-mode explicit) for these functions to work
+  bool loadModel(const std::string& modelName);
+  bool unloadModel(const std::string& modelName);
+  // Start the fallback server if enabled and not already running (idempotent)
+  void startFallbackServer();
+  bool fallbackStarted() const { return startedFallback_; }
 
 private:
   void preallocate(edm::service::SystemBounds const&);
@@ -128,6 +158,15 @@ private:
   //helper
   template <typename LOG>
   void printFallbackServerLog() const;
+  // Internal helpers that operate on Model directly (caller holds lock)
+  bool loadModel(const std::string& modelName, Model& model);
+  bool unloadModel(const std::string& modelName, Model& model);
+  // Query current health of every (non-fallback) server that serves modelName, measured for that model
+  // only, computed on the fly and returned by value
+  std::vector<std::pair<std::string, ServerHealth>> getServerHealth(const std::string& modelName) const;
+  // choose the retry target among the measured healths
+  std::optional<std::string> selectBestServer(const std::vector<std::pair<std::string, ServerHealth>>& healths,
+                                              const std::string& ignoreServer) const;
 
   bool verbose_;
   FallbackOpts fallbackOpts_;
@@ -136,12 +175,20 @@ private:
   bool startedFallback_;
   mutable std::atomic<int> callFails_;
   std::string pid_;
-  std::unordered_map<std::string, Model> unservedModels_;
   //this represents a many:many:many map
   std::unordered_map<std::string, Server> servers_;
   std::unordered_map<std::string, Model> models_;
   std::unordered_map<unsigned, Module> modules_;
   int numberOfThreads_;
+
+  //Dynamic model loading and unloading (fallback server only)
+  // modelLoadMutex_ serializes loadModel()/unloadModel() against each other, including the slow gRPC call,
+  // and so protects Model::refCount.
+  std::mutex modelLoadMutex_;
+  // modelStateMutex_ protects what the const accessors read while loadModel()/unloadModel() may run concurrently:
+  // Model::servers and Server::models. Writers hold it only to commit the change, never during gRPC calls.
+  // The structure of servers_ and models_ is fixed once preBeginJob() has finished.
+  mutable std::shared_mutex modelStateMutex_;
 };
 
 #endif
