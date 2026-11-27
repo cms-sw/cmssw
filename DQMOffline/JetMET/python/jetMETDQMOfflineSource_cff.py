@@ -113,7 +113,8 @@ from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3Res
 
 ak4PFScoutingL1FastjetCorrector = ak4PFL1FastjetCorrector.clone(
     algorithm   = cms.string('AK4PFHLT'),
-    srcRho = cms.InputTag("hltScoutingPFPacker","rho")
+    srcRho = cms.InputTag("hltScoutingPFPacker","rho"),
+    skipMissingProduct = cms.bool(True)
     )
     
 ak4PFScoutingL2RelativeCorrector = ak4PFL2RelativeCorrector.clone( 

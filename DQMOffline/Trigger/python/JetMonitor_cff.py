@@ -7,7 +7,8 @@ from DQMOffline.Trigger.ZGammaplusJetsMonitor_cff import *
 ###################     Scouting JECs    #################
 ak4PFScoutL1FastjetCorrector = ak4PFL1FastjetCorrector.clone(
     algorithm   = cms.string('AK4PFHLT'),
-    srcRho = cms.InputTag("hltScoutingPFPacker","rho")
+    srcRho = cms.InputTag("hltScoutingPFPacker","rho"),
+    skipMissingProduct = cms.bool(True)
     )
     
 ak4PFScoutL2RelativeCorrector = ak4PFL2RelativeCorrector.clone( 
