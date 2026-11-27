@@ -138,3 +138,11 @@ from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 phase2_ecal_devel.toReplaceWith(RawToDigiTask, RawToDigiTask.copyAndExclude([ecalPreshowerDigis]))
 phase2_ecal_devel.toReplaceWith(RawToDigiTask_ecalOnly, RawToDigiTask_ecalOnly.copyAndExclude([ecalPreshowerDigis]))
 
+# BTL alpaka unpacker, only with the mtdRawData process modifier:
+# the unpacker and the readout map are loaded only when the modifier is active
+def _addBTLUnpacker(process):
+    process.load("EventFilter.MTDRawToDigi.btlRawToDigi_cff")
+    process.RawToDigiTask.add(process.btlRawToDigi)
+
+from Configuration.ProcessModifiers.mtdRawData_cff import mtdRawData
+modifyConfigurationStandardSequencesRawToDigiAddBTLUnpacker_ = mtdRawData.makeProcessModifier(_addBTLUnpacker)
