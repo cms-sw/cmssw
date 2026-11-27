@@ -34,9 +34,12 @@ cmsDriver.py step2 -s L1P2GT,HLT:NGTScouting,NANO:@NGTScouting,DQM:@nanohltDQM \
 	     --nThreads 24 \
 	     --process HLTX \
 	     --fileout file:step2.root \
-	     --customise_commands='process.hltTriggerObjP4Table.triggerEvent=cms.InputTag("hltTriggerSummaryAOD","","@currentProcess")' \
+	     --customise_commands='process.hltTriggerObjP4Table.triggerEvent=cms.InputTag("hltTriggerSummaryAOD","","@currentProcess"); process.hltTriggerObjP4Table.extraFilters=["hltL1GTAcceptFilter"]' \
 	     --inputCommands='keep *, drop *_hlt*_*_HLT, drop triggerTriggerFilterObjectWithRefs_l1t*_*_HLT' \
 	     --python_filename step2.py || die "cmsRun step2.py failed" $?
+
+## check that the filterBits column was written for the extraFilters set above
+python3 -c 'import ROOT; f = ROOT.TFile.Open("step2_inNANOAODSIM.root"); assert "hltL1GTAcceptFilter" in f.Get("Events").GetBranch("TriggerObject_filterBits").GetTitle()' || die "TriggerObject_filterBits check failed" $?
 
 ## Step 2: harvesting
 cmsDriver.py step3 -s HARVESTING:@nanohltDQM \

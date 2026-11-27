@@ -8,6 +8,7 @@
 //   pt, eta, phi, mass   - four-momentum
 //   id                   - trigger object type id (TriggerTypeDefs.h)
 //   <pathName>           - bool: object passes the last filter of that path
+//   filterBits, ...      - uint64: bit i set if object passes extraFilters[i] (64 filters per column)
 //
 // Path name branch sanitisation: ':' and '/' are replaced with '_'.
 
@@ -28,8 +29,10 @@
 
 // standard includes
 #include <algorithm>
+#include <cstdint>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <unordered_set>
 
 class TrigObjP4FlatTableProducer : public edm::global::EDProducer<edm::RunCache<HLTConfigProvider>> {
@@ -55,12 +58,15 @@ private:
   // Sanitise a path/filter name into a valid ROOT branch name.
   static std::string toBranchName(std::string name);
 
+  static constexpr unsigned int kBitsPerColumn = 64;  // filters per filterBits column (bits in a uint64_t)
+
   // ---------- config ----------
   const edm::InputTag trigEventTag_;
   const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
   const std::string tableName_;
   const std::vector<std::string> pathNames_;     // HLT paths  -> last-filter seeds + bool columns
   const std::vector<std::string> extraFilters_;  // extra filters -> additional seed objects
+  std::vector<std::string> filterBitsDoc_;       // one description per filterBits column: "bit 0 = hltX; ..."
 };
 
 // ---------------------------------------------------------------------------
@@ -73,6 +79,14 @@ TrigObjP4FlatTableProducer::TrigObjP4FlatTableProducer(const edm::ParameterSet& 
       pathNames_(ps.getParameter<std::vector<std::string>>("pathNames")),
       extraFilters_(ps.getParameter<std::vector<std::string>>("extraFilters")) {
   produces<nanoaod::FlatTable>();
+
+  // FILTER ID: extraFilters_[i] is bit (i % kBitsPerColumn) of filterBits column (i / kBitsPerColumn).
+  // Write the meaning of every bit into the branch description, so the file documents itself.
+  for (size_t i = 0; i < extraFilters_.size(); ++i) {
+    if (i % kBitsPerColumn == 0)
+      filterBitsDoc_.push_back("object passed extra filter, bit:");
+    filterBitsDoc_.back() += " " + std::to_string(i % kBitsPerColumn) + "=" + extraFilters_[i] + ";";
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -240,6 +254,20 @@ void TrigObjP4FlatTableProducer::produce(edm::StreamID, edm::Event& iEvent, cons
   }
 
   // -----------------------------------------------------------------------
+  // Step 4b - FILTER ID: which extra filters did each object pass?
+  //           One uint64 per object per kBitsPerColumn filters; bit i is set if the
+  //           object passed extraFilters_[i] (an object can pass several).
+  // -----------------------------------------------------------------------
+  std::vector<std::vector<uint64_t>> filterBits(filterBitsDoc_.size(), std::vector<uint64_t>(nObj, 0));
+  for (size_t i = 0; i < extraFilters_.size(); ++i) {
+    for (auto objIdx : indicesPassingFilter(trigEvent, extraFilters_[i], proc)) {
+      auto it = rowPosition.find(objIdx);
+      if (it != rowPosition.end())
+        filterBits[i / kBitsPerColumn][it->second] |= (uint64_t{1} << (i % kBitsPerColumn));
+    }
+  }
+
+  // -----------------------------------------------------------------------
   // Step 5 - assemble FlatTable
   // -----------------------------------------------------------------------
   auto table = std::make_unique<nanoaod::FlatTable>(nObj, tableName_, false, false);
@@ -255,6 +283,11 @@ void TrigObjP4FlatTableProducer::produce(edm::StreamID, edm::Event& iEvent, cons
 
   for (const PathFlag& pf : pathFlags)
     table->addColumn<bool>(pf.branchName, pf.fired, pf.docString);
+
+  // filterBits, filterBits1, ... ; none if extraFilters is empty
+  for (size_t w = 0; w < filterBits.size(); ++w)
+    table->addColumn<uint64_t>(
+        w == 0 ? "filterBits" : "filterBits" + std::to_string(w), filterBits[w], filterBitsDoc_[w]);
 
   iEvent.put(std::move(table));
 }
@@ -279,7 +312,7 @@ void TrigObjP4FlatTableProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::vector<std::string>>("extraFilters", {})
       ->setComment(
           "Additional HLT filter labels whose passing objects are included "
-          "in the table (no extra bool column is added for these)");
+          "in the table; each also gets a bit in the filterBits column(s)");
 
   descriptions.addWithDefaultLabel(desc);
 }
