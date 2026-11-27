@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -32,7 +33,7 @@ private:
   edm::ESGetToken<SiPixelGenErrorDBObject, SiPixelGenErrorDBObjectRcd> genErrorDBObjectToken_;
 
   edm::ParameterSet pset_;
-  bool useErrorsFromTemplates_;
+  bool useLAWidthFromDB_;
 };
 
 using namespace edm;
@@ -41,17 +42,22 @@ template <typename TrackerTraits>
 PixelCPEFastESProducerT<TrackerTraits>::PixelCPEFastESProducerT(const edm::ParameterSet& p) : pset_(p) {
   auto const& myname = p.getParameter<std::string>("ComponentName");
   auto const& magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
-  useErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
+  // the errors and charge bins of all clusters are taken from the GenError
+  if (!p.getParameter<bool>("UseErrorsFromTemplates")) {
+    throw cms::Exception("Configuration")
+        << "PixelCPEFast takes its errors from the GenError payload: UseErrorsFromTemplates must be true";
+  }
+  useLAWidthFromDB_ = p.getParameter<bool>("useLAWidthFromDB");
 
   auto cc = setWhatProduced(this, myname);
   magfieldToken_ = cc.consumes(magname);
   pDDToken_ = cc.consumes();
   hTTToken_ = cc.consumes();
   lorentzAngleToken_ = cc.consumes(edm::ESInputTag(""));
-  lorentzAngleWidthToken_ = cc.consumes(edm::ESInputTag("", "forWidth"));
-  if (useErrorsFromTemplates_) {
-    genErrorDBObjectToken_ = cc.consumes();
+  if (useLAWidthFromDB_) {
+    lorentzAngleWidthToken_ = cc.consumes(edm::ESInputTag("", "forWidth"));
   }
+  genErrorDBObjectToken_ = cc.consumes();
 }
 
 template <typename TrackerTraits>
@@ -59,22 +65,16 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducerT<TrackerT
     const TkPixelCPERecord& iRecord) {
   // add the new la width object
   const SiPixelLorentzAngle* lorentzAngleWidthProduct = nullptr;
-  lorentzAngleWidthProduct = &iRecord.get(lorentzAngleWidthToken_);
-
-  const SiPixelGenErrorDBObject* genErrorDBObjectProduct = nullptr;
-
-  // Errors take only from new GenError
-  if (useErrorsFromTemplates_) {  // do only when generrors are needed
-    genErrorDBObjectProduct = &iRecord.get(genErrorDBObjectToken_);
-    //} else {
-    //std::cout<<" pass an empty GenError pointer"<<std::endl;
+  if (useLAWidthFromDB_) {  // use the width LA
+    lorentzAngleWidthProduct = &iRecord.get(lorentzAngleWidthToken_);
   }
+
   return std::make_unique<PixelCPEFast<TrackerTraits>>(pset_,
                                                        &iRecord.get(magfieldToken_),
                                                        iRecord.get(pDDToken_),
                                                        iRecord.get(hTTToken_),
                                                        &iRecord.get(lorentzAngleToken_),
-                                                       genErrorDBObjectProduct,
+                                                       &iRecord.get(genErrorDBObjectToken_),
                                                        lorentzAngleWidthProduct);
 }
 
