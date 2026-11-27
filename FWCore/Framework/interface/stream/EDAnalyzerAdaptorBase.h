@@ -25,6 +25,7 @@
 #include <vector>
 
 // user include files
+#include "FWCore/Concurrency/interface/StreamNumaDomains.h"
 #include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Common/interface/FWCoreCommonFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -98,8 +99,12 @@ namespace edm {
     protected:
       template <typename T>
       void createStreamModules(T iFunc) {
+        // each stream module is created on the NUMA domain of its stream (numaLocality); the thread is pinned once per
+        // domain
+        numa::StreamPlacement placement;
         unsigned int iStreamModule = 0;
         for (auto& m : m_streamModules) {
+          placement.moveToStream(iStreamModule);
           m = iFunc(iStreamModule);
           setModuleDescriptionPtr(m);
           ++iStreamModule;

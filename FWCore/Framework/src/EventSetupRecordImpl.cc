@@ -48,6 +48,7 @@ namespace edm {
           activityRegistry_{source.activityRegistry_},
           cacheIdentifier_{source.cacheIdentifier_},
           iovIndex_{source.iovIndex_},
+          numaDomain_{source.numaDomain_},
           isAvailable_{source.isAvailable_.load()},
           validityModificationUnderway_{source.validityModificationUnderway_.load()} {}
 
@@ -59,6 +60,7 @@ namespace edm {
       activityRegistry_ = rhs.activityRegistry_;
       cacheIdentifier_ = rhs.cacheIdentifier_;
       iovIndex_ = rhs.iovIndex_;
+      numaDomain_ = rhs.numaDomain_;
       isAvailable_.store(rhs.isAvailable_.load());
       validityModificationUnderway_.store(validityModificationUnderway_.load());
       return *this;

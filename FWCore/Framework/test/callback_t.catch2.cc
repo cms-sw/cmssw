@@ -49,6 +49,10 @@ namespace callbacktest {
     void push(oneapi::tbb::task_group&, T&& iT) {
       iT();
     }
+    template <typename T>
+    void push(oneapi::tbb::task_group&, int, T&& iT) {
+      iT();
+    }
   };
 
   struct Base {
