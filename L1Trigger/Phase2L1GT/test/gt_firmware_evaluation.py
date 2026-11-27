@@ -35,6 +35,7 @@ from L1Trigger.Phase2L1GT.l1tGTSingleObjectCond_cfi import l1tGTSingleObjectCond
 from L1Trigger.Phase2L1GT.l1tGTDoubleObjectCond_cfi import l1tGTDoubleObjectCond
 from L1Trigger.Phase2L1GT.l1tGTTripleObjectCond_cfi import l1tGTTripleObjectCond
 from L1Trigger.Phase2L1GT.l1tGTQuadObjectCond_cfi import l1tGTQuadObjectCond
+process.load("L1Trigger.Phase2L1GT.l1tGTLUTs_cfi")
 
 l1tGTDoubleObjectCond.sanity_checks = cms.untracked.bool(True)
 l1tGTDoubleObjectCond.inv_mass_checks = cms.untracked.bool(True)
