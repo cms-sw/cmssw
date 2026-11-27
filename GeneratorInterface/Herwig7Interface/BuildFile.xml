@@ -1,4 +1,5 @@
 <use name="GeneratorInterface/Core"/>
+<use name="FWCore/Utilities"/>
 <use name="boost"/>
 <use name="hepmc"/>
 <use name="hepmc3"/>
