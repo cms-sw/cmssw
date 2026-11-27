@@ -19,3 +19,7 @@
   <use name="TrackingTools/TrajectoryState"/>
   <use name="L1Trigger/TrackFindingTracklet"/>
 </library>
+
+<test name="L1TKRunTest" command="L1TKRunTest.sh -e 10 -j 1"/>
+<!-- For IB / heavy runs: set -e 1000 above and enable the comparison:
+<test name="L1TKComparisonTest" command="L1TKComparisonTest.py -i ${CMSSW_BASE}/src/L1Trigger/TrackFindingTracklet/test/unit_test_IB_output -p ${CMSSW_BASE}/unit_tests/L1TKRunTest"/> -->
