@@ -385,34 +385,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::caPixelDoublets {
       }
 #endif
 
+      // The candidate outer hits are the contents of the phi bins kl...kh (wrapping around). They are contiguous in
+      // the PhiBinner storage, in two parts if the window wraps around, so the threads along X go through the whole
+      // window at once instead of bin by bin, which would leave most of them idle in the many bins with few hits.
+      // A window covering all the bins (kl == kh + 1) has no candidates, as in the loop over the bins it replaces.
       auto khh = kh;
       incr(khh);
-      for (auto kk = kl; kk != khh; incr(kk)) {
-        //#ifdef GPU_DEBUG
-        //        if (kk != kl && kk != kh)
-        //          nmin += phiBinner->size(kk + hoff);
-        //#endif
-
-        auto const* __restrict__ p = phiBinner->begin(kk + hoff);
-        auto const* __restrict__ e = phiBinner->end(kk + hoff);
-        auto const maxpIndex = e - p;
-
-#ifdef DOUBLETS_DEBUG
-        if (outer >= 28) {  // Only print for OT layers
-          printf("PhiBinner search: inner=%d outer=%d kk=%d hoff=%d phiBin=%d maxpIndex=%d\n",
-                 inner,
-                 outer,
-                 kk,
-                 hoff,
-                 kk + hoff,
-                 int(maxpIndex));
+      auto const* __restrict__ p1 = phiBinner->begin(kl + hoff);
+      auto const* __restrict__ p2 = phiBinner->begin(hoff);
+      uint32_t n1 = 0, n2 = 0;
+      if (kl != khh) {
+        if (kl <= kh) {
+          n1 = phiBinner->end(kh + hoff) - p1;
+        } else {
+          n1 = phiBinner->end(PhiHisto::nbins() - 1 + hoff) - p1;
+          n2 = phiBinner->end(kh + hoff) - p2;
         }
-#endif
-
+      }
+      {
         // innermost parallel loop, using the block elements along the faster dimension (X or 1 in a 2D grid)
-        for (uint32_t pIndex : cms::alpakatools::independent_group_elements_x(acc, maxpIndex)) {
-          // FIXME implement alpaka::ldg and use it here? or is it const* __restrict__ enough?
-          auto oi = p[pIndex];
+        for (uint32_t pIndex : cms::alpakatools::independent_group_elements_x(acc, n1 + n2)) {
+          auto oi = pIndex < n1 ? p1[pIndex] : p2[pIndex - n1];
           if (doMasking and maskView[oi].recHitMask() > 0)
             continue;
           ALPAKA_ASSERT_ACC(oi >= offsets[outer]);

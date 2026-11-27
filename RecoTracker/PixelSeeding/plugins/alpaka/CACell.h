@@ -47,7 +47,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static constexpr auto invalidHitId = std::numeric_limits<hindex_type>::max();
 
-    using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxLayersPerTrack>;
     using HitContainer = caStructures::SequentialContainer;
     using CellToCell = caStructures::GenericContainer;
     using CellToTracks = caStructures::GenericContainer;
@@ -183,187 +182,319 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
              maxDCurv * (std::abs(innerCurvature + outerCurvature)) + dCurv0;
     }
 
-    // trying to free the track building process from hardcoded layers, leaving
-    // the visit of the graph based on the neighborhood connections between cells.
+    // ---- Search of the ntuplets ----
+    // The ntuplets are built by a visit of the cell graph that follows the neighbour connections between cells, instead
+    // of hardcoded layers. From each cell the visit tries its compatible neighbours, the non layer-skipping ones first;
+    // the layer-skipping ones are tried only if none of those was found at triplet-or-more depth. A cell without any
+    // compatible neighbour ends an ntuplet, which is saved if it has enough hits.
 
-    template <int DEPTH>
-    ALPAKA_FN_ACC ALPAKA_FN_INLINE void find_ntuplets(Acc1D const& acc,
-                                                      const HitsMultiView& hh,
-                                                      const ::reco::CANtupletCutsSoAConstView& ntupletCuts,
-                                                      const ::reco::CAGraphSoAConstView& cc,
-                                                      CACell* __restrict__ cells,
-                                                      HitContainer& foundNtuplets,
-                                                      CellToCell const* __restrict__ cellNeighborsHisto,
-                                                      CellToTracks* cellTracksHisto,
-                                                      uint32_t* nCellTracks,
-                                                      CAPairSoAView ct,
-                                                      cms::alpakatools::AtomicPairCounter& apc,
-                                                      Quality* __restrict__ quality,
-                                                      int8_t* __restrict__ nLayers,
-                                                      float* __restrict__ pt,
-                                                      TmpTuple& tmpNtuplet,
-                                                      hindex_type* __restrict__ hits,
-                                                      const unsigned int minHitsPerNtuplet,
-                                                      const float preCurvature = kUninitializeCurvature) const {
-      // the building process for a track ends if:
-      // it has no right neighbor
-      // it has no compatible neighbor
-      // the ntuplets is then saved if the number of hits it contains is greater
-      // than a threshold
-      if constexpr (DEPTH <= 0) {
-        printf("ERROR: CACell::find_ntuplets reached full depth!\n");
-        ALPAKA_ASSERT_ACC(false);
-      } else {
-        auto doubletId = this - cells;
-        tmpNtuplet.push_back_unsafe(doubletId);  // if we move this to be safe we could parallelize further below?
-        ALPAKA_ASSERT_ACC(tmpNtuplet.size() <= int(TrackerTraits::maxLayersPerTrack - 1));
+    // Save the ntuplet made of the cells path[0..len), whose last cell was reached with the pre-fit curvature
+    // curvature, if it has at least minHitsPerNtuplet layers. path is indexable (a pointer, or GlobalFrames::Path).
+    // hits is a per-thread buffer of maxHitsOnTrack entries, owned by the caller.
+    template <typename Path>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static void save_ntuplet(Acc1D const& acc,
+                                                            const HitsMultiView& hh,
+                                                            CACell* __restrict__ cells,
+                                                            HitContainer& foundNtuplets,
+                                                            CellToTracks* cellTracksHisto,
+                                                            uint32_t* nCellTracks,
+                                                            CAPairSoAView ct,
+                                                            cms::alpakatools::AtomicPairCounter& apc,
+                                                            Quality* __restrict__ quality,
+                                                            int8_t* __restrict__ nLayers,
+                                                            float* __restrict__ pt,
+                                                            Path const& path,
+                                                            int len,
+                                                            float curvature,
+                                                            hindex_type* __restrict__ hits,
+                                                            const unsigned int minHitsPerNtuplet) {
+      const uint8_t nl = len + 1;  // numLayers in tuplet
+      if (nl < minHitsPerNtuplet)
+        return;
+      uint32_t nh = 0U;
+      uint32_t nfb = 0U;
+      for (int k = 0; k < len; ++k) {
+        auto c = path[k];
+        hits[nh++] = cells[c].inner_hit_id();
+        if (nfb < TrackerTraits::maxFishboneHitsPerTrack && cells[c].hasFishbone()) {
+          ++nfb;
+          hits[nh++] = cells[c].theFishboneId_;  // Fishbone hit is always outer than inner hit
+        }
+      }
+      ALPAKA_ASSERT_ACC(nh < TrackerTraits::maxHitsOnTrack);
+      hits[nh] = cells[path[len - 1]].outer_hit_id();
+      auto it = foundNtuplets.bulkFill(acc, apc, hits, nh + 1);
+      if (it != cms::alpakatools::kOverflow) {
+        for (int k = 0; k < len; ++k) {
+          auto c = path[k];
+          auto t_ind = alpaka::atomicAdd(acc, nCellTracks, 1u, alpaka::hierarchy::Blocks{});
+          if (t_ind >= uint32_t(ct.metadata().size())) {
+#ifdef CA_WARNINGS
+            printf("Warning!!!! Too many cell->tracks associations (limit = %d)!\n", ct.metadata().size());
+#endif
+            alpaka::atomicSub(acc, nCellTracks, 1u, alpaka::hierarchy::Blocks{});
+            break;
+          }
+          // Key-range guard: one bin per cell, so this holds by construction and only a sizing mismatch can fail it,
+          // in which case the association is dropped rather than written outside off[].
+          if (c < cellTracksHisto->nOnes()) {
+            cellTracksHisto->count(acc, c);
+          }
+          ct[t_ind].inner() = c;   // cell
+          ct[t_ind].outer() = it;  // track
+        }
+        nLayers[it] = int8_t(nl);  // number of layers, so that it does not need to be recomputed from the hits
+        quality[it] = bad;
+        pt[it] = curvature;  // pre-fit curvature: an early reference for the pt comparisons of the duplicate removers
+      }
+#ifdef CA_WARNINGS
+      else {
+        printf("Warning!!!! Too many tuples (nOnes = %d)!\n", static_cast<int>(foundNtuplets.nOnes()));
+      }
+#endif
+    }
 
-        // Single bin per cell. Each stored entry encodes the neighbor cell index
-        // in its low 31 bits and the layer-skipping flag in bit 31. Walk the
-        // bin in two passes so that non-skipping neighbors are tried first and
-        // skipping ones are only explored when no good non-skipping neighbor
-        // was found at triplet-or-more depth.
+    // Frame stores of the depth-first search find_ntuplets: on the stack of the thread (StackFrames), or in global
+    // memory as structure of arrays with one slot per search (GlobalFrames, see GlobalFrameBuffers). path() gives the
+    // cells of the frames, for save_ntuplet.
+    template <int MAXDEPTH>
+    struct StackFrames {
+      uint32_t cell_[MAXDEPTH];
+      uint32_t next_[MAXDEPTH];
+      float curvature_[MAXDEPTH];
+      uint8_t pass_[MAXDEPTH];
+      bool found_[MAXDEPTH];
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t& cell(int l) { return cell_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t& next(int l) { return next_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float& curvature(int l) { return curvature_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint8_t& pass(int l) { return pass_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE bool& found(int l) { return found_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t const* path() const { return cell_; }
+    };
+
+    // the arrays of the global frame store: entry (l, slot) at l * stride + slot, and maxHitsOnTrack hits per slot
+    struct GlobalFrameBuffers {
+      uint32_t* cell;
+      uint32_t* next;
+      float* curvature;
+      uint8_t* pass;
+      bool* found;
+      hindex_type* hits;
+      uint32_t stride;  // number of slots
+    };
+
+    struct GlobalFrames {
+      struct Path {
+        uint32_t const* cell;
+        uint32_t stride;
+        uint32_t slot;
+        ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t operator[](int l) const { return cell[l * stride + slot]; }
+      };
+      GlobalFrameBuffers b;
+      uint32_t slot;
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t& cell(int l) { return b.cell[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t& next(int l) { return b.next[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float& curvature(int l) { return b.curvature[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint8_t& pass(int l) { return b.pass[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE bool& found(int l) { return b.found[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE Path path() const { return Path{b.cell, b.stride, slot}; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE hindex_type* hits() const { return b.hits + slot * TrackerTraits::maxHitsOnTrack; }
+    };
+
+    // Depth-first search of the subtree of the cell startCell, reached through the cells prefix[0..prefixLen) with the
+    // pre-fit curvature startCurvature, saving the ntuplets it finds. A search from a starting cell has an empty
+    // prefix and kUninitializeCurvature; the neighbour loop of startCell starts at (startPass, startNext, startFound),
+    // from the beginning or where the level-by-level search stopped. The visit uses an explicit stack of frames (fr,
+    // StackFrames or GlobalFrames), one per depth, instead of a recursion that the compiler would inline once per
+    // depth. Used by Kernel_find_ntuplets (back-ends with a single thread per block) and by
+    // Kernel_find_ntuplets_overflow, when the node storage of the level-by-level search is full.
+    template <int MAXDEPTH, typename Frames>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static void find_ntuplets(Acc1D const& acc,
+                                                             const HitsMultiView& hh,
+                                                             const ::reco::CANtupletCutsSoAConstView& ntupletCuts,
+                                                             const ::reco::CAGraphSoAConstView& cc,
+                                                             CACell* __restrict__ cells,
+                                                             HitContainer& foundNtuplets,
+                                                             CellToCell const* __restrict__ cellNeighborsHisto,
+                                                             CellToTracks* cellTracksHisto,
+                                                             uint32_t* nCellTracks,
+                                                             CAPairSoAView ct,
+                                                             cms::alpakatools::AtomicPairCounter& apc,
+                                                             Quality* __restrict__ quality,
+                                                             int8_t* __restrict__ nLayers,
+                                                             float* __restrict__ pt,
+                                                             Frames& fr,
+                                                             hindex_type* __restrict__ hits,
+                                                             const unsigned int minHitsPerNtuplet,
+                                                             uint32_t const* prefix,
+                                                             int prefixLen,
+                                                             uint32_t startCell,
+                                                             float startCurvature,
+                                                             uint8_t startPass = 0,
+                                                             uint32_t startNext = 0,
+                                                             bool startFound = false) {
+      static_assert(MAXDEPTH > 0);
+      // one frame per depth: its cell (the path of the search is fr.cell(0..level]), where the neighbour loop of the
+      // cell is (next: next neighbour index to try; pass: 0 for the non layer-skipping neighbours, 1 for the
+      // layer-skipping ones, 2 when done), whether a compatible neighbour was found (and visited), and the pre-fit
+      // curvature with which the cell was reached
+
+      // the cells of the prefix are done: when the search returns to them it stops, without saving them
+      for (int l = 0; l < prefixLen; ++l) {
+        fr.cell(l) = prefix[l];
+        fr.next(l) = 0;
+        fr.pass(l) = 2;
+        fr.found(l) = true;
+        fr.curvature(l) = kUninitializeCurvature;
+      }
+      int level = prefixLen;
+      fr.cell(level) = startCell;
+      fr.next(level) = startNext;
+      fr.pass(level) = startPass;
+      fr.found(level) = startFound;
+      fr.curvature(level) = startCurvature;
+
+      while (level >= prefixLen) {
+        uint32_t const doubletId = fr.cell(level);
+        CACell const& cell = cells[doubletId];
         auto const* __restrict__ neighborCells = cellNeighborsHisto->begin(doubletId);
         auto const nNeighbors = cellNeighborsHisto->size(doubletId);
+        bool const tripletOrMore = (level > 0);
+        // at the last depth the ntuplet has maxLayersPerTrack layers: it is saved as it is, not extended
+        bool const lastDepth = (level == MAXDEPTH - 1);
 
-        bool tripletOrMore = ((unsigned int)(tmpNtuplet.size()) > 1);
-        bool foundNeighbor = false;
-
-        // At the last depth the ntuplet has maxLayersPerTrack layers: it is saved as it is, not extended.
-        constexpr bool lastDepth = (DEPTH == 1);
-#ifdef CA_WARNINGS
-        if (lastDepth and nNeighbors > 0) {
-          printf("Warning!!!! Ntuplet reached %d layers, not extended further!\n", TrackerTraits::maxLayersPerTrack);
-        }
-#endif
-
-        // The two passes are identical but for the check on bit 31 (layer skipping):
-        // pass==0 keeps entries with bit 31 clear, pass==1 keeps entries with
-        // bit 31 set. Bail out of pass 1 if a non-skipping neighbor already
-        // produced a triplet-or-more.
-        for (int pass = 0; pass < 2 and not lastDepth; ++pass) {
-          if (pass == 1 && foundNeighbor && tripletOrMore)
+        // look for the next compatible neighbour, the non layer-skipping ones first
+        int child = -1;
+        float childCurvature = kUninitializeCurvature;
+        while (not lastDepth and fr.pass(level) < 2) {
+          // the layer-skipping pass is skipped if, when it would start, a non layer-skipping neighbour has already
+          // been found at triplet-or-more depth
+          if (fr.pass(level) == 1 && fr.next(level) == 0 && fr.found(level) && tripletOrMore) {
+            fr.pass(level) = 2;
             break;
-          const uint32_t wantSkip = (pass == 0) ? 0u : caStructures::kSkipsLayerFlag;
-          for (auto idx = 0u; idx < nNeighbors; idx++) {
-            auto encoded = neighborCells[idx];
+          }
+          const uint32_t wantSkip = (fr.pass(level) == 0) ? 0u : caStructures::kSkipsLayerFlag;
+          while (fr.next(level) < nNeighbors) {
+            auto encoded = neighborCells[fr.next(level)++];
             if ((encoded & caStructures::kSkipsLayerFlag) != wantSkip)
               continue;
             auto otherCell = encoded & caStructures::kCellIndexMask;
             if (cells[otherCell].isKilled())
               continue;
-
             float thisCurvature{kUninitializeCurvature};
             if (cells[otherCell].quadrupletCut(
-                    preCurvature, thisCurvature, ntupletCuts, cc, hh, inner_x(hh), inner_y(hh))) {
+                    fr.curvature(level), thisCurvature, ntupletCuts, cc, hh, cell.inner_x(hh), cell.inner_y(hh))) {
               continue;
             }
-#ifdef CA_DEBUG
-            printf("Doublet no. %d %d doubletId: %ld -> %d (isKilled %d) (%d,%d) -> (%d,%d) %d %d\n",
-                   tmpNtuplet.size(),
-                   idx,
-                   doubletId,
-                   otherCell,
-                   cells[otherCell].isKilled(),
-                   this->inner_hit_id(),
-                   this->outer_hit_id(),
-                   cells[otherCell].inner_hit_id(),
-                   cells[otherCell].outer_hit_id(),
-                   idx,
-                   nNeighbors);
-#endif
-
-            foundNeighbor = true;
-            cells[otherCell].template find_ntuplets<DEPTH - 1>(acc,
-                                                               hh,
-                                                               ntupletCuts,
-                                                               cc,
-                                                               cells,
-                                                               foundNtuplets,
-                                                               cellNeighborsHisto,
-                                                               cellTracksHisto,
-                                                               nCellTracks,
-                                                               ct,
-                                                               apc,
-                                                               quality,
-                                                               nLayers,
-                                                               pt,
-                                                               tmpNtuplet,
-                                                               hits,
-                                                               minHitsPerNtuplet,
-                                                               thisCurvature);
+            child = otherCell;
+            childCurvature = thisCurvature;
+            break;
           }
+          if (child >= 0)
+            break;
+          // this pass is over, start the next one from the first neighbour
+          ++fr.pass(level);
+          fr.next(level) = 0;
         }
 
-        // if no more doublets were found, save N-tuplet if long enough
-        if (!foundNeighbor) {
-          const uint8_t nl = tmpNtuplet.size() + 1;  // numLayers in tuplet
-          // if long enough save...
-          if (nl >= minHitsPerNtuplet) {
-            {
-              // `hits` is owned by the caller, one buffer per thread sized maxHitsOnTrack to cover fishbone
-              // hits: declaring it here would put a copy at every inlined recursion depth on the stack, and a
-              // thread only ever saves one ntuplet at a time.
-              uint32_t nh = 0U;
-              uint32_t nfb = 0U;
-              for (auto c : tmpNtuplet) {
-                hits[nh++] = cells[c].inner_hit_id();
-                if (nfb < TrackerTraits::maxFishboneHitsPerTrack && cells[c].hasFishbone()) {
-                  ++nfb;
-                  hits[nh++] = cells[c].theFishboneId_;  // Fishbone hit is always outer than inner hit
-                }
-              }
-              ALPAKA_ASSERT_ACC(nh < TrackerTraits::maxHitsOnTrack);
-              hits[nh] = outer_hit_id();
-              auto it = foundNtuplets.bulkFill(acc, apc, hits, nh + 1);
-#ifdef CA_DEBUG
-              printf("track n. %d nhits %d with cells: ", it, nh + 1);
-#endif
-              if (it != cms::alpakatools::kOverflow) {
-                for (auto c : tmpNtuplet) {
-#ifdef CA_DEBUG
-                  printf("%d - ", c);
-#endif
-                  auto t_ind = alpaka::atomicAdd(acc, nCellTracks, 1u, alpaka::hierarchy::Blocks{});
-
-                  if (t_ind >= uint32_t(ct.metadata().size())) {
-#ifdef CA_WARNINGS
-                    printf("Warning!!!! Too many cell->tracks associations (limit = %d)!\n", ct.metadata().size());
-#endif
-                    alpaka::atomicSub(acc, nCellTracks, 1u, alpaka::hierarchy::Blocks{});
-                    break;
-                  }
-                  // Key-range guard: one bin per cell, so this holds by construction and only a sizing
-                  // mismatch can fail it, in which case the association is dropped rather than written
-                  // outside off[].
-                  if (c < cellTracksHisto->nOnes()) {
-                    cellTracksHisto->count(acc, c);
-                  }
-
-                  ct[t_ind].inner() = c;   // cell
-                  ct[t_ind].outer() = it;  // track
-                }
-#ifdef CA_DEBUG
-                printf("\n");
-#endif
-
-                nLayers[it] = int8_t(nl);  // set number of layers in the TrackSoA (if not done here,
-                                           // one would need to recalculate it from the hits later)
-                quality[it] = bad;
-                pt[it] = preCurvature;  // fill the curvature as an early (pre-fit)
-                                        // reference for pt comparisons in duplicate removers
-              }
-#ifdef CA_WARNINGS
-              else {
-                printf("Warning!!!! Too many tuples (nOnes = %d)!\n", static_cast<int>(foundNtuplets.nOnes()));
-              }
-#endif
-            }
-          }
+        if (child >= 0) {
+          // go down to the neighbour
+          fr.found(level) = true;
+          ++level;
+          ALPAKA_ASSERT_ACC(level < MAXDEPTH);
+          fr.cell(level) = child;
+          fr.next(level) = 0;
+          fr.pass(level) = 0;
+          fr.found(level) = false;
+          fr.curvature(level) = childCurvature;
+          continue;
         }
-        tmpNtuplet.pop_back();
-        ALPAKA_ASSERT_ACC(tmpNtuplet.size() < int(TrackerTraits::maxHitsOnTrack - 1));
+
+        // all neighbours of this cell have been visited: if none was found, save the ntuplet if long enough
+        if (!fr.found(level)) {
+          save_ntuplet(acc,
+                       hh,
+                       cells,
+                       foundNtuplets,
+                       cellTracksHisto,
+                       nCellTracks,
+                       ct,
+                       apc,
+                       quality,
+                       nLayers,
+                       pt,
+                       fr.path(),
+                       level + 1,
+                       fr.curvature(level),
+                       hits,
+                       minHitsPerNtuplet);
+        }
+        // go back up to the parent cell
+        --level;
       }
+    }
+
+    // ---- Level-by-level search (GPU backends) ----
+    // The same visit as find_ntuplets, one depth at a time: each node of the search tree (a cell reached through a path
+    // of cells, with the pre-fit curvature passed to it) is expanded by one thread, which applies the neighbour loop of
+    // one frame of the depth-first search and either records the compatible neighbours as nodes of the next depth or,
+    // if there is none, saves the ntuplet.
+
+    // Where expand_cell stopped because a neighbour could not be stored: the search of the cell resumes at neighbour
+    // next of pass pass (that neighbour included), with found = whether a neighbour was stored before it.
+    struct ExpandStop {
+      bool stopped = false;
+      uint8_t pass = 0;
+      uint32_t next = 0;
+      bool found = false;
+    };
+
+    // Calls emit(neighbour, curvature) for each compatible neighbour of the cell doubletId at depth level, reached
+    // with the pre-fit curvature curvature, in the order and with the cuts of find_ntuplets, until emit returns false
+    // (the neighbour could not be stored): then it fills stop and returns. Returns whether any compatible neighbour
+    // was found. At the last depth the cell is not extended.
+    template <int MAXDEPTH, typename F>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE static bool expand_cell(const HitsMultiView& hh,
+                                                           const ::reco::CANtupletCutsSoAConstView& ntupletCuts,
+                                                           const ::reco::CAGraphSoAConstView& cc,
+                                                           CACell* __restrict__ cells,
+                                                           CellToCell const* __restrict__ cellNeighborsHisto,
+                                                           uint32_t doubletId,
+                                                           int level,
+                                                           float curvature,
+                                                           F&& emit,
+                                                           ExpandStop& stop) {
+      if (level == MAXDEPTH - 1)
+        return false;
+      CACell const& cell = cells[doubletId];
+      auto const* __restrict__ neighborCells = cellNeighborsHisto->begin(doubletId);
+      auto const nNeighbors = cellNeighborsHisto->size(doubletId);
+      bool found = false;
+      for (int pass = 0; pass < 2; ++pass) {
+        // the layer-skipping pass is skipped if a non layer-skipping neighbour has been found at triplet-or-more depth
+        if (pass == 1 && found && level > 0)
+          break;
+        const uint32_t wantSkip = (pass == 0) ? 0u : caStructures::kSkipsLayerFlag;
+        for (uint32_t n = 0; n < nNeighbors; ++n) {
+          auto encoded = neighborCells[n];
+          if ((encoded & caStructures::kSkipsLayerFlag) != wantSkip)
+            continue;
+          auto otherCell = encoded & caStructures::kCellIndexMask;
+          if (cells[otherCell].isKilled())
+            continue;
+          float thisCurvature{kUninitializeCurvature};
+          if (cells[otherCell].quadrupletCut(
+                  curvature, thisCurvature, ntupletCuts, cc, hh, cell.inner_x(hh), cell.inner_y(hh))) {
+            continue;
+          }
+          if (not emit(otherCell, thisCurvature)) {
+            stop = ExpandStop{true, static_cast<uint8_t>(pass), n, found};
+            return true;
+          }
+          found = true;
+        }
+      }
+      return found;
     }
 
   private:
