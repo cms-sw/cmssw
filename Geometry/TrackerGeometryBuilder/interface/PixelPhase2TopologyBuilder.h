@@ -20,6 +20,8 @@ public:
                        int BIG_PIX_PER_ROC_Y,  // in y direction, cols
                        float BIG_PIX_PITCH_X,
                        float BIG_PIX_PITCH_Y,
+                       bool BIG_PIX_TWOEDGES_X,
+                       bool BIG_PIX_TWOEDGES_Y,
                        int ROCS_X,
                        int ROCS_Y);
 };

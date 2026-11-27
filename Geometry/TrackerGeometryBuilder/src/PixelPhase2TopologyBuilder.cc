@@ -12,6 +12,8 @@ PixelTopology* PixelPhase2TopologyBuilder::build(const Bounds* bs,
                                                  int BIG_PIX_PER_ROC_Y,  // in y direction, cols.
                                                  float BIG_PIX_PITCH_X,
                                                  float BIG_PIX_PITCH_Y,
+                                                 bool BIG_PIX_TWOEDGES_X,
+                                                 bool BIG_PIX_TWOEDGES_Y,
                                                  int pixelROCsInX,
                                                  int pixelROCsInY) {
   float width = bs->width();    // module width = Xsize
@@ -42,6 +44,8 @@ PixelTopology* PixelPhase2TopologyBuilder::build(const Bounds* bs,
                                              BIG_PIX_PER_ROC_Y,
                                              BIG_PIX_PITCH_X,
                                              BIG_PIX_PITCH_Y,
+                                             BIG_PIX_TWOEDGES_X,
+                                             BIG_PIX_TWOEDGES_Y,
                                              pixelROCsInX,
                                              pixelROCsInY));  // (int)rocInX, (int)rocInY
 }
