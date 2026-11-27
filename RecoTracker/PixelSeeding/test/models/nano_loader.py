@@ -283,7 +283,7 @@ def dump_merged_cache(files, out):
           flush=True)
 
 
-def dump_arm_cache(files, out, prefix="TrkPrompt", min_dxy=None, label="mtv"):
+def dump_arm_cache(files, out, prefix="TrkPrompt", min_dxy=None, label="mtv", nfeat=31):
     """Dump a PER-ARM cache (TrkPrompt / TrkDisp) in the SAME npz schema as dump_merged_cache.
     `retrain_prompt.sh hp` builds the prompt one (--prefix TrkPrompt) for the deployed forest; a
     process with a second iteration builds the displaced one the same way, so every HP forest trains
@@ -298,14 +298,25 @@ def dump_arm_cache(files, out, prefix="TrkPrompt", min_dxy=None, label="mtv"):
     y_eff = matched (recall axis). label="legacy" makes y an alias of y_eff instead.
 
     min_dxy: keep only |dxyBS| > min_dxy (displaced forest: 0.5; None for the prompt arm).
-    NaN policy: rzChi2 NaN -> -1 (kernel sentinel), other 30 columns finite-gated."""
+    NaN policy: rzChi2 NaN -> -1 (kernel sentinel), other 30 columns finite-gated.
+
+    nfeat=17: the 17 fit features only (FEATS17, the input of the Torch selector of the baseline
+    chain), read without the Trk<X>CA tables, which a baseline-chain dataset does not carry. Same
+    labels and schema; every column finite-gated."""
     if prefix not in ("TrkPrompt", "TrkDisp"):
         raise ValueError("cache-arm is for the per-arm tables TrkPrompt / TrkDisp; the merged row "
                          "space has its own verb, cache-merged (different TP selection and always "
                          "both labels)")
     if label not in ("mtv", "legacy"):
         raise ValueError("label must be 'mtv' or 'legacy'")
+    if nfeat not in (17, 31):
+        raise ValueError("nfeat must be 17 or 31")
     files = list(files)
+    if nfeat == 17:
+        df = pd.concat([load_nano(p, prefix, extra_truth=TRUTH_MTV) for p in files],
+                       ignore_index=True)
+        _write_arm_cache(df, out, prefix, min_dxy, label, list(FEATS17), list(FEATS17), "17 fit")
+        return
     # The provenance block must be present in every file or in none: concatenating both widths
     # would silently drop it.
     prov_flags = [has_branches(p, prefix, "CA", CA_PROV) for p in files]
@@ -318,13 +329,21 @@ def dump_arm_cache(files, out, prefix="TrkPrompt", min_dxy=None, label="mtv"):
     cols = list(FEATS31) + prov
     df = pd.concat([load_nano(p, prefix, with_ca=True, extra_ca=CA_GEOM4 + prov,
                               extra_truth=TRUTH_MTV) for p in files], ignore_index=True)
+    _write_arm_cache(df, out, prefix, min_dxy, label, cols, [c for c in FEATS31 if c != "rzChi2"],
+                     "31 deployed + 4 provenance" if with_prov else "31 deployed")
+
+
+def _write_arm_cache(df, out, prefix, min_dxy, label, cols, gate, what):
+    """The shared tail of dump_arm_cache: |dxyBS| cut, NaN policy, labels, npz. `gate` lists the
+    columns that must be finite; rzChi2, when cached, maps NaN to the kernel's sentinel -1."""
     n_all = len(df)
     if min_dxy is not None:
         df = df[np.abs(df["dxyBS"].values) > min_dxy].reset_index(drop=True)
     n_dxy = len(df)
-    rz_nan = ~np.isfinite(df["rzChi2"].values)
-    df["rzChi2"] = np.where(rz_nan, -1.0, df["rzChi2"].values)
-    gate = [c for c in FEATS31 if c != "rzChi2"]
+    rz_nan = np.zeros(len(df), dtype=bool)
+    if "rzChi2" in cols:
+        rz_nan = ~np.isfinite(df["rzChi2"].values)
+        df["rzChi2"] = np.where(rz_nan, -1.0, df["rzChi2"].values)
     keep = np.isfinite(df[gate].values).all(axis=1)
     n_rzfix = int((rz_nan & keep).sum())
     df = df[keep].reset_index(drop=True)
@@ -350,7 +369,7 @@ def dump_arm_cache(files, out, prefix="TrkPrompt", min_dxy=None, label="mtv"):
                         min_dxy=np.array(-1.0 if min_dxy is None else float(min_dxy)))
     print(f"cached {len(df)} {prefix} rows  y_mtv={y_mtv.mean():.4f} y_eff={y_eff.mean():.4f} "
           f"(B = real but not an efficiency TP: {(y_mtv - y_eff).mean():.4f})  y={y_is}  "
-          f"feats={len(cols)} ({'31 deployed + 4 provenance' if with_prov else '31 deployed'})  "
+          f"feats={len(cols)} ({what})  "
           f"rows {n_all} -> {n_dxy} after |dxyBS|>{min_dxy} -> {len(df)} finite  "
           f"rzChi2 NaN->-1 on {n_rzfix} rows -> {out}", flush=True)
 
@@ -372,9 +391,10 @@ if __name__ == "__main__":
         dump_merged_cache(sys.argv[3:], sys.argv[2])
     elif len(sys.argv) >= 4 and sys.argv[1] == "cache-arm":  # PER-ARM row space, deploy order
         # python nano_loader.py cache-arm <out.npz> <files...> --prefix TrkPrompt|TrkDisp
-        #                                 [--min-dxy 0.5] [--label mtv|legacy]
-        # 31 deployed features, plus the 4 provenance columns when the nano carries them.
-        argv, kw = [], {"prefix": "TrkPrompt", "min_dxy": None, "label": "mtv"}
+        #                                 [--min-dxy 0.5] [--label mtv|legacy] [--feats 31|17]
+        # 31 deployed features, plus the 4 provenance columns when the nano carries them;
+        # --feats 17: the 17 fit features of the Torch selector (baseline chain).
+        argv, kw = [], {"prefix": "TrkPrompt", "min_dxy": None, "label": "mtv", "nfeat": 31}
         it = iter(sys.argv[2:])
         for a in it:
             if a == "--prefix":
@@ -383,6 +403,8 @@ if __name__ == "__main__":
                 kw["min_dxy"] = float(next(it))
             elif a == "--label":
                 kw["label"] = next(it)
+            elif a == "--feats":
+                kw["nfeat"] = int(next(it))
             elif a.startswith("--"):
                 raise SystemExit("cache-arm: unknown option %r" % a)
             else:
@@ -394,4 +416,4 @@ if __name__ == "__main__":
         print("usage: python nano_loader.py "
               "cache|cache-ext|cache-prompt|cache-prompt27|cache-merged <out.npz> <files...>\n"
               "       python nano_loader.py cache-arm <out.npz> <files...> "
-              "--prefix TrkPrompt|TrkDisp [--min-dxy 0.5] [--label mtv|legacy]")
+              "--prefix TrkPrompt|TrkDisp [--min-dxy 0.5] [--label mtv|legacy] [--feats 31|17]")

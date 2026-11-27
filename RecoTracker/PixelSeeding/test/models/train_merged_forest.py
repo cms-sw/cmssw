@@ -54,10 +54,10 @@ threshold it will be deployed at. Event-level split evt % 10: train >= 4, valida
 < 3. The booster is sliced to the early-stopping optimum, or to the size --prune-tol chooses,
 before export.
 
-The prompt retrain (retrain_prompt.sh hp) passes --ntrees 1000 --es-rounds 0 --prune-tol 0.002
-(no early stopping; the smallest prefix within 0.002 of the best validation fake rejection),
---eff-weight 4, --recall 0.995, --no-fp16, and --wp-rule profile --wp-margin 0 against the model
-the configuration loads.
+The prompt retrain (retrain_prompt.sh hp) passes --ntrees 150 --es-rounds 0 --prune-tol 0 (the
+deployed size), --tailw 0 --pos-scale 4 --region-pt-weight 4 --eff-weight 8 --dup-as-fake 1
+--recall-axis A_nodup (the recipe shared with the network trainer, see README.md), --recall 0.995,
+--no-fp16 and --wp-rule global.
 
 WORKING POINT (--wp-rule). The rule that turns scores into a threshold; it is the run's own
 ("wp") working point and drives early stopping:
@@ -545,6 +545,12 @@ def main():
                     help="after the fit, keep the smallest number of trees whose working-point "
                          "fake rejection on the validation split is within this tolerance of the "
                          "best prefix (a size chosen by the data instead of a fixed budget); 0 = off")
+    ap.add_argument("--export-trees", type=int, default=0, dest="export_trees", metavar="N",
+                    help="export the first N trees, whatever --prune-tol would choose (its size "
+                         "curve is still computed and reported). With --from-full it cuts a saved "
+                         "forest to a fixed size, e.g. the size of the deployed one, without a "
+                         "refit: the first N trees of a boosted forest are the forest a fit of N "
+                         "rounds gives. 0 = off")
     ap.add_argument("--from-full", default=None, dest="from_full", metavar="model_full.json",
                     help="skip the fit and start from a saved full booster (then prune/export)")
     ap.add_argument("--es-rounds", type=int, default=60,
@@ -612,6 +618,18 @@ def main():
                          "low-pT ones. Composes with --dxy-alpha and the two-pass tail re-weight "
                          "(they multiply). Training weights only: every metric axis stays "
                          "unweighted. 0 (default) = off.")
+    ap.add_argument("--region-pt-weight", type=float, default=0.0, dest="region_pt_weight",
+                    metavar="A",
+                    help="pT region re-weighting of EVERY row, true and fake alike: w(pt) = 1 + "
+                         "A*log10(max(pt,0.9)/0.9). It gives the high-pT region more weight in the "
+                         "loss without changing the true/fake balance inside it (--eff-weight "
+                         "weights the true tracks only, which also moves where one threshold falls "
+                         "in pT). Same formula as --eff-weight; training weights only. 0 = off.")
+    ap.add_argument("--pos-scale", type=float, default=1.0, dest="pos_scale", metavar="K",
+                    help="multiply the weight of every positive by K after the class balance "
+                         "(default 1 = the two classes weigh the same). K = 4 with --tailw 0 is the "
+                         "recipe the two-pass tail re-weight reduces to when its band covers every "
+                         "positive.")
     ap.add_argument("--recall-axis", choices=("A", "A_nodup"), default="A", dest="recall_axis",
                     help="which rows the recall is measured on -- for the working point, for the "
                          "per-bin / --wp-profile rule and for the early-stopping metric. "
@@ -810,7 +828,9 @@ def main():
         print("dup-as-fake: %d train duplicates -> negatives (%d were positives), loss weight x%.2f"
               % (int(dup_tr.sum()), n_flip, a.dup_as_fake), flush=True)
     pw = (1.0 - ytr.mean()) / max(1e-3, ytr.mean())
-    w = np.where(ytr == 1, pw, 1.0).astype(np.float32)
+    w = np.where(ytr == 1, pw * a.pos_scale, 1.0).astype(np.float32)
+    if a.pos_scale != 1.0:
+        print("pos-scale: positives x%.2f after the class balance" % a.pos_scale, flush=True)
     if a.dup_as_fake is not None:
         w = (w * np.where(dup_tr, float(a.dup_as_fake), 1.0)).astype(np.float32)
     # Displacement re-weighting of the positives (alpha 0 = off), before the two-pass tail
@@ -831,6 +851,12 @@ def main():
         w = (w * np.where(A_tr, ptw, 1.0)).astype(np.float32)
         print("eff-weight: A=%.2f -> class-A weights x%.2f..x%.2f (mean %.2f)"
               % (a.eff_weight, ptw[A_tr].min(), ptw[A_tr].max(), ptw[A_tr].mean()), flush=True)
+
+    if a.region_pt_weight > 0:
+        rw = 1.0 + a.region_pt_weight * np.log10(np.maximum(ptv[tr], 0.9) / 0.9)
+        w = (w * rw).astype(np.float32)
+        print("region-pt-weight: A=%.2f -> every row x%.2f..x%.2f (mean %.2f)"
+              % (a.region_pt_weight, rw.min(), rw.max(), rw.mean()), flush=True)
 
     frw = None
     if a.fake_region_weight:
@@ -918,6 +944,12 @@ def main():
         print("size chosen by the data: %d of %d trees (best %.4f, tolerance %.4f)"
               % (chosen, nt, best, a.prune_tol), flush=True)
         nt = chosen
+    if a.export_trees > 0:
+        if a.export_trees > a.ntrees:
+            raise SystemExit("--export-trees %d is more than the %d trees fitted"
+                             % (a.export_trees, a.ntrees))
+        nt = a.export_trees
+        print("export size fixed by --export-trees: %d trees" % nt, flush=True)
     print("pass2: best_iteration+1 = %d of %d trees" % (nt, a.ntrees), flush=True)
 
     booster = clf.get_booster()
@@ -954,7 +986,8 @@ def main():
                        reg_lambda=a.lam, subsample=a.subsample, colsample_bytree=a.colsample,
                        tree_method="hist", es_recall=a.recall, es_rounds=a.es_rounds,
                        tailw=a.tailw, tail_band=a.tail_band, split=a.split, seed=a.seed,
-                       eff_weight=a.eff_weight, wp_rule=rule,
+                       eff_weight=a.eff_weight, region_pt_weight=a.region_pt_weight,
+                       pos_scale=a.pos_scale, export_trees=a.export_trees, wp_rule=rule,
                        recall_axis=recall_axis_eff, extra_cols=a.extra_cols,
                        fake_region_weight=a.fake_region_weight,
                        dup_as_fake=a.dup_as_fake,

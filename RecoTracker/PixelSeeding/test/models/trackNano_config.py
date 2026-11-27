@@ -42,7 +42,13 @@ The retraining entry script sets the right state for each step:
   retrain_prompt.sh dump --for gate|hp
 
 Iterations covered: prompt (hltPhase2PixelTracksSoA), the one this release runs, so the dump
-writes the TrkPrompt* tables. For a process with a second, displaced iteration (module
+writes the TrkPrompt* tables.
+
+Chains covered: the vector hit chain (phase2CAVectorHits or ngtScouting in the base config) and
+the baseline pixel-only chain (no process modifier). On the baseline chain there are no vector
+hits: the TrkPromptCA tables are left out, and the truth conversion is a copy of the chain's own
+hltPhase2PixelTracks converter, so the dataset carries the 17 fit features the Torch selector
+reads. For a process with a second, displaced iteration (module
 hltPhase2PixelTracksSoADisplaced or hltPhase2PixelTracksSoALowPt, see _resolve_label) it also
 writes TrkDisp* tables and the disp* options apply to that iteration. The displaced truth uses a
 displaced-friendly truth-particle selection (transverse impact parameter below 60 cm, no in-time
@@ -293,6 +299,12 @@ process.hltTrackAssociatorByHits = hltTrackAssociatorByHits
 from HLTrigger.NGTScouting.hltTracks_cfi import (hltPixelTrackSoATable, hltPixelTrackTable,
                                                  pixelTrackAssoc, tpSelectorPixelTracks)
 
+# The vector hit chain converts its tracks with vector hit expansion (the converter of the base
+# config then reads the vector hits); the baseline chain has no vector hits.
+_vectorHitChain = hasattr(process.hltPhase2PixelTracks, "vectorHitsSoASrc")
+print("trackNano: %s chain" % ("vector hit" if _vectorHitChain else
+                               "baseline (no vector hits: no TrkPromptCA tables)"))
+
 # Legacy conversions of the PRE-HP SoAs (truth row space; minQuality tight = the
 # population the HP/tight selection actually decides on).
 _convCommon = dict(
@@ -307,9 +319,17 @@ _convCommon = dict(
     expandVectorHits=cms.bool(True),
     requireQuadsFromConsecutiveLayers=cms.bool(False),
 )
-process.trainPromptTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
-                                           trackSrc=cms.InputTag("hltPhase2PixelTracksSoA"),
-                                           **_convCommon)
+if _vectorHitChain:
+    process.trainPromptTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
+                                               trackSrc=cms.InputTag("hltPhase2PixelTracksSoA"),
+                                               **_convCommon)
+else:
+    # The chain's own converter, reading the SoA before the high-purity selection.
+    process.trainPromptTracks = process.hltPhase2PixelTracks.clone(
+        trackSrc=cms.InputTag("hltPhase2PixelTracksSoA"),
+        minNumberOfHits=cms.int32(0),
+        minQuality=cms.string(options.minQuality),
+    )
 if _dispLabel:
     process.trainDispTracks = cms.EDProducer("PixelTrackProducerFromSoAAlpaka",
                                              trackSrc=cms.InputTag(_dispLabel),
@@ -380,7 +400,7 @@ if _dispLabel:
 
 # CA hit/vector hit features of the PROMPT iteration (the prompt CA runs on the pixel + vector hit
 # collection): the 12 inputs of the prompt track DNN and the hit features of the HP forest.
-# Index-aligned to TrkPromptFull.
+# Index-aligned to TrkPromptFull. Vector hit chain only.
 process.trainPromptCATable = cms.EDProducer(
     "CATrackFeaturesTableProducer",
     tableName=cms.string("TrkPromptCA"),
@@ -429,9 +449,12 @@ process.trainNanoTask = cms.Task(
 )
 # The CA tables also emit the per-hit purity tables Trk<X>CAHit.
 process.trainNanoPath = cms.Path(
-    process.trainPromptFullTable + process.trainPromptCATable + process.trainPromptTruthTable,
+    process.trainPromptFullTable + process.trainPromptCATable + process.trainPromptTruthTable
+    if _vectorHitChain else process.trainPromptFullTable + process.trainPromptTruthTable,
     process.trainNanoTask,
 )
+if not _vectorHitChain:
+    del process.trainPromptCATable
 if _MTV_LABEL:
     process.trainNanoTask.add(process.trainPromptAssocAny)
 if _dispLabel:

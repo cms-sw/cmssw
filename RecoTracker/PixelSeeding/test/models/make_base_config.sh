@@ -35,6 +35,9 @@
 #                  initial step left out, so no iterative tracking runs and a dump
 #                  is cheap. The pixel chain every model here is trained on is the
 #                  one the menu runs.
+#                  'none' passes no --procModifiers: the baseline pixel chain (pixel-only CA
+#                  and the Torch high-purity network), as retrain_prompt.sh --chain baseline
+#                  uses it.
 #   --events N     maxEvents baked into the config; the dump configs override it
 #                  from their own event count                       (default: 10)
 #   --input-commands S
@@ -123,7 +126,6 @@ DRIVER_ARGS=(step2
   --conditions "$COND"
   --geometry "$GEOM"
   --era "$ERA"
-  --procModifiers "$MODIFIERS"
   --eventcontent FEVTDEBUGHLT
   --datatier GEN-SIM-DIGI-RAW
   --filein "$FILEIN"
@@ -132,6 +134,7 @@ DRIVER_ARGS=(step2
   # No output module: the dump configs add their own. See the note in the header.
   '--output={}'
   --python_filename "$OUT")
+if [ "$MODIFIERS" != none ]; then DRIVER_ARGS+=(--procModifiers "$MODIFIERS"); fi
 if [ -n "$INPUT_CMDS" ]; then DRIVER_ARGS+=("--inputCommands=$INPUT_CMDS"); fi
 cmsDriver.py "${DRIVER_ARGS[@]}" >/dev/null
 

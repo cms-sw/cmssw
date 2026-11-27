@@ -11,8 +11,19 @@ from ..modules.hltPhase2PixelTracksHitSeeds_cfi import hltPhase2PixelTracksHitSe
 from ..modules.hltPhase2PixelTracksSeedLayers_cfi import hltPhase2PixelTracksSeedLayers
 from ..modules.hltPhase2PixelTracksSoA_cfi import hltPhase2PixelTracksSoA
 from ..modules.hltPhase2PixelTrackTorchHighPuritySelector_cfi import hltPhase2PixelTrackTorchHighPuritySelector
+from ..modules.hltPhase2PixelTrackForestHighPuritySelector_cfi import hltPhase2PixelTrackForestHighPuritySelector as _hltPhase2PixelTrackForestHighPuritySelector
 from ..sequences.HLTPhase2PixelVertexingSequence_cfi import *
 from ..sequences.HLTBeamSpotSequence_cfi import HLTBeamSpotSequence
+
+from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
+from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
+
+# The vector hit CA uses the forest selector. The module label stays the same, so the consumers do not change.
+# Do this replacement before the SerialSync clone below is made.
+(phase2CAVectorHits | ngtScouting).toReplaceWith(
+    hltPhase2PixelTrackTorchHighPuritySelector,
+    _hltPhase2PixelTrackForestHighPuritySelector
+)
 
 HLTPhase2PixelTracksAndVerticesSequence = cms.Sequence(
     HLTBeamSpotSequence
@@ -88,8 +99,6 @@ _HLTPhase2PixelTracksAndVerticesSequenceCAVectorHits = cms.Sequence(
     +HLTPhase2PixelVertexingSequence
 )
 
-from Configuration.ProcessModifiers.phase2CAVectorHits_cff import phase2CAVectorHits
-from Configuration.ProcessModifiers.ngtScouting_cff import ngtScouting
 (phase2CAVectorHits | ngtScouting).toReplaceWith(
     HLTPhase2PixelTracksAndVerticesSequence,
     _HLTPhase2PixelTracksAndVerticesSequenceCAVectorHits
