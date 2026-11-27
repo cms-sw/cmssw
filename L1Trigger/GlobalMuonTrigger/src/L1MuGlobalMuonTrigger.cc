@@ -72,11 +72,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   m_ExtendedCands.reserve(20);
 
   // set configuration parameters
-  if (!m_config.load()) {
-    auto temp = std::make_shared<L1MuGMTConfig>(ps);
-    std::shared_ptr<L1MuGMTConfig> expected = nullptr;
-    m_config.compare_exchange_strong(expected, temp, std::memory_order_acq_rel, std::memory_order_acquire);
-  }
+  std::call_once(m_configOnce, [&ps]() { m_config = std::make_shared<L1MuGMTConfig>(ps); });
   m_writeLUTsAndRegs = ps.getUntrackedParameter<bool>("WriteLUTsAndRegs", false);
 
   // build GMT
@@ -123,12 +119,8 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
     edm::LogVerbatim("GMT_info") << "creating GMT Sorter";
   m_Sorter = new L1MuGMTSorter(*this);  // barrel
 
-  if (!m_db.load()) {
-    auto config = m_config.load();
-    auto temp = std::make_shared<L1MuGMTDebugBlock>(config->getBxMin(), config->getBxMax());
-    std::shared_ptr<L1MuGMTDebugBlock> expected = nullptr;
-    m_db.compare_exchange_strong(expected, temp, std::memory_order_acq_rel, std::memory_order_acquire);
-  }
+  std::call_once(m_dbOnce,
+                 []() { m_db = std::make_shared<L1MuGMTDebugBlock>(m_config->getBxMin(), m_config->getBxMax()); });
   usesResource("L1MuGlobalMuonTrigger");
   ///EventSetup Tokens
   m_gmtScalesToken = esConsumes<L1MuGMTScales, L1MuGMTScalesRcd>();
@@ -174,7 +166,7 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
   // configure from the event setup
 
   unsigned long long L1MuGMTScalesCacheID = es.get<L1MuGMTScalesRcd>().cacheIdentifier();
-  auto config = m_config.load();
+  auto config = m_config;
   if (L1MuGMTScalesCacheID != m_L1MuGMTScalesCacheID) {
     edm::ESHandle<L1MuGMTScales> gmtscales_h = es.getHandle(m_gmtScalesToken);
     config->setGMTScales(gmtscales_h.product());
@@ -260,7 +252,7 @@ void L1MuGlobalMuonTrigger::produce(edm::Event& e, const edm::EventSetup& es) {
     delete (*irr);
   m_ReadoutRingbuffer.clear();
 
-  auto x_db = m_db.load();
+  auto x_db = m_db;
   if (x_db)
     x_db->reset();  // reset debug block
 
@@ -454,5 +446,7 @@ std::unique_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutColle
 
 // static data members
 
-std::atomic<std::shared_ptr<L1MuGMTConfig>> L1MuGlobalMuonTrigger::m_config;
-std::atomic<std::shared_ptr<L1MuGMTDebugBlock>> L1MuGlobalMuonTrigger::m_db;
+std::shared_ptr<L1MuGMTConfig> L1MuGlobalMuonTrigger::m_config;
+std::once_flag L1MuGlobalMuonTrigger::m_configOnce;
+std::shared_ptr<L1MuGMTDebugBlock> L1MuGlobalMuonTrigger::m_db;
+std::once_flag L1MuGlobalMuonTrigger::m_dbOnce;

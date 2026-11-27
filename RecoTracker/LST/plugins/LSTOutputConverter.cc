@@ -280,7 +280,7 @@ void LSTOutputConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       if (dropHitsOTpL) {                                                     // true if need to drop OT hits
         using Hit = SeedingHitSet::ConstRecHitPointer;
         hitsForSeed.clear();
-        hitsForSeed.reserve(std::ranges::size(pixelSeed->recHits()));
+        hitsForSeed.reserve(pixelSeed->nHits());
         for (auto const& hit : pixelSeed->recHits()) {
           if (hit.geographicalId().subdetId() > PixelSubdetector::PixelEndcap)
             continue;

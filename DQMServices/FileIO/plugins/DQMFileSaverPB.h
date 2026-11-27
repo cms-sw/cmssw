@@ -43,7 +43,7 @@ namespace dqm {
 
   private:
     int getMaxCompressedSize(int bufferSize) const;
-    ulong compressME(const TBufferFile& buffer, int maxOutputSize, char* compression_output) const;
+    unsigned long compressME(const TBufferFile& buffer, int maxOutputSize, char* compression_output) const;
   };
 
 }  // namespace dqm

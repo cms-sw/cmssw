@@ -5,6 +5,7 @@
 #include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
 #include "DataFormats/L1TParticleFlow/interface/bit_encoding.h"
 #include <array>
+#include <type_traits>
 #include <algorithm>
 #include <cstdint>
 #include <vector>
@@ -175,7 +176,12 @@ namespace l1ct {
       return unpack_ap(bits);
     }
 
-    inline static Jet unpack(const std::array<long long unsigned int, 2> &src) {
+    // Only where unsigned long long is not uint64_t: elsewhere (macOS) it would
+    // redefine the overload above, which then takes these arrays.
+    template <typename U,
+              typename std::enable_if<std::is_same<U, long long unsigned int>::value && !std::is_same<U, uint64_t>::value,
+                                      int>::type = 0>
+    inline static Jet unpack(const std::array<U, 2> &src) {
       // unpack from two 64b ints
       ap_uint<BITWIDTH> bits;
       bits(63, 0) = src[0];

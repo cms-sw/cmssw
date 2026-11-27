@@ -7,6 +7,7 @@
 #include <iostream>
 #include <mutex>
 #include <ranges>
+#include <sstream>
 #include <syncstream>
 #include <vector>
 
@@ -366,12 +367,20 @@ namespace edm {
           std::views::transform([](std::filesystem::path const& s) { return s.string(); });
       std::vector<std::string> const notFound(unknownElements.begin(), unknownElements.end());
       if (!notFound.empty()) {
+#ifdef __cpp_lib_syncbuf
         std::osyncstream ss(std::cerr);
+#else
+        // (libc++ has std::osyncstream only as an experimental feature)
+        std::ostringstream ss;
+#endif
         ss << "Warning: The following elements of $" << PathVariableName << " are not in any of the $" << LOCALTOP
            << ", $" << RELEASETOP << ", or $" << DATATOP << " areas:\n";
         for (const auto& element : notFound) {
           ss << " '" << element << "'\n";
         }
+#ifndef __cpp_lib_syncbuf
+        std::cerr << ss.str();
+#endif
       }
     });
 

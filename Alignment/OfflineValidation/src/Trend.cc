@@ -26,7 +26,7 @@ Run2Lumi::Run2Lumi(fs::path file, int first, int last, float convertUnit)
 
   assert(fs::exists(file));
 
-  ifstream f(file);
+  ifstream f(file.string());
   int run;
   while (f >> run >> runs[run])
     ;
