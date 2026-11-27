@@ -77,3 +77,14 @@ ticlCLUE3DHighStepTask = cms.Task(ticlSeedingGlobal
     ,filteredLayerClustersCLUE3DHigh
     ,ticlTrackstersCLUE3DHigh)
 
+
+# TICLv6 identifies the CLUE3DHigh tracksters from their shower shape.
+from Configuration.ProcessModifiers.ticl_v6_cff import ticl_v6
+ticl_v6.toModify(ticlTrackstersCLUE3DHigh,
+    inferenceAlgo = 'TracksterInferenceByShowerShape',
+    pluginInferenceAlgoTracksterInferenceByShowerShape = dict(
+        mode = 'mixture',
+        onnxModelPath = 'RecoTICL/Inference/data/showerShapePID/mixPID_hi_v2.onnx',
+        outputNames = ['pid']
+    )
+)

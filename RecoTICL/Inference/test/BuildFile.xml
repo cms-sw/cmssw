@@ -1,0 +1,21 @@
+<bin name="testTracksterShowerShapeFeatures" file="testTracksterShowerShapeFeatures.cc">
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/CaloRecHit"/>
+  <use name="DataFormats/HGCalReco"/>
+  <use name="RecoTICL/Inference"/>
+</bin>
+
+<bin name="testTracksterInferenceByShowerShape" file="testTracksterInferenceByShowerShape.cc">
+  <use name="catch2"/>
+  <use name="eigen"/>
+  <use name="DataFormats/CaloRecHit"/>
+  <use name="DataFormats/HGCalReco"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="PhysicsTools/ONNXRuntime"/>
+  <use name="RecoLocalCalo/HGCalRecAlgos"/>
+  <use name="RecoTICL/Inference"/>
+</bin>
