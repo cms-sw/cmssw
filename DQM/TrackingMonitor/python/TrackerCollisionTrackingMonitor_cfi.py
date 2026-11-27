@@ -87,3 +87,12 @@ run3_common.toModify(TrackerCollisionTrackMon, NTrk2D=dict(NTrk2DBin = 100, NTrk
 run3_common.toModify(TrackerCollisionTrackMon, PVBin = 75, PVMax = 149.5)
 run3_common.toModify(TrackerCollisionTrackMon, TkSizeMax = 5999.5)
 
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toModify(TrackerCollisionTrackMon, GoodPVtx=dict(GoodPVtxBin = 250, GoodPVtxMax = 250.))
+phase2_common.toModify(TrackerCollisionTrackMon, NTrkPVtx=dict(NTrkPVtxMax = 250.))
+phase2_common.toModify(TrackerCollisionTrackMon, NClusStrMax = 299999.5)
+phase2_common.toModify(TrackerCollisionTrackMon, NTrk2D=dict(NTrk2DBin = 100, NTrk2DMax = 5999.5))
+phase2_common.toModify(TrackerCollisionTrackMon, PVBin = 125, PVMax = 249.5)
+phase2_common.toModify(TrackerCollisionTrackMon, TkSizeMax = 5999.5)
+
