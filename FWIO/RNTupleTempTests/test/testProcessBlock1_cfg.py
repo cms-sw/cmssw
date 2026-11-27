@@ -46,12 +46,20 @@ process.testOneOutput = cms.OutputModule("TestOneOutput",
     expectedProcessesWithProcessBlockProducts = cms.untracked.vstring('PROD1'),
     expectedTopProcessesWithProcessBlockProducts = cms.untracked.vstring('PROD1'),
     expectedWriteProcessBlockTransitions = cms.untracked.int32(1),
-    requireNullTTreesInFileBlock = cms.untracked.bool(True),
     expectedProductsFromInputKept = cms.untracked.bool(False),
     outputCommands = cms.untracked.vstring(
         "keep *",
         "drop *_testEDAliasOriginal_*_*"
     )
+)
+
+from IOPool.Output.modules import edmtest_pool_FileBlockNotificationTest
+process.fileBlockObserver = edmtest_pool_FileBlockNotificationTest(
+    outputCommands=["drop *"],
+    nullTrees=True,
+    expectedFileBlockKind="plain",
+    expectedProcesses=[],
+    expectedFiles=1,
 )
 
 process.intProducerBeginProcessBlock = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(1))
@@ -94,5 +102,6 @@ process.p = cms.Path(process.intProducerBeginProcessBlock *
 process.e = cms.EndPath(process.out *
                         process.testGlobalOutput *
                         process.testLimitedOutput *
-                        process.testOneOutput
+                        process.testOneOutput *
+                        process.fileBlockObserver
 )

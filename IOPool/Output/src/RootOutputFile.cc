@@ -40,6 +40,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/ExceptionPropagate.h"
 #include "IOPool/Common/interface/getWrapperBasePtr.h"
+#include "IOPool/Common/interface/TTreeFileBlock.h"
 #include "IOPool/Provenance/interface/CommonProvenanceFiller.h"
 
 #include "TTree.h"
@@ -338,18 +339,20 @@ namespace edm {
   }  // namespace
 
   void RootOutputFile::beginInputFile(FileBlock const& fb, int remainingEvents) {
+    auto const* treeFileBlock = dynamic_cast<TTreeFileBlock const*>(&fb);
+    TTree* inputTree = treeFileBlock ? treeFileBlock->tree() : nullptr;
     // Reset per input file information
     whyNotFastClonable_ = om_->whyNotFastClonable();
     canFastCloneAux_ = false;
 
-    if (fb.tree() != nullptr) {
+    if (inputTree != nullptr) {
       whyNotFastClonable_ |= fb.whyNotFastClonable();
 
-      if (remainingEvents >= 0 && remainingEvents < fb.tree()->GetEntries()) {
+      if (remainingEvents >= 0 && remainingEvents < inputTree->GetEntries()) {
         whyNotFastClonable_ |= FileBlock::OutputMaxEventsTooSmall;
       }
 
-      bool match = eventTree_.checkSplitLevelsAndBasketSizes(fb.tree());
+      bool match = eventTree_.checkSplitLevelsAndBasketSizes(inputTree);
       if (!match) {
         if (om_->overrideInputFileSplitLevels()) {
           // We may be fast copying.  We must disable fast copying if the split levels
@@ -371,7 +374,7 @@ namespace edm {
 
       // Since this check can be time consuming, we do it only if we would otherwise fast clone.
       if (whyNotFastClonable_ == FileBlock::CanFastClone) {
-        if (!eventTree_.checkIfFastClonable(fb.tree())) {
+        if (!eventTree_.checkIfFastClonable(inputTree)) {
           whyNotFastClonable_ |= FileBlock::BranchMismatch;
         }
       }
@@ -385,7 +388,7 @@ namespace edm {
       if (om_->inputFileCount() == 1) {
         if (om_->mergeJob()) {
           // for merge jobs always forward the compression mode
-          auto infile = fb.tree()->GetCurrentFile();
+          auto infile = inputTree->GetCurrentFile();
           if (infile != nullptr) {
             filePtr_->SetCompressionSettings(infile->GetCompressionSettings());
           }
@@ -397,7 +400,7 @@ namespace edm {
         if (whyNotFastClonable_ != FileBlock::CanFastClone &&
             ((om_->mergeJob() && (whyNotFastClonable_ & setSubBranchBasketConditions) == 0) ||
              (whyNotFastClonable_ == FileBlock::ParallelProcesses))) {
-          eventTree_.setSubBranchBasketSizes(fb.tree());
+          eventTree_.setSubBranchBasketSizes(inputTree);
         }
       }
 
@@ -434,10 +437,10 @@ namespace edm {
     }
 
     eventTree_.maybeFastCloneTree(
-        whyNotFastClonable_ == FileBlock::CanFastClone, canFastCloneAux_, fb.tree(), om_->basketOrder());
+        whyNotFastClonable_ == FileBlock::CanFastClone, canFastCloneAux_, inputTree, om_->basketOrder());
 
     // Possibly issue warning or informational message if we haven't fast cloned.
-    if (fb.tree() != nullptr && whyNotFastClonable_ != FileBlock::CanFastClone) {
+    if (inputTree != nullptr && whyNotFastClonable_ != FileBlock::CanFastClone) {
       maybeIssueWarning(whyNotFastClonable_, fb.fileName(), file_);
     }
 
@@ -445,8 +448,8 @@ namespace edm {
         (whyNotFastClonable_ & (FileBlock::EventsOrLumisSelectedByID | FileBlock::InitialEventsSkipped |
                                 FileBlock::EventSelectionUsed)) == 0) {
       long long int reserve = remainingEvents;
-      if (fb.tree() != nullptr) {
-        reserve = reserve > 0 ? std::min(fb.tree()->GetEntries(), reserve) : fb.tree()->GetEntries();
+      if (inputTree != nullptr) {
+        reserve = reserve > 0 ? std::min(inputTree->GetEntries(), reserve) : inputTree->GetEntries();
       }
       if (reserve > 0) {
         compactEventAuxiliary_.reserve(compactEventAuxiliary_.size() + reserve);

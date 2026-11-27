@@ -1,6 +1,7 @@
 <test name="RNTupleTempTestsMaxEventsOutput" command="run_testMaxEventsOutput.sh"/>
 <test name="TestRNTupleTempRunMerge" command="run_RunMerge.sh"/>
 <test name="TestRNTupleTempRunMerge2" command="run_RunMerge2.sh"/>
+<test name="TestRNTupleTempFileBlockNotifications" command="testFileBlockNotifications.sh"/>
 <test name="TestRNTupleTempConcurrentIOVsAndRuns" command="concurrentIOVsAndRuns.sh"/>
 <test name="TestRNTupleTemp_TestEDAlias" command="run_TestEDAlias.sh"/>
 
@@ -116,3 +117,4 @@
 <test name="TestRNTupleTempMaybeUninitializedIntProduct" command="cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/testMaybeUninitializedIntProductPart1_cfg.py &amp;&amp; cmsRun ${LOCALTOP}/src/FWIO/RNTupleTempTests/test/testMaybeUninitializedIntProductPart2_cfg.py"/>
 
 <test name="TestRNTupleTempUnscheduledFailOnOutput" command="run_unscheduledFailOnOutput.sh"/>
+<test name="TestRNTupleTempToPool" command="testRNTupleToPool.sh"/>

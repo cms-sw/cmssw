@@ -67,8 +67,16 @@ process.testOneOutput = cms.OutputModule("TestOneOutput",
     verbose = cms.untracked.bool(False),
     expectedProcessesWithProcessBlockProducts = cms.untracked.vstring('PROD1', 'MERGE', 'MERGEOFMERGED'),
     expectedWriteProcessBlockTransitions = cms.untracked.int32(8),
-    testTTreesInFileBlock = cms.untracked.bool(True),
     expectedCacheIndexSize = cms.untracked.vuint32(2, 2, 2, 2, 2, 2, 2, 2)
+)
+
+from IOPool.Output.modules import edmtest_pool_FileBlockNotificationTest
+process.fileBlockObserver = edmtest_pool_FileBlockNotificationTest(
+    outputCommands=["drop *"],
+    nullTrees=False,
+    expectedFileBlockKind="ttree",
+    expectedProcesses=["PROD1", "MERGE"],
+    expectedFiles=2,
 )
 
 process.intProducerBeginProcessBlockM = cms.EDProducer("IntProducerBeginProcessBlock", ivalue = cms.int32(304))
@@ -89,5 +97,6 @@ process.p = cms.Path(process.intProducerBeginProcessBlockM *
 process.e = cms.EndPath(process.out *
                         process.testGlobalOutput *
                         process.testLimitedOutput *
-                        process.testOneOutput
+                        process.testOneOutput *
+                        process.fileBlockObserver
 )
