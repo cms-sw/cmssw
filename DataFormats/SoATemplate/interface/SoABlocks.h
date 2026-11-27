@@ -10,14 +10,15 @@
 #include <ostream>
 #include <stdexcept>
 #include <tuple>
+#include <utility>
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "DataFormats/SoATemplate/interface/SoALayout.h"
 
-#define _DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL(NAME, LAYOUT_NAME)                               \
-  _soa_impl_os << BOOST_PP_CAT(NAME, _);                                                      \
-  _soa_impl_offset += LayoutFor<LAYOUT_NAME>::computeDataSize(                                \
-      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index)); \
+#define _DECLARE_SOA_BLOCKS_STREAM_INFO_IMPL(NAME, LAYOUT_NAME)                                   \
+  _soa_impl_os << BOOST_PP_CAT(NAME, _);                                                          \
+  _soa_impl_offset += LayoutFor<LAYOUT_NAME>::computeDataSize(                                    \
+      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumberFlat>(sizes_, index)); \
   index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
 #define _DECLARE_SOA_BLOCKS_STREAM_INFO(R, DATA, SPEC) \
@@ -105,14 +106,14 @@
 /*
  * Initialize the array of sizes for the View of an SoA by blocks
  */
-#define _DECLARE_CONST_VIEW_SIZES_IMPL(NAME, LAYOUT_NAME)                  \
-  if constexpr (requires { LayoutFor<LAYOUT_NAME>::blocksNumber; }) {      \
-    const auto sizes = BOOST_PP_CAT(NAME, View_).metadata().size();        \
-    for (size_type i = 0; i < LayoutFor<LAYOUT_NAME>::blocksNumber; ++i) { \
-      sizes_[idx++] = sizes[i];                                            \
-    }                                                                      \
-  } else {                                                                 \
-    sizes_[idx++] = BOOST_PP_CAT(NAME, View_).metadata().size();           \
+#define _DECLARE_CONST_VIEW_SIZES_IMPL(NAME, LAYOUT_NAME)                      \
+  if constexpr (requires { LayoutFor<LAYOUT_NAME>::blocksNumberFlat; }) {      \
+    const auto sizes = BOOST_PP_CAT(NAME, View_).metadata().size();            \
+    for (size_type i = 0; i < LayoutFor<LAYOUT_NAME>::blocksNumberFlat; ++i) { \
+      sizes_[idx++] = sizes[i];                                                \
+    }                                                                          \
+  } else {                                                                     \
+    sizes_[idx++] = BOOST_PP_CAT(NAME, View_).metadata().size();               \
   }
 
 #define _DECLARE_CONST_VIEW_SIZES(R, DATA, SPEC) \
@@ -148,9 +149,9 @@
 /*
  * Computation of the size for each block
  */
-#define _ACCUMULATE_SOA_BLOCKS_SIZE_IMPL(LAYOUT_NAME)                                        \
-  _soa_impl_ret += LayoutFor<LAYOUT_NAME>::computeDataSize(                                  \
-      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes, index)); \
+#define _ACCUMULATE_SOA_BLOCKS_SIZE_IMPL(LAYOUT_NAME)                                            \
+  _soa_impl_ret += LayoutFor<LAYOUT_NAME>::computeDataSize(                                      \
+      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumberFlat>(sizes, index)); \
   index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
 #define _ACCUMULATE_SOA_BLOCKS_SIZE(R, DATA, SPEC) \
@@ -192,11 +193,11 @@
 /*
  * Computation of the block location in the memory layout (at SoA by blocks construction time)
  */
-#define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL(NAME, LAYOUT_NAME)                                         \
-  BOOST_PP_CAT(NAME, _) = LayoutFor<LAYOUT_NAME>(                                                           \
-      mem + offset, cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index)); \
-  offset += LayoutFor<LAYOUT_NAME>::computeDataSize(                                                        \
-      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumber>(sizes_, index));               \
+#define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS_IMPL(NAME, LAYOUT_NAME)                                             \
+  BOOST_PP_CAT(NAME, _) = LayoutFor<LAYOUT_NAME>(                                                               \
+      mem + offset, cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumberFlat>(sizes_, index)); \
+  offset += LayoutFor<LAYOUT_NAME>::computeDataSize(                                                            \
+      cms::soa::detail::extractSegment<LayoutFor<LAYOUT_NAME>, blocksNumberFlat>(sizes_, index));               \
   index += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
 
 #define _DECLARE_MEMBER_CONSTRUCTION_BLOCKS(R, DATA, SPEC) \
@@ -213,7 +214,9 @@
 /*
  * Computate number of blocks
  */
-#define _COUNT_SOA_BLOCKS_IMPL(LAYOUT_NAME) soa_blocks_count += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>();
+#define _COUNT_SOA_BLOCKS_IMPL(LAYOUT_NAME)                                         \
+  soa_blocks_count_unrolled += cms::soa::detail::nBlocks<LayoutFor<LAYOUT_NAME>>(); \
+  soa_blocks_count += 1;
 
 #define _COUNT_SOA_BLOCKS(R, DATA, SPEC) _EXEC_IF_BLOCK(SPEC, _COUNT_SOA_BLOCKS_IMPL, (_BLOCK_GET_LAYOUT(SPEC)))
 
@@ -318,16 +321,18 @@
     }                                                                                                                  \
                                                                                                                        \
     /* Helper function to compute the total number of blocks */                                                        \
-    static constexpr size_type computeBlocksNumber() {                                                                 \
+    static constexpr std::pair<size_type, size_type> computeBlocksNumber() {                                           \
+      size_type soa_blocks_count_unrolled = 0;                                                                         \
       size_type soa_blocks_count = 0;                                                                                  \
       _ITERATE_ON_ALL(_COUNT_SOA_BLOCKS, ~, __VA_ARGS__)                                                               \
-      return soa_blocks_count;                                                                                         \
+      return {soa_blocks_count_unrolled, soa_blocks_count};                                                            \
     }                                                                                                                  \
                                                                                                                        \
-    static constexpr size_type blocksNumber = computeBlocksNumber();                                                   \
+    static constexpr size_type blocksNumberFlat = computeBlocksNumber().first;                                         \
+    static constexpr size_type blocksNumber = computeBlocksNumber().second;                                            \
                                                                                                                        \
     /* Helper function used by caller to externally allocate the storage */                                            \
-    static constexpr byte_size_type computeDataSize(std::array<size_type, blocksNumber> sizes) {                       \
+    static constexpr byte_size_type computeDataSize(std::array<size_type, blocksNumberFlat> sizes) {                   \
       byte_size_type _soa_impl_ret = 0;                                                                                \
       size_type index = 0;                                                                                             \
       _ITERATE_ON_ALL(_ACCUMULATE_SOA_BLOCKS_SIZE, ~, __VA_ARGS__)                                                     \
@@ -339,7 +344,7 @@
      */                                                                                                                \
     struct Metadata {                                                                                                  \
       friend CLASS;                                                                                                    \
-      SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumber> size() const { return parent_.sizes_; }           \
+      SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumberFlat> size() const { return parent_.sizes_; }   \
       SOA_HOST_DEVICE SOA_INLINE byte_size_type byteSize() const { return CLASS::computeDataSize(parent_.sizes_); }    \
       SOA_HOST_DEVICE SOA_INLINE byte_size_type alignment() const { return CLASS::alignment; }                         \
       SOA_HOST_DEVICE SOA_INLINE CLASS cloneToNewAddress(std::byte* _soa_impl_addr) const {                            \
@@ -393,7 +398,7 @@
       struct Metadata {                                                                                                \
         friend ConstViewTemplateFreeParams;                                                                            \
         using TypeOf_Layout = BOOST_PP_CAT(CLASS, _parametrized);                                                      \
-        SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumber> size() const { return parent_.sizes_; }         \
+        SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumberFlat> size() const { return parent_.sizes_; }     \
                                                                                                                        \
         /* Forbid copying to avoid const correctness evasion */                                                        \
         Metadata& operator=(const Metadata&) = delete;                                                                 \
@@ -439,7 +444,7 @@
                                                                                                                        \
       private:                                                                                                         \
         _ITERATE_ON_ALL(_DECLARE_MEMBERS_CONST_VIEW_BLOCKS, ~, __VA_ARGS__)                                            \
-        std::array<size_type, blocksNumber> sizes_;                                                                    \
+        std::array<size_type, blocksNumberFlat> sizes_;                                                                \
     };                                                                                                                 \
                                                                                                                        \
     template <bool RESTRICT_QUALIFY, cms::soa::RangeChecking::Mode RANGE_CHECKING>                                     \
@@ -478,7 +483,7 @@
       struct Metadata {                                                                                                \
         friend ViewTemplateFreeParams;                                                                                 \
         using TypeOf_Layout = BOOST_PP_CAT(CLASS, _parametrized);                                                      \
-        SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumber> size() const { return parent_.sizes_; }         \
+        SOA_HOST_DEVICE SOA_INLINE std::array<size_type, blocksNumberFlat> size() const { return parent_.sizes_; }     \
                                                                                                                        \
         /* Forbid copying to avoid const correctness evasion */                                                        \
         Metadata& operator=(const Metadata&) = delete;                                                                 \
@@ -529,22 +534,22 @@
     struct Descriptor {                                                                                                \
       Descriptor() = default;                                                                                          \
                                                                                                                        \
-      explicit Descriptor(View view)                                                                                  \
+      explicit Descriptor(View view)                                                                                   \
           : buff(std::make_tuple(_ITERATE_ON_ALL_COMMA(_ASSIGN_SPANS_TO_BLOCKS, ~, __VA_ARGS__))) {}                   \
                                                                                                                        \
-      static constexpr size_type blocksNumber = std::tuple_size<std::tuple<                                            \
-                                         _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)>>::value;   \
+      static constexpr size_type blocksNumber = CLASS::blocksNumber;                                                   \
+      static constexpr size_type blocksNumberFlat = CLASS::blocksNumberFlat;                                           \
       std::tuple< _ITERATE_ON_ALL_COMMA(_DECLARE_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)> buff;                             \
     };                                                                                                                 \
                                                                                                                        \
     struct ConstDescriptor {                                                                                           \
       ConstDescriptor() = default;                                                                                     \
                                                                                                                        \
-      explicit ConstDescriptor(ConstView const view)                                                                  \
+      explicit ConstDescriptor(ConstView const view)                                                                   \
           : buff(std::make_tuple(_ITERATE_ON_ALL_COMMA(_ASSIGN_CONST_SPANS_TO_BLOCKS, ~, __VA_ARGS__))) {}             \
                                                                                                                        \
-      static constexpr size_type blocksNumber = std::tuple_size<std::tuple<                                            \
-                                   _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)>>::value;   \
+      static constexpr size_type blocksNumber = CLASS::blocksNumber;                                                   \
+      static constexpr size_type blocksNumberFlat = CLASS::blocksNumberFlat;                                           \
       std::tuple< _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_DESCRIPTOR_BLOCKS, ~, __VA_ARGS__)> buff;                       \
     };                                                                                                                 \
                                                                                                                        \
@@ -554,7 +559,7 @@
           _ITERATE_ON_ALL_COMMA(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_BLOCKS, ~, __VA_ARGS__) {}                        \
                                                                                                                        \
     /* Constructor relying on user provided storage and array of sizes */                                              \
-    SOA_HOST_ONLY CLASS(std::byte* mem, std::array<size_type, blocksNumber> elements)                                  \
+    SOA_HOST_ONLY CLASS(std::byte* mem, std::array<size_type, blocksNumberFlat> elements)                              \
         : sizes_(elements) {                                                                                           \
       byte_size_type offset = 0;                                                                                       \
       size_type index = 0;                                                                                             \
@@ -604,7 +609,7 @@
                                                                                                                        \
     private:                                                                                                           \
       /* Data members */                                                                                               \
-      std::array<size_type, blocksNumber> sizes_;                                                                      \
+      std::array<size_type, blocksNumberFlat> sizes_;                                                                  \
       _ITERATE_ON_ALL(_DECLARE_MEMBERS_BLOCKS, ~, __VA_ARGS__)                                                         \
   }; \
   // clang-format on

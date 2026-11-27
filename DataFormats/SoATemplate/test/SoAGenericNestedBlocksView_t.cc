@@ -221,4 +221,19 @@ TEST_CASE("SoAGenericNestedBlocksView") {
     REQUIRE(nestedBlocksConstView.blocks().first().id() == genericSoABlocksView.first().id());
     REQUIRE(nestedBlocksConstView.blocks().second().id() == genericSoABlocksView.second().id());
   }
+
+  SECTION("Check Descriptor and ConstDescriptor") {
+    NestedBlocksSoA::Descriptor descriptor{nestedBlocksView};
+    NestedBlocksSoA::ConstDescriptor constDescriptor{nestedBlocksConstView};
+
+    REQUIRE(descriptor.blocksNumber == 2);
+    REQUIRE(constDescriptor.blocksNumber == 2);
+    REQUIRE(descriptor.blocksNumber == NestedBlocksSoA::blocksNumber);
+    REQUIRE(constDescriptor.blocksNumber == NestedBlocksSoA::blocksNumber);
+
+    REQUIRE(descriptor.blocksNumberFlat == 3);
+    REQUIRE(constDescriptor.blocksNumberFlat == 3);
+    REQUIRE(descriptor.blocksNumberFlat == NestedBlocksSoA::blocksNumberFlat);
+    REQUIRE(constDescriptor.blocksNumberFlat == NestedBlocksSoA::blocksNumberFlat);
+  }
 }
