@@ -62,7 +62,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     @short reads the electronics dense indexing and builds an internal DetId -> DenseIndex mapping
     The mapping is only built once in a run. The `ncellsMapped_` variable is used to track if the map is available or not
     */
-    int32_t buildGeoToDenseIndexMap(const hgcal::HGCalDenseIndexInfoDevice&,
+    int32_t buildGeoToDenseIndexMap(const hgcal::HGCalDenseIndexInfoHost&,
                                     const hgcal::HGCalMappingCellParamHost&) const;
 
     const device::ESGetToken<hgcal::HGCalDenseIndexInfoDevice, HGCalDenseIndexInfoRcd> indexingToken_;
@@ -116,7 +116,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   }
 
   //
-  int32_t HGCalSimHitAccumulator::buildGeoToDenseIndexMap(const hgcal::HGCalDenseIndexInfoDevice& denseIndexInfo,
+  int32_t HGCalSimHitAccumulator::buildGeoToDenseIndexMap(const hgcal::HGCalDenseIndexInfoHost& denseIndexInfo,
                                                           const hgcal::HGCalMappingCellParamHost& cellInfo) const {
     //loop over the indices and map the DetId for the physical cells
     auto const& cellInfo_view = cellInfo.const_view();
@@ -165,15 +165,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   void HGCalSimHitAccumulator::produce(edm::StreamID sid,
                                        device::Event& iEvent,
                                        device::EventSetup const& iSetup) const {
+    //get queue
+    auto queue = iEvent.queue();
+
     //this is executed only once even if there are concurrent threads
     std::call_once(mapInitFlag_, [&] {
-      auto const& denseIndexInfo = iSetup.getData(indexingToken_);
+      auto const& denseIndexInfo_device = iSetup.getData(indexingToken_);
+      auto ncells = denseIndexInfo_device.view().metadata().size();
+      hgcal::HGCalDenseIndexInfoHost denseIndex_host(queue, ncells);
+      alpaka::memcpy(queue, denseIndex_host.buffer(), denseIndexInfo_device.const_buffer());
       auto const& cellInfo = iSetup.getData(cellMappingToken_);
-      nMaxReadoutCells_ = buildGeoToDenseIndexMap(denseIndexInfo, cellInfo);
+      nMaxReadoutCells_ = buildGeoToDenseIndexMap(denseIndex_host, cellInfo);
+      if (nMaxReadoutCells_ != ncells)
+        throw cms::Exception("Number of readout cells mapped does not match initial expectation");
     });
 
     //declare collection to produce and initialize with zeros
-    hgcaldigi::HGCalSimHitAccumHost g4Accumulators(iEvent.queue(), nMaxReadoutCells_);
+    hgcaldigi::HGCalSimHitAccumHost g4Accumulators(queue, nMaxReadoutCells_);
     auto accumView = g4Accumulators.view();
     for (int32_t i = 0; i < nMaxReadoutCells_; i++) {
       auto row = accumView[i];

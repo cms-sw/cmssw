@@ -108,6 +108,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     const auto& ageingConds = iSetup.getData(ageingCondsTkn_);
     const auto& denseIndexer = iSetup.getData(denseIndexTkn_);
     const auto& cellInfo = iSetup.getData(cellMappingToken_);
+    auto ncellinfo = cellInfo.view().metadata().size();
     const auto& g4AccHits = iEvent.get(g4HitsAccTkn_);
     auto ncells = g4AccHits.view().metadata().size();
 
@@ -126,7 +127,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     alpaka::memcpy(queue, ageingConds_device.buffer(), ageingConds.const_buffer());
     hgcal::HGCalDenseIndexInfoDevice denseIndex_device(queue, ncells);
     alpaka::memcpy(queue, denseIndex_device.buffer(), denseIndexer.const_buffer());
-    hgcal::HGCalMappingCellParamDevice cellInfo_device(queue, ncells);
+    hgcal::HGCalMappingCellParamDevice cellInfo_device(queue, ncellinfo);
     alpaka::memcpy(queue, cellInfo_device.buffer(), cellInfo.const_buffer());
 
     //run ageing

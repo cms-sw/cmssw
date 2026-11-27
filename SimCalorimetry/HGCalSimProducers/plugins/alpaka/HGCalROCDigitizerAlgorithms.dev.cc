@@ -126,7 +126,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         digi.adc() = hgcaldigi::unpackADC(word);
         digi.tot() = hgcaldigi::unpackTOT(word);
         digi.toa() = hgcaldigi::unpackTOA(word);
-        digi.cm() = 0;
         digi.flags() = hgcal::DIGI_FLAG::FULL_READOUT;
       }  //end grid loop
     }

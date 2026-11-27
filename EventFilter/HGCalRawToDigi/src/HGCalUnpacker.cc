@@ -414,7 +414,6 @@ uint16_t HGCalUnpacker::parseFEDData(unsigned fedId,
 
             digis.view()[denseIdx].tctp() = hgcaldigi_acc::unpackTcTp(econd_payload[iword]);
             digis.view()[denseIdx].toa() = hgcaldigi_acc::unpackTOA(econd_payload[iword]);
-            digis.view()[denseIdx].cm() = cmSum;
 
             // check if in characterization mode
             if (fedConfig.econds[globalECONDIdx].rocs[erxIdx / 2].charMode) {
