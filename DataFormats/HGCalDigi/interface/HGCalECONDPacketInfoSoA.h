@@ -1,8 +1,7 @@
 #ifndef DataFormats_HGCalDigi_interface_HGCalECONDPacketInfoSoA_h
 #define DataFormats_HGCalDigi_interface_HGCalECONDPacketInfoSoA_h
 
-#include <cstdint>  // for uint8_t
-
+#include <cstdint>
 #include <Eigen/Core>
 
 #include "DataFormats/SoATemplate/interface/SoACommon.h"
