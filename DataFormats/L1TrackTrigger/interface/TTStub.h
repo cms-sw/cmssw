@@ -230,9 +230,9 @@ std::string TTStub<T>::print(unsigned int i) const {
   output << ", bend: " << this->bendFE() << '\n';
   output << ", hardware bend: " << this->bendBE() << '\n';
   output << padding << "cluster 0: address: " << theClusterRef0.get();
-  output << ", cluster size: " << theClusterRef0->getHits().size() << '\n';
+  output << ", cluster size: " << theClusterRef0->getNumHits() << '\n';
   output << padding << "cluster 1: address: " << theClusterRef1.get();
-  output << ", cluster size: " << theClusterRef1->getHits().size() << '\n';
+  output << ", cluster size: " << theClusterRef1->getNumHits() << '\n';
   return output.str();
 }
 
