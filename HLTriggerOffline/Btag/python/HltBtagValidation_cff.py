@@ -109,7 +109,6 @@ HLTPathNames_phase2 = [
     'HLT_PFHT330PT30_QuadPFPuppiJet_75_60_45_40_TriplePFPuppiBTagDeepFlavour_2p4',
     'HLT_PFHT200PT30_QuadPFPuppiJet_70_40_30_30_TriplePFPuppiBTagDeepFlavour_2p4',
     'HLT_DoublePFPuppiJets128_DoublePFPuppiBTagDeepFlavour_2p4',
-    'DST_PFScouting',
     'DST_PFScouting'
 ]
 
@@ -130,14 +129,12 @@ phase2_common.toModify(
         cms.PSet(seeds = cms.vstring("pPuppiHT400", "pQuadJet70_55_40_40")),
         cms.PSet(seeds = cms.vstring("pPuppiHT400", "pQuadJet70_55_40_40")),
         cms.PSet(seeds = cms.vstring("pDoublePuppiJet112_112")),
-        cms.PSet(seeds = cms.vstring()),
         cms.PSet(seeds = cms.vstring())
     ],
     JetTag = [
         "hltPfDeepFlavourJetTagsModEta2p4:probb",
         "hltPfDeepFlavourJetTagsModEta2p4:probb",
         "hltPfDeepFlavourJetTagsModEta2p4:probb",
-        "hltDeepCombinedSecondaryVertexBJetTagsPFPuppi:probb",
         "hltPfDeepFlavourJetTags:probb"
     ],
     PathFilters = [
@@ -162,7 +159,6 @@ phase2_common.toModify(
             "hltDoublePFPuppiJets128Eta2p4MaxDeta1p6",
             "hltBTagPFPuppiDeepFlavour0p935DoubleEta2p4"
         )),
-        cms.PSet(filters = cms.vstring()),
         cms.PSet(filters = cms.vstring())
     ]
 )
