@@ -13,7 +13,15 @@
   <use name="catch2"/>
 </bin>
 
+<bin file="testEtaDecayer.cc,test_catch2_main.cc" name="testGeneratorInterfacePythia8InterfaceEtaDecayer">
+  <use name="GeneratorInterface/Pythia8Interface"/>
+  <use name="FWCore/Utilities"/>
+  <use name="pythia8"/>
+  <use name="catch2"/>
+</bin>
+
 <test name="TestGeneratorInterfacePythia8InterfaceCompareIdentical" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_identical_generators_cfg.py"/>
 <test name="TestGeneratorInterfacePythia8InterfaceCompareExternal" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_external_generators_cfg.py"/>
 <test name="TestGeneratorInterfacePythia8InterfaceCompareExternalStreams" command="cmsRun ${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/compare_external_generators_streams_cfg.py"/>
 <test name="TestGeneratorInterfacePythia8ConcurrentGeneratorFilter" command="${LOCALTOP}/src/GeneratorInterface/Pythia8Interface/test/test_Pythia8ConcurrentGeneratorFilter_WZ_TuneCP5_13TeV-pythia8.sh"/>
+<test name="TestGeneratorInterfacePythia8InterfaceEtaDecayer" command="test_EtaDecayer.sh"/>

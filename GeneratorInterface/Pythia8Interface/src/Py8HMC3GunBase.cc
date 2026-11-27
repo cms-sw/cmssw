@@ -3,6 +3,7 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8HMC3GunBase.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "HepMC3/Print.h"
 
@@ -37,6 +38,11 @@ namespace gen {
   bool Py8HMC3GunBase::initializeGen() {
     // NO MATTER what was this setting below, override it before init
     // - this is essencial for the PGun mode
+
+    // The exclusive eta/eta' decayer (EtaDecayer.h) is only registered by the Pythia8 hadronizers
+    if (fMasterGen->settings.flag("EtaDecayer:filter"))
+      throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
+          << "EtaDecayer:filter = on is not supported by the Pythia8 particle guns";
 
     // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
     fMasterGen->readString("ProcessLevel:all = off");

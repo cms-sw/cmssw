@@ -85,6 +85,14 @@ namespace gen {
     fMasterGen->settings.addFlag("BiasedTauDecayer:eDecays", true);
     fMasterGen->settings.addFlag("BiasedTauDecayer:muDecays", true);
 
+    //add settings for the exclusive eta/eta' decayer (interface/EtaDecayer.h)
+    fMasterGen->settings.addFlag("EtaDecayer:filter", false);
+    fMasterGen->settings.addMode("EtaDecayer:parent", 221, false, false, 0, 0);
+    fMasterGen->settings.addWord("EtaDecayer:mode", "2mu2e");
+    fMasterGen->settings.addMode("EtaDecayer:A_id", 0, false, false, 0, 0);
+    fMasterGen->settings.addWord("EtaDecayer:A_type", "darkphoton");
+    fMasterGen->settings.addFlag("EtaDecayer:onePerEvent", false);
+
     //add settings for resonance decay filter
     fMasterGen->settings.addFlag("ResonanceDecayFilter:filter", false);
     fMasterGen->settings.addFlag("ResonanceDecayFilter:exclusive", false);
