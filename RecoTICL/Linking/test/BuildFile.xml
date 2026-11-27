@@ -1,0 +1,25 @@
+<bin name="testCornettoGeometry" file="CornettoGeometry_t.cpp">
+  <use name="RecoTICL/Linking"/>
+  <use name="DataFormats/Math"/>
+  <use name="catch2"/>
+</bin>
+<bin name="testCornettoGrouping" file="CornettoGrouping_t.cpp">
+  <use name="RecoTICL/Linking"/>
+  <use name="catch2"/>
+</bin>
+<bin name="testCornettoFeatures" file="CornettoFeatures_t.cpp">
+  <use name="RecoTICL/Linking"/>
+  <use name="DataFormats/HGCalReco"/>
+  <use name="catch2"/>
+</bin>
+<bin name="testCornettoLinking" file="CornettoLinking_t.cpp">
+  <use name="RecoTICL/Linking"/>
+  <use name="DataFormats/HGCalReco"/>
+  <use name="DataFormats/Math"/>
+  <use name="catch2"/>
+</bin>
+<bin name="testCornettoConfiguration" file="CornettoConfiguration_t.cpp">
+  <use name="FWCore/TestProcessor"/>
+  <use name="FWCore/Utilities"/>
+  <use name="catch2"/>
+</bin>

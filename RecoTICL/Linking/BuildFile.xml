@@ -1,6 +1,7 @@
 <use name="DataFormats/CaloRecHit"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/HGCalReco"/>
+<use name="DataFormats/Math"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
@@ -8,6 +9,7 @@
 <use name="MagneticField/Engine"/>
 <use name="RecoLocalCalo/HGCalRecAlgos"/>
 <use name="TrackingTools/GeomPropagators"/>
+<use name="clhep"/>
 <export>
   <lib name="1"/>
 </export>
