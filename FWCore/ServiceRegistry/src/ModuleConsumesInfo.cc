@@ -8,7 +8,6 @@ namespace edm {
                                          char const* iProcess,
                                          BranchType iBranchType,
                                          KindOfType iKindOfType,
-                                         bool iAlwaysGets,
                                          bool iSkipCurrentProcess_)
       : type_(iType),
         label_(iLabel),
@@ -16,6 +15,5 @@ namespace edm {
         process_(iProcess),
         branchType_(iBranchType),
         kindOfType_(iKindOfType),
-        alwaysGets_(iAlwaysGets),
         skipCurrentProcess_(iSkipCurrentProcess_) {}
 }  // namespace edm

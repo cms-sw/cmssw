@@ -792,9 +792,6 @@ void Tracer::printEDModulesWithConsumes(LogAbsolute& out,
         } else if (info.branchType() == InProcess) {
           out << ", processBlock";
         }
-        if (!info.alwaysGets()) {
-          out << ", may consume";
-        }
         if (info.kindOfType() == ELEMENT_TYPE) {
           out << ", element type";
         }

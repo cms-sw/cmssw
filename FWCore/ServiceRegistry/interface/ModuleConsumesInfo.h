@@ -28,7 +28,6 @@ namespace edm {
                        char const* iProcess,
                        BranchType iBranchType,
                        KindOfType iKindOfType,
-                       bool iAlwaysGets,
                        bool iSkipCurrentProcess_);
 
     TypeID const& type() const { return type_; }
@@ -37,7 +36,6 @@ namespace edm {
     std::string_view process() const { return process_; }
     BranchType branchType() const { return branchType_; }
     KindOfType kindOfType() const { return kindOfType_; }
-    bool alwaysGets() const { return alwaysGets_; }
     bool skipCurrentProcess() const { return skipCurrentProcess_; }
 
     // This provides information from EDConsumerBase
@@ -53,7 +51,6 @@ namespace edm {
     std::string_view process_;
     BranchType branchType_;
     KindOfType kindOfType_;
-    bool alwaysGets_;
     bool skipCurrentProcess_;
   };
 }  // namespace edm

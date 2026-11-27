@@ -60,10 +60,7 @@ edm::InputTag const& EDConsumerBase::checkIfEmpty(edm::InputTag const& iTag) {
   return iTag;
 }
 
-unsigned int EDConsumerBase::recordConsumes(BranchType iBranch,
-                                            TypeToGet const& iType,
-                                            edm::InputTag const& iTag,
-                                            bool iAlwaysGets) {
+unsigned int EDConsumerBase::recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag) {
   if (frozen_) {
     throwConsumesCallAfterFrozen(iType, iTag);
   }
@@ -78,7 +75,6 @@ unsigned int EDConsumerBase::recordConsumes(BranchType iBranch,
   unsigned short delta1 = labelSize + 1;
   unsigned short delta2 = labelSize + 2 + productInstanceSize;
   m_tokenInfo.emplace_back(TokenLookupInfo{iType.type(), ProductResolverIndexInvalid, skipCurrentProcess, iBranch},
-                           iAlwaysGets,
                            LabelPlacement{labelStart, delta1, delta2},
                            iType.kind());
 
@@ -113,9 +109,7 @@ unsigned int EDConsumerBase::recordConsumes(BranchType iBranch,
 
 void EDConsumerBase::extendUpdateLookup(BranchType, ProductResolverIndexHelper const&) {}
 
-void EDConsumerBase::updateLookup(BranchType iBranchType,
-                                  ProductResolverIndexHelper const& iHelper,
-                                  bool iPrefetchMayGet) {
+void EDConsumerBase::updateLookup(BranchType iBranchType, ProductResolverIndexHelper const& iHelper) {
   frozen_ = true;
   assert(!containsCurrentProcessAlias_);
   extendUpdateLookup(iBranchType, iHelper);
@@ -142,9 +136,6 @@ void EDConsumerBase::updateLookup(BranchType iBranchType,
   m_tokenInfo.shrink_to_fit();
 
   itemsToGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
-  if (iPrefetchMayGet) {
-    itemsMayGet(iBranchType, itemsToGetFromBranch_[iBranchType]);
-  }
 }
 
 void EDConsumerBase::updateLookup(eventsetup::ESRecordsToProductResolverIndices const& iPI) {
@@ -300,60 +291,20 @@ void EDConsumerBase::itemsToGet(BranchType iBranch, std::vector<ProductResolverI
   //how many are we adding?
   unsigned int count = 0;
   {
-    auto itAlwaysGet = m_tokenInfo.begin<kAlwaysGets>();
-    for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd;
-         ++it, ++itAlwaysGet) {
+    for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd; ++it) {
       if (iBranch == it->m_branchType) {
         if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (*itAlwaysGet) {
-            ++count;
-          }
+          ++count;
         }
       }
     }
   }
   oIndices.reserve(oIndices.size() + count);
   {
-    auto itAlwaysGet = m_tokenInfo.begin<kAlwaysGets>();
-    for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd;
-         ++it, ++itAlwaysGet) {
+    for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd; ++it) {
       if (iBranch == it->m_branchType) {
         if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (*itAlwaysGet) {
-            oIndices.push_back(it->m_index);
-          }
-        }
-      }
-    }
-  }
-}
-
-void EDConsumerBase::itemsMayGet(BranchType iBranch, std::vector<ProductResolverIndexAndSkipBit>& oIndices) const {
-  //how many are we adding?
-  unsigned int count = 0;
-  {
-    auto itAlwaysGet = m_tokenInfo.begin<kAlwaysGets>();
-    for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd;
-         ++it, ++itAlwaysGet) {
-      if (iBranch == it->m_branchType) {
-        if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (not *itAlwaysGet) {
-            ++count;
-          }
-        }
-      }
-    }
-  }
-  oIndices.reserve(oIndices.size() + count);
-  {
-    auto itAlwaysGet = m_tokenInfo.begin<kAlwaysGets>();
-    for (auto it = m_tokenInfo.begin<kLookupInfo>(), itEnd = m_tokenInfo.end<kLookupInfo>(); it != itEnd;
-         ++it, ++itAlwaysGet) {
-      if (iBranch == it->m_branchType) {
-        if (it->m_index.productResolverIndex() != ProductResolverIndexInvalid) {
-          if (not *itAlwaysGet) {
-            oIndices.push_back(it->m_index);
-          }
+          oIndices.push_back(it->m_index);
         }
       }
     }

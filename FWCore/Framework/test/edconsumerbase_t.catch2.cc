@@ -123,7 +123,7 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
     {
       std::vector<edm::InputTag> vTags = {{"label", "instance", "process"}, {"labelC", "instanceC", "processC"}};
       IntsConsumer intConsumer{vTags};
-      intConsumer.updateLookup(edm::InEvent, helper, false);
+      intConsumer.updateLookup(edm::InEvent, helper);
 
       REQUIRE(intConsumer.m_tokens[0].index() == 0);
       REQUIRE(intConsumer.m_tokens[1].index() == 1);
@@ -141,15 +141,11 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
               std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_c, false)));
       REQUIRE(indices.end() !=
               std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_blank, false)));
-
-      std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
-      intConsumer.itemsMayGet(edm::InEvent, indicesMay);
-      REQUIRE(0 == indicesMay.size());
     }
     {
       std::vector<edm::InputTag> vTags = {{"label", "instance", "process"}, {"labelC", "instanceC", "processC"}};
       IntsConsumesCollectorConsumer intConsumer{vTags};
-      intConsumer.updateLookup(edm::InEvent, helper, false);
+      intConsumer.updateLookup(edm::InEvent, helper);
 
       REQUIRE(intConsumer.m_tokens[0].index() == 0);
       REQUIRE(intConsumer.m_tokens[1].index() == 1);
@@ -167,15 +163,11 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
               std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_c, false)));
       REQUIRE(indices.end() !=
               std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_blank, false)));
-
-      std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
-      intConsumer.itemsMayGet(edm::InEvent, indicesMay);
-      REQUIRE(0 == indicesMay.size());
     }
     {
       std::vector<edm::InputTag> vTagsRev = {{"labelC", "instanceC", "processC"}, {"label", "instance", "process"}};
       IntsConsumer intConsumerRev{vTagsRev};
-      intConsumerRev.updateLookup(edm::InEvent, helper, false);
+      intConsumerRev.updateLookup(edm::InEvent, helper);
 
       REQUIRE(intConsumerRev.m_tokens[0].index() == 0);
       REQUIRE(intConsumerRev.m_tokens[1].index() == 1);
@@ -193,15 +185,11 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
               std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_c, false)));
       REQUIRE(indices.end() !=
               std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_blank, false)));
-
-      std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
-      intConsumerRev.itemsMayGet(edm::InEvent, indicesMay);
-      REQUIRE(0 == indicesMay.size());
     }
     {
       std::vector<edm::InputTag> vTagsRev = {{"labelC", "instanceC", "processC"}, {"label", "instance", "process"}};
       IntsConsumesCollectorConsumer intConsumerRev{vTagsRev};
-      intConsumerRev.updateLookup(edm::InEvent, helper, false);
+      intConsumerRev.updateLookup(edm::InEvent, helper);
 
       REQUIRE(intConsumerRev.m_tokens[0].index() == 0);
       REQUIRE(intConsumerRev.m_tokens[1].index() == 1);
@@ -219,16 +207,12 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
               std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_c, false)));
       REQUIRE(indices.end() !=
               std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(vint_blank, false)));
-
-      std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
-      intConsumerRev.itemsMayGet(edm::InEvent, indicesMay);
-      REQUIRE(0 == indicesMay.size());
     }
     {
       //test default process
       std::vector<edm::InputTag> vTags = {{"label", "instance"}, {"labelC", "instanceC", "@skipCurrentProcess"}};
       IntsConsumer intConsumer{vTags};
-      intConsumer.updateLookup(edm::InEvent, helper, false);
+      intConsumer.updateLookup(edm::InEvent, helper);
 
       REQUIRE(intConsumer.m_tokens[0].index() == 0);
       REQUIRE(intConsumer.m_tokens[1].index() == 1);
@@ -247,16 +231,12 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
       REQUIRE(indices.end() != std::find(indices.begin(),
                                          indices.end(),
                                          edm::ProductResolverIndexAndSkipBit(vint_blank_no_proc, false)));
-
-      std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
-      intConsumer.itemsMayGet(edm::InEvent, indicesMay);
-      REQUIRE(0 == indicesMay.size());
     }
     {
       //Ask for something that doesn't exist
       std::vector<edm::InputTag> vTags = {{"notHere"}};
       IntsConsumer intConsumer{vTags};
-      intConsumer.updateLookup(edm::InEvent, helper, false);
+      intConsumer.updateLookup(edm::InEvent, helper);
 
       REQUIRE(intConsumer.m_tokens[0].index() == 0);
       REQUIRE(edm::ProductResolverIndexInvalid ==
@@ -272,7 +252,7 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
       //Use an empty tag
       std::vector<edm::InputTag> vTags = {{}};
       IntsConsumer intConsumer{vTags};
-      intConsumer.updateLookup(edm::InEvent, helper, false);
+      intConsumer.updateLookup(edm::InEvent, helper);
 
       REQUIRE(intConsumer.m_tokens[0].index() == 0);
       REQUIRE(edm::ProductResolverIndexInvalid ==
@@ -333,7 +313,7 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
           {edm::TypeToGet::make<edm::View<edmtest::Simple>>(), {"labelC", "instanceC", "processC"}}};
       TypeToGetConsumer consumer{vT};
 
-      consumer.updateLookup(edm::InEvent, helper, false);
+      consumer.updateLookup(edm::InEvent, helper);
       REQUIRE(edm::ProductResolverIndexAndSkipBit(v_int, false) ==
               consumer.indexFrom(consumer.m_tokens[0], edm::InEvent, typeID_int));
       REQUIRE(edm::ProductResolverIndexAndSkipBit(v_simple, false) ==
@@ -348,10 +328,6 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
                 std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(v_int, false)));
         REQUIRE(indices.end() !=
                 std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(v_simple, false)));
-
-        std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
-        consumer.itemsMayGet(edm::InEvent, indicesMay);
-        REQUIRE(0 == indicesMay.size());
       }
     }
 
@@ -361,7 +337,7 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
           {edm::TypeToGet::make<edm::View<edmtest::Simple>>(), {"labelC", "instanceC", "@skipCurrentProcess"}}};
       TypeToGetConsumer consumer{vT};
 
-      consumer.updateLookup(edm::InEvent, helper, false);
+      consumer.updateLookup(edm::InEvent, helper);
 
       REQUIRE(edm::ProductResolverIndexAndSkipBit(v_int_no_proc, false) ==
               consumer.indexFrom(consumer.m_tokens[0], edm::InEvent, typeID_int));
@@ -376,10 +352,6 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
                 std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(v_int_no_proc, false)));
         REQUIRE(indices.end() ==
                 std::find(indices.begin(), indices.end(), edm::ProductResolverIndexAndSkipBit(v_simple_skip, true)));
-
-        std::vector<edm::ProductResolverIndexAndSkipBit> indicesMay;
-        consumer.itemsMayGet(edm::InEvent, indicesMay);
-        REQUIRE(0 == indicesMay.size());
       }
     }
 
@@ -388,7 +360,7 @@ TEST_CASE("EDConsumerBase", "[Framework]") {
       std::vector<std::pair<edm::TypeToGet, edm::InputTag>> vT = {
           {edm::TypeToGet::make<edm::View<int>>(), {"notHere", ""}}};
       TypeToGetConsumer consumer{vT};
-      consumer.updateLookup(edm::InEvent, helper, false);
+      consumer.updateLookup(edm::InEvent, helper);
 
       REQUIRE(consumer.m_tokens[0].index() == 0);
       REQUIRE(edm::ProductResolverIndexInvalid ==

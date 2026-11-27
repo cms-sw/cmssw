@@ -755,15 +755,14 @@ namespace edm {
     }
     if (looper_ && !firstException) {
       CMS_SA_ALLOW try {
-        constexpr bool mustPrefetchMayGet = true;
         auto const processBlockLookup = preg_->productLookup(InProcess);
         auto const runLookup = preg_->productLookup(InRun);
         auto const lumiLookup = preg_->productLookup(InLumi);
         auto const eventLookup = preg_->productLookup(InEvent);
-        looper_->updateLookup(InProcess, *processBlockLookup, mustPrefetchMayGet);
-        looper_->updateLookup(InRun, *runLookup, mustPrefetchMayGet);
-        looper_->updateLookup(InLumi, *lumiLookup, mustPrefetchMayGet);
-        looper_->updateLookup(InEvent, *eventLookup, mustPrefetchMayGet);
+        looper_->updateLookup(InProcess, *processBlockLookup);
+        looper_->updateLookup(InRun, *runLookup);
+        looper_->updateLookup(InLumi, *lumiLookup);
+        looper_->updateLookup(InEvent, *eventLookup);
         looper_->updateLookup(esRecordsToProductResolverIndices);
       } catch (...) {
         firstException = std::current_exception();
@@ -775,8 +774,8 @@ namespace edm {
         if (rng.isAvailable()) {
           auto consumer = rng->consumer();
           if (consumer) {
-            consumer->updateLookup(InLumi, *preg_->productLookup(InLumi), true);
-            consumer->updateLookup(InEvent, *preg_->productLookup(InEvent), true);
+            consumer->updateLookup(InLumi, *preg_->productLookup(InLumi));
+            consumer->updateLookup(InEvent, *preg_->productLookup(InEvent));
           }
         }
       } catch (...) {
