@@ -422,7 +422,10 @@ void HGCFEElectronics<DFr>::runShaperWithToT(DFr& dataFrame,
         finalToA /= totalCharge;
     }  //end while loop
 
-    newCharge_[it] = (totalCharge - tdcOnset);
+    if (dataFrame.id().det() == DetId::HGCalHSc)
+      newCharge_[it] = totalCharge;
+    else
+      newCharge_[it] = (totalCharge - tdcOnset);
 
     if (debug)
       edm::LogVerbatim("HGCFE") << "\t Final busy estimate=" << integTime << " ns = " << busyBxs << " bxs" << std::endl
