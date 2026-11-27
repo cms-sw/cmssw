@@ -582,7 +582,7 @@ int HGCalShowerShape::bitmap(const l1t::HGCalMulticluster& c3d, int start, int e
 }
 
 void HGCalShowerShape::fillShapes(l1t::HGCalMulticluster& c3d, const HGCalTriggerGeometryBase& triggerGeometry) const {
-  unsigned hcal_offset = triggerTools_.layers(ForwardSubdetector::HGCEE) / 2;
+  unsigned hcal_offset = triggerTools_.layers(DetId::HGCalEE) / 2;
   unsigned lastlayer = triggerGeometry.lastTriggerLayer();
   const unsigned showermaxlayer = 7;
   c3d.setShowerLength(showerLength(c3d));
