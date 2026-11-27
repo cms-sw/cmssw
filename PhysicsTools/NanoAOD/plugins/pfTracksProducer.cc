@@ -46,7 +46,7 @@ void pfTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<std::vector<pat::PackedCandidate>> lostTracks;
   iEvent.getByToken(LostTracks_, lostTracks);
 
-  std::unique_ptr<std::vector<reco::Track>> tracks = std::make_unique<std::vector<reco::Track>>();
+  auto tracks = std::make_unique<std::vector<reco::Track>>();
   tracks->reserve(pfcands->size() + lostTracks->size());
 
   for (const auto& container : {pfcands, lostTracks}) {
@@ -57,7 +57,10 @@ void pfTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         continue;
       if (HighPurity_ && !trk.trackHighPurity())
         continue;
-      tracks->emplace_back(*trk.bestTrack());
+      reco::Track track(*trk.bestTrack());
+      track.setAlgorithm(static_cast<reco::TrackBase::TrackAlgorithm>(trk.trkAlgo()));
+      track.setOriginalAlgorithm(static_cast<reco::TrackBase::TrackAlgorithm>(trk.trkOriginalAlgo()));
+      tracks->emplace_back(std::move(track));
     }
   }
 
