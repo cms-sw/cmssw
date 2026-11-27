@@ -10,6 +10,15 @@ using namespace ALPAKA_ACCELERATOR_NAMESPACE::lst;
 #include "Math/VectorUtil.h"
 using XYZVector = ROOT::Math::XYZVector;
 
+void ALPAKA_ACCELERATOR_NAMESPACE::lst::lstWarningImpl(std::string_view format, std::format_args args) {
+  std::string warning = std::vformat(format, args);
+#ifdef LST_STANDALONE
+  printf("%s\n", warning.c_str());
+#else
+  edm::LogWarning("LST") << warning;
+#endif
+}
+
 void LST::run(Queue& queue,
               bool verbose,
               float const ptCut,
@@ -133,8 +142,8 @@ void LST::run(Queue& queue,
     printf("        # of pLS TrackCandidates produced: %d\n", event.getNumberOfPLSTrackCandidates());
     printf("        # of T5 TrackCandidates produced: %d\n", event.getNumberOfT5TrackCandidates());
     printf("        # of T4 TrackCandidates produced: %d\n", event.getNumberOfT4TrackCandidates());
-    lstWarning(std::format("[MEM] Peak live: {:.1f} MB", event.getMemoryPeakLiveMB()));
-    lstWarning(std::format("[MEM] Total: {:.1f} MB", event.getMemoryAllocatedMB()));
+    lstWarning("[MEM] Peak live: {:.1f} MB", event.getMemoryPeakLiveMB());
+    lstWarning("[MEM] Total: {:.1f} MB", event.getMemoryAllocatedMB());
   }
 
   trackCandidatesBaseDC_ = event.releaseTrackCandidatesBaseDeviceCollection();

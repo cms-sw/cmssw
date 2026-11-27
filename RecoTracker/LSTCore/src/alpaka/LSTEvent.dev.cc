@@ -16,8 +16,6 @@
 #include "Triplet.h"
 #include "Quadruplet.h"
 
-#include <format>
-
 using Device = ALPAKA_ACCELERATOR_NAMESPACE::Device;
 using Queue = ALPAKA_ACCELERATOR_NAMESPACE::Queue;
 using Acc1D = ALPAKA_ACCELERATOR_NAMESPACE::Acc1D;
@@ -182,7 +180,7 @@ void LSTEvent::addHitToEvent() {
     if (objectsStatistics_) {
       double mb = alpaka::getExtentProduct(hitsDC_->buffer()) / 1e6;
       trackAllocatedMB(mb);
-      lstWarning(std::format("[MEM] Hits: {} allocated ({:.1f} MB)", nHits, mb));
+      lstWarning("[MEM] Hits: {} allocated ({:.1f} MB)", nHits, mb);
     }
   }
 
@@ -193,7 +191,7 @@ void LSTEvent::addHitToEvent() {
     if (objectsStatistics_) {
       double mb = alpaka::getExtentProduct(rangesDC_->buffer()) / 1e6;
       trackAllocatedMB(mb);
-      lstWarning(std::format("[MEM] Ranges: {} allocated ({:.1f} MB)", nLowerModules_ + 1, mb));
+      lstWarning("[MEM] Ranges: {} allocated ({:.1f} MB)", nLowerModules_ + 1, mb);
     }
   }
 
@@ -233,7 +231,7 @@ void LSTEvent::addPixelSegmentToEvent() {
     if (objectsStatistics_) {
       double mb = alpaka::getExtentProduct(pixelSegmentsDC_->buffer()) / 1e6;
       trackAllocatedMB(mb);
-      lstWarning(std::format("[MEM] PixelSegments: {} allocated ({:.1f} MB)", pixelSize_, mb));
+      lstWarning("[MEM] PixelSegments: {} allocated ({:.1f} MB)", pixelSize_, mb);
     }
   }
 
@@ -265,7 +263,7 @@ void LSTEvent::createMiniDoublets() {
   if (objectsStatistics_) {
     mdPassMaskMB = bufferMB(mdPassMask_buf);
     trackTransientMB(mdPassMaskMB);
-    lstWarning(std::format("[MEM] (transient) MiniDoublet pass masks: {} hits ({:.1f} MB)", nHits, mdPassMaskMB));
+    lstWarning("[MEM] (transient) MiniDoublet pass masks: {} hits ({:.1f} MB)", nHits, mdPassMaskMB);
   }
 
   auto rangesOccupancy = rangesDC_->view();
@@ -326,10 +324,10 @@ void LSTEvent::createMiniDoublets() {
   if (objectsStatistics_) {
     double mb = alpaka::getExtentProduct(miniDoubletsDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] MiniDoublets: {} allocated ({:.1f} MB)", nTotalMDs, mb));
+    lstWarning("[MEM] MiniDoublets: {} allocated ({:.1f} MB)", nTotalMDs, mb);
     mb = alpaka::getExtentProduct(miniDoubletsBuildDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] MiniDoubletsBuild: {} allocated ({:.1f} MB)", nTotalMDs, mb));
+    lstWarning("[MEM] MiniDoubletsBuild: {} allocated ({:.1f} MB)", nTotalMDs, mb);
   }
 
   auto mdsOccupancy = miniDoubletsDC_->view().miniDoubletsOccupancy();
@@ -427,8 +425,8 @@ void LSTEvent::createSegmentsWithModuleMap() {
   if (objectsStatistics_) {
     segPassMaskMB = bufferMB(segPassMask_buf) + bufferMB(segSlotOffsets_buf);
     trackTransientMB(segPassMaskMB);
-    lstWarning(std::format(
-        "[MEM] (transient) Segment pass masks and slot offsets: {} MDs ({:.1f} MB)", nTotalMDsOT_, segPassMaskMB));
+    lstWarning(
+        "[MEM] (transient) Segment pass masks and slot offsets: {} MDs ({:.1f} MB)", nTotalMDsOT_, segPassMaskMB);
   }
 
   // One block per inner module: connected modules over y, their MD pairs over x (tuning values; the kernel uses no
@@ -473,8 +471,7 @@ void LSTEvent::createSegmentsWithModuleMap() {
     // Transient: live until the end of this function, not added to the allocated total.
     candidatesMB = alpaka::getExtentProduct(candidatesDC.buffer()) / 1e6;
     trackTransientMB(candidatesMB);
-    lstWarning(
-        std::format("[MEM] (transient) SegmentCandidates: {} allocated ({:.1f} MB)", nTotalSegmentsOT_, candidatesMB));
+    lstWarning("[MEM] (transient) SegmentCandidates: {} allocated ({:.1f} MB)", nTotalSegmentsOT_, candidatesMB);
   }
 
   auto segmentsOccupancy = candidatesDC.view().segmentsOccupancy();
@@ -582,7 +579,7 @@ void LSTEvent::compactSegments(SegmentCandidatesDeviceCollection const& candidat
   if (objectsStatistics_) {
     double mb = alpaka::getExtentProduct(segmentsDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] Segments: {} allocated ({:.1f} MB)", nTotalSegments_, mb));
+    lstWarning("[MEM] Segments: {} allocated ({:.1f} MB)", nTotalSegments_, mb);
   }
 }
 
@@ -592,7 +589,7 @@ void LSTEvent::createTriplets() {
   if (objectsStatistics_) {
     double mb = alpaka::getExtentProduct(segmentsT3CountsDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] SegmentsT3Counts: {} allocated ({:.1f} MB)", nTotalSegmentsOT_, mb));
+    lstWarning("[MEM] SegmentsT3Counts: {} allocated ({:.1f} MB)", nTotalSegmentsOT_, mb);
   }
   auto segConnView = cms::alpakatools::make_device_view(queue_, segmentsT3CountsDC_->view().connectedMax());
   alpaka::memset(queue_, segConnView, 0u);
@@ -618,9 +615,8 @@ void LSTEvent::createTriplets() {
     segByMDMB = bufferMB(*nSegByMD_buf) + bufferMB(*offsetSegByMD_buf) + bufferMB(*indexSegByMD_buf) +
                 bufferMB(*segInnerLowerModule_buf) + bufferMB(*t3PassMask_buf) + bufferMB(*t3LoosePointingMask_buf);
     trackTransientMB(segByMDMB);
-    lstWarning(std::format("[MEM] (transient) SegmentsByInnerMD and T3 pass masks: {} segments ({:.1f} MB)",
-                           nTotalSegmentsOT_,
-                           segByMDMB));
+    lstWarning(
+        "[MEM] (transient) SegmentsByInnerMD and T3 pass masks: {} segments ({:.1f} MB)", nTotalSegmentsOT_, segByMDMB);
   }
   alpaka::exec<Acc1D>(queue_,
                       cms::alpakatools::make_workdiv<Acc1D>(nLowerModules_, 128),
@@ -823,9 +819,8 @@ void LSTEvent::createTriplets() {
   if (objectsStatistics_) {
     double mb = alpaka::getExtentProduct(tripletsDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] Triplets: {} allocated ({:.1f} MB)", nTotalTriplets, mb + listRangesMB));
-    lstWarning(
-        std::format("[MEM] (transient) Triplets creation buffer: {} slots ({:.1f} MB)", nLooseTriplets, looseMB));
+    lstWarning("[MEM] Triplets: {} allocated ({:.1f} MB)", nTotalTriplets, mb + listRangesMB);
+    lstWarning("[MEM] (transient) Triplets creation buffer: {} slots ({:.1f} MB)", nLooseTriplets, looseMB);
   }
 
   auto tripletsOccupancy = tripletsDC_->view().tripletsOccupancy();
@@ -873,8 +868,8 @@ void LSTEvent::compactPixelQuintuplets(Queue& queue) {
   alpaka::wait(queue);  // the compact size is needed on the host
   const unsigned int nPT5 = *nPT5_buf_h.data();
   if (objectsStatistics_ && *triedPT5_buf_h.data() > nPT5)
-    lstWarning(std::format("pT5 cap reached: {} pixel quintuplets dropped (fixed cap, not a counting shortfall)",
-                           *triedPT5_buf_h.data() - nPT5));
+    lstWarning("pT5 cap reached: {} pixel quintuplets dropped (fixed cap, not a counting shortfall)",
+               *triedPT5_buf_h.data() - nPT5);
 
   if (objectsStatistics_)
     memoryLiveMB_ -= alpaka::getExtentProduct(pixelQuintupletsDC_->buffer()) / 1e6;
@@ -896,7 +891,7 @@ void LSTEvent::compactPixelQuintuplets(Queue& queue) {
   if (objectsStatistics_) {
     double mb = alpaka::getExtentProduct(pixelQuintupletsDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] PixelQuintuplets: {} allocated ({:.1f} MB)", nPT5, mb));
+    lstWarning("[MEM] PixelQuintuplets: {} allocated ({:.1f} MB)", nPT5, mb);
   }
 }
 
@@ -911,8 +906,8 @@ void LSTEvent::compactPixelTriplets(Queue& queue) {
   alpaka::wait(queue);  // the compact size is needed on the host
   const unsigned int nPT3 = *nPT3_buf_h.data();
   if (objectsStatistics_ && *triedPT3_buf_h.data() > nPT3)
-    lstWarning(std::format("pT3 cap reached: {} pixel triplets dropped (fixed cap, not a counting shortfall)",
-                           *triedPT3_buf_h.data() - nPT3));
+    lstWarning("pT3 cap reached: {} pixel triplets dropped (fixed cap, not a counting shortfall)",
+               *triedPT3_buf_h.data() - nPT3);
 
   if (objectsStatistics_)
     memoryLiveMB_ -= alpaka::getExtentProduct(pixelTripletsDC_->buffer()) / 1e6;
@@ -934,7 +929,7 @@ void LSTEvent::compactPixelTriplets(Queue& queue) {
   if (objectsStatistics_) {
     double mb = alpaka::getExtentProduct(pixelTripletsDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] PixelTriplets: {} allocated ({:.1f} MB)", nPT3, mb));
+    lstWarning("[MEM] PixelTriplets: {} allocated ({:.1f} MB)", nPT3, mb);
   }
 }
 
@@ -971,8 +966,7 @@ void LSTEvent::compactQuadruplets(Queue& queue, uint16_t nEligibleT4Modules) {
   alpaka::wait(queue);  // the compact size is needed on the host
   const unsigned int nT4 = *nT4_buf_h.data();
   if (objectsStatistics_ && *triedT4_buf_h.data() > *nT4_buf_h.data())
-    lstWarning(std::format("Counting-kernel overflow, objects dropped: {} quadruplets",
-                           *triedT4_buf_h.data() - *nT4_buf_h.data()));
+    lstWarning("Counting-kernel overflow, objects dropped: {} quadruplets", *triedT4_buf_h.data() - *nT4_buf_h.data());
 
   if (objectsStatistics_)
     memoryLiveMB_ -= alpaka::getExtentProduct(quadrupletsDC_->buffer()) / 1e6;
@@ -1002,7 +996,7 @@ void LSTEvent::compactQuadruplets(Queue& queue, uint16_t nEligibleT4Modules) {
   if (objectsStatistics_) {
     double mb = alpaka::getExtentProduct(quadrupletsDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] Quadruplets: {} allocated ({:.1f} MB)", nT4, mb));
+    lstWarning("[MEM] Quadruplets: {} allocated ({:.1f} MB)", nT4, mb);
   }
 }
 
@@ -1121,18 +1115,17 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                  cms::alpakatools::make_device_view(queue_, rangesView.nQuintupletCapDrops()));
   alpaka::wait(queue_);  // wait to get counts before allocation
   if (nSegmentOverflows_ + nTripletOverflows_ + nQuintupletOverflows_ > 0)
-    lstWarning(std::format("Counting-kernel overflow, objects dropped: {} segments, {} triplets, {} quintuplets",
-                           nSegmentOverflows_,
-                           nTripletOverflows_,
-                           nQuintupletOverflows_));
+    lstWarning("Counting-kernel overflow, objects dropped: {} segments, {} triplets, {} quintuplets",
+               nSegmentOverflows_,
+               nTripletOverflows_,
+               nQuintupletOverflows_);
   if (objectsStatistics_ && nT5byMDOverflows_ > 0)
-    lstWarning(std::format("T5 by-MD list full: {} quintuplets kept but not listed for the by-MD duplicate search",
-                           nT5byMDOverflows_));
+    lstWarning("T5 by-MD list full: {} quintuplets kept but not listed for the by-MD duplicate search",
+               nT5byMDOverflows_);
   if (objectsStatistics_ && nT5CapDrops_ > 0)
-    lstWarning(std::format("T5 per-module cap reached: {} quintuplets dropped (fixed cap, not a counting shortfall)",
-                           nT5CapDrops_));
+    lstWarning("T5 per-module cap reached: {} quintuplets dropped (fixed cap, not a counting shortfall)", nT5CapDrops_);
   if (objectsStatistics_)
-    lstWarning(std::format("[CNT] overflows: {} {} {}", nSegmentOverflows_, nTripletOverflows_, nQuintupletOverflows_));
+    lstWarning("[CNT] overflows: {} {} {}", nSegmentOverflows_, nTripletOverflows_, nQuintupletOverflows_);
 
   auto const* counts = nSurvivingTCs_host.data();
   constexpr unsigned int nMaxTC = n_max_nonpixel_track_candidates + n_max_pixel_track_candidates;
@@ -1150,15 +1143,14 @@ void LSTEvent::createTrackCandidates(bool no_pls_dupclean, bool tc_pls_triplets)
                  alpaka::getExtentProduct(trackCandidatesExtendedDC_->buffer())) /
                 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format(
-        "[MEM] TrackCandidates: {} allocated ({:.1f} MB) [dynamic: {} pT5 + {} pT3 + {} T5 + {} T4 + {} pLS]",
-        nTotal,
-        mb,
-        counts[0],
-        counts[1],
-        counts[2],
-        counts[3],
-        counts[4]));
+    lstWarning("[MEM] TrackCandidates: {} allocated ({:.1f} MB) [dynamic: {} pT5 + {} pT3 + {} T5 + {} T4 + {} pLS]",
+               nTotal,
+               mb,
+               counts[0],
+               counts[1],
+               counts[2],
+               counts[3],
+               counts[4]);
   }
 
   auto const addpT5asTrackCandidate_workDiv = cms::alpakatools::make_workdiv<Acc1D>(1, 256);
@@ -1318,7 +1310,7 @@ void LSTEvent::createPixelTriplets() {
     if (objectsStatistics_) {
       double mb = alpaka::getExtentProduct(pixelTripletsDC_->buffer()) / 1e6;
       trackTransientMB(mb);  // shrunk to the produced pT3s by compactPixelTriplets
-      lstWarning(std::format("[MEM-loose] PixelTriplets: {} allocated ({:.1f} MB) [fixed]", n_max_pixel_triplets, mb));
+      lstWarning("[MEM-loose] PixelTriplets: {} allocated ({:.1f} MB) [fixed]", n_max_pixel_triplets, mb);
     }
   }
 
@@ -1423,7 +1415,7 @@ void LSTEvent::createQuintuplets() {
   if (objectsStatistics_) {
     double mb = alpaka::getExtentProduct(miniDoubletsT5BuildDC_->buffer()) / 1e6;
     trackAllocatedMB(mb);
-    lstWarning(std::format("[MEM] MiniDoubletsT5Build: {} allocated ({:.1f} MB)", nTotalMDsOT_, mb));
+    lstWarning("[MEM] MiniDoubletsT5Build: {} allocated ({:.1f} MB)", nTotalMDsOT_, mb);
   }
 
   // LS-on-T3 lists by MD: the candidate outer LS1s of the inner T3s ending at each MD (transient, this stage only).
@@ -1466,7 +1458,7 @@ void LSTEvent::createQuintuplets() {
                   alpaka::getExtentProduct(moduleT5Count_buf)) *
                  sizeof(unsigned int) / 1e6;
     trackTransientMB(countingMB);
-    lstWarning(std::format("[MEM] (transient) T5 counting buffers: {:.1f} MB", countingMB));
+    lstWarning("[MEM] (transient) T5 counting buffers: {:.1f} MB", countingMB);
   }
 
   // Values read back after counting: each host buffer next to its device source.
@@ -1553,8 +1545,8 @@ void LSTEvent::createQuintuplets() {
   auto selected = countQuintuplets(estimatedT5Capacity);
   if (*nSelected_buf.data() > estimatedT5Capacity) {
     if (objectsStatistics_)
-      lstWarning(std::format(
-          "T5 counting re-run: {} selected pairs, estimated capacity {}", *nSelected_buf.data(), estimatedT5Capacity));
+      lstWarning(
+          "T5 counting re-run: {} selected pairs, estimated capacity {}", *nSelected_buf.data(), estimatedT5Capacity);
     // Headroom: on the parallel backends the selection of a module at the T5 cap can differ between the two runs.
     estimatedT5Capacity = *nSelected_buf.data() + *nSelected_buf.data() / 8;
     selected = countQuintuplets(estimatedT5Capacity);
@@ -1562,17 +1554,17 @@ void LSTEvent::createQuintuplets() {
   auto& [selectedTripletIndices_buf, selectedBridgeRadius_buf, selectedDnnScore_buf] = selected;
   const unsigned int nSelected = std::min(*nSelected_buf.data(), estimatedT5Capacity);
   if (*nSelected_buf.data() > estimatedT5Capacity)
-    lstWarning(std::format("Counting-kernel overflow, objects dropped: {} quintuplets (selected-pair list full)",
-                           *nSelected_buf.data() - estimatedT5Capacity));
+    lstWarning("Counting-kernel overflow, objects dropped: {} quintuplets (selected-pair list full)",
+               *nSelected_buf.data() - estimatedT5Capacity);
   double selectedMB = 0;
   if (objectsStatistics_) {
     selectedMB = (2 * sizeof(unsigned int) + 2 * sizeof(float)) * estimatedT5Capacity / 1e6;
     trackTransientMB(selectedMB);
-    lstWarning(std::format("[MEM] (transient) T5 selected pairs: {} slots ({:.1f} MB), {} selected, {} triplets",
-                           estimatedT5Capacity,
-                           selectedMB,
-                           nSelected,
-                           nTripletSlots));
+    lstWarning("[MEM] (transient) T5 selected pairs: {} slots ({:.1f} MB), {} selected, {} triplets",
+               estimatedT5Capacity,
+               selectedMB,
+               nSelected,
+               nTripletSlots);
   }
 
   auto nTotalQuintuplets = *nTotalQuintuplets_buf.data();
@@ -1586,7 +1578,7 @@ void LSTEvent::createQuintuplets() {
     if (objectsStatistics_) {
       double mb = alpaka::getExtentProduct(quintupletsDC_->buffer()) / 1e6;
       trackAllocatedMB(mb);
-      lstWarning(std::format("[MEM] Quintuplets: {} allocated ({:.1f} MB)", nTotalQuintuplets, mb));
+      lstWarning("[MEM] Quintuplets: {} allocated ({:.1f} MB)", nTotalQuintuplets, mb);
     }
   }
   auto quintupletsOccupancy = quintupletsDC_->view().quintupletsOccupancy();
@@ -1603,8 +1595,8 @@ void LSTEvent::createQuintuplets() {
   if (objectsStatistics_) {
     byMDMB = alpaka::getExtentProduct(quintupletsByMDDC.buffer()) / 1e6;
     trackTransientMB(byMDMB);  // live until the end of this function, not added to the allocated total
-    lstWarning(std::format(
-        "[MEM-loose] QuintupletsByMD: {} + {} allocated ({:.1f} MB)", nTotalQuintuplets0, nTotalQuintuplets1, byMDMB));
+    lstWarning(
+        "[MEM-loose] QuintupletsByMD: {} + {} allocated ({:.1f} MB)", nTotalQuintuplets0, nTotalQuintuplets1, byMDMB);
   }
 
   if (nSelected > 0) {
@@ -1725,8 +1717,7 @@ void LSTEvent::createPixelQuintuplets() {
     if (objectsStatistics_) {
       double mb = alpaka::getExtentProduct(pixelQuintupletsDC_->buffer()) / 1e6;
       trackTransientMB(mb);  // shrunk to the produced pT5s by compactPixelQuintuplets
-      lstWarning(
-          std::format("[MEM-loose] PixelQuintuplets: {} allocated ({:.1f} MB) [fixed]", n_max_pixel_quintuplets, mb));
+      lstWarning("[MEM-loose] PixelQuintuplets: {} allocated ({:.1f} MB) [fixed]", n_max_pixel_quintuplets, mb);
     }
   }
 
@@ -1845,8 +1836,7 @@ void LSTEvent::createQuadruplets() {
   if (objectsStatistics_) {
     t4CountingMB = bufferMB(t3ConnectedLSMax_buf) + bufferMB(moduleT4Max_buf) + bufferMB(t4PassMask_buf);
     trackTransientMB(t4CountingMB);
-    lstWarning(
-        std::format("[MEM] (transient) T4 counting buffers: {} triplets ({:.1f} MB)", nTripletSlots, t4CountingMB));
+    lstWarning("[MEM] (transient) T4 counting buffers: {} triplets ({:.1f} MB)", nTripletSlots, t4CountingMB);
   }
 
   // Flat over the inner triplets (not one module per block), so dense jet modules spread over the whole device. Block
@@ -1901,7 +1891,7 @@ void LSTEvent::createQuadruplets() {
     if (objectsStatistics_) {
       double mb = alpaka::getExtentProduct(quadrupletsDC_->buffer()) / 1e6;
       trackTransientMB(mb);  // shrunk to the produced T4s by compactQuadruplets
-      lstWarning(std::format("[MEM-loose] Quadruplets: {} allocated ({:.1f} MB)", nTotalQuadruplets, mb));
+      lstWarning("[MEM-loose] Quadruplets: {} allocated ({:.1f} MB)", nTotalQuadruplets, mb);
     }
     auto quadrupletsOccupancy = quadrupletsDC_->view().quadrupletsOccupancy();
     auto nQuadruplets_view = cms::alpakatools::make_device_view(

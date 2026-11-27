@@ -1,9 +1,11 @@
 #ifndef RecoTracker_LSTCore_interface_alpaka_Common_h
 #define RecoTracker_LSTCore_interface_alpaka_Common_h
 
+#include <format>
 #include <numbers>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 
 #include "FWCore/Utilities/interface/HostDeviceConstant.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,12 +18,14 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
   using namespace ::lst;
 
-  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::string_view warning) {
-#ifdef LST_STANDALONE
-    printf("%s\n", warning.data());
-#else
-    edm::LogWarning("LST") << warning;
-#endif
+  // Format the arguments according to the format string, and log the result as a warning.
+  // Defined in LST.cc, which is compiled only by the host compiler: nvcc fails to compile std::vformat in device code
+  // with GCC 16 in c++23 mode with --expt-relaxed-constexpr.
+  ALPAKA_FN_HOST void lstWarningImpl(std::string_view format, std::format_args args);
+
+  template <typename... Args>
+  ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstWarning(std::format_string<Args...> format, Args&&... args) {
+    lstWarningImpl(format.get(), std::make_format_args(args...));
   }
 
   [[noreturn]] ALPAKA_FN_HOST ALPAKA_FN_INLINE void lstLogicError(std::string const& message) {
