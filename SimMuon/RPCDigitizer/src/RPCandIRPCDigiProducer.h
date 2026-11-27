@@ -10,7 +10,6 @@
 
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/RPCDigitizer/src/RPCDigitizer.h"
-#include "SimMuon/RPCDigitizer/src/IRPCDigitizer.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/RPCObjects/interface/RPCStripNoises.h"
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
@@ -38,7 +37,7 @@ public:
 
 private:
   RPCDigitizer* theRPCDigitizer;
-  IRPCDigitizer* theIRPCDigitizer;
+  RPCDigitizer* theIRPCDigitizer;
   RPCSimSetUp* theRPCSimSetUpRPC;
   RPCSimSetUp* theRPCSimSetUpIRPC;
   //  RPCSimSetUp* theRPCSimSetUp;
