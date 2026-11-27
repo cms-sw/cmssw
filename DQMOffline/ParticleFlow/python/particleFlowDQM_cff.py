@@ -1,0 +1,193 @@
+import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+import Validation.RecoParticleFlow.defaults_cfi as default
+from Validation.RecoParticleFlow.defaults_cfi import ptbins, etabins, response_distribution_name, genjet_distribution_name, recojet_distribution_name, jetResponseDir, genjetDir
+
+#----- ----- ----- ----- ----- ----- ----- -----
+#
+# Auxiliary definitions
+#
+
+def make_response_plot_pset(name, title, responseNbins, responseLow, responseHigh, ptBinLow, ptBinHigh, etaBinLow, etaBinHigh):
+    return cms.PSet(
+        name = cms.string(name),
+        title = cms.string(title),
+        responseNbins = cms.uint32(responseNbins),
+        responseLow = cms.double(responseLow),
+        responseHigh = cms.double(responseHigh),
+        ptBinLow = cms.double(ptBinLow),
+        ptBinHigh = cms.double(ptBinHigh),
+        etaBinLow = cms.double(etaBinLow),
+        etaBinHigh = cms.double(etaBinHigh),
+    )
+
+#Jet response is plotted in histograms which can be subdivided by pt and |eta| of the genjet.
+#To minimize the amount of logic on the C++ side, we define all response plots here.
+#Each plot has low and high pt and |eta| edges, the plot is filled only if the genjet
+#is in the bin defined by the edges.
+#It is your job here to make sure you define the bins in a non-overlapping way if
+#you want to emulate a 2D map over (pT, |eta|) of 1D histograms.
+def createResponsePlots(ptbins, etabins):
+    response_plots = []
+    #we always use a range [ibin, ibin+1)
+    for ietabin in range(len(etabins)-1):
+        for iptbin in range(len(ptbins)-1):
+
+            response_plots += [make_response_plot_pset(
+                response_distribution_name(iptbin, ietabin),
+                "Jet response (pT/pTgen) in {0} <= pt < {1}, {2} <= |eta| < {3})".format(ptbins[iptbin], ptbins[iptbin+1], etabins[ietabin], etabins[ietabin+1]),
+                100, 0.0, 3.0, ptbins[iptbin], ptbins[iptbin+1], etabins[ietabin], etabins[ietabin+1]
+            )]
+    return response_plots
+
+def createGenJetPlots(ptbins, etabins):
+    plots = []
+    for ietabin in range(len(etabins)-1):
+        eta_low = etabins[ietabin]
+        eta_high = etabins[ietabin + 1]
+        plots += [
+            cms.PSet(
+            name = cms.string(genjet_distribution_name(ietabin)),
+            title = cms.string("GenJet pT ({0} <= |eta| <= {1})".format(eta_low, eta_high)),
+            ptBins = cms.vdouble(ptbins),
+            etaBinLow = cms.double(eta_low),
+            etaBinHigh = cms.double(eta_high),
+        )]
+    return plots
+
+def createRecoJetPlots(ptbins, etabins):
+    plots = []
+    for ietabin in range(len(etabins)-1):
+        eta_low = etabins[ietabin]
+        eta_high = etabins[ietabin + 1]
+        plots += [
+            cms.PSet(
+            name = cms.string(recojet_distribution_name(ietabin)),
+            title = cms.string("RecoJet ({0} <= |eta| <= {1})".format(eta_low, eta_high)),
+            ptBins = cms.vdouble(ptbins),
+            etaBinLow = cms.double(eta_low),
+            etaBinHigh = cms.double(eta_high),
+        )]
+    return plots
+
+#----- ----- ----- ----- ----- ----- ----- -----
+#
+# Config for analyzer and postprocessor
+#
+
+#----- ----- ----- ----- ----- ----- ----- -----
+#
+# Jet analyzers and post-processors
+#
+# Each flavour has its own jet collections: RECO/AOD (reco::PFJet, uncorrected) and miniAOD (pat::Jet, with JEC).
+# The gen-jet spectra of the miniAOD flavour are stored under ParticleFlow/MiniAOD/.
+# The jet-response folders are named after the reco jet collection.
+
+genjetDirMiniAOD = 'ParticleFlow/MiniAOD/GenJets/'
+
+def createJetAnalyzer(recoJets, genJets, genjetDir, hasJEC, genJetsOn=True):
+    return DQMEDAnalyzer("PFJetAnalyzerDQM",
+        #match these reco-jets to the gen-jets and compute jet response
+        recoJetCollection = cms.InputTag(recoJets),
+        genJetCollection = cms.InputTag(genJets),
+        genjetDir = cms.string(genjetDir),
+        # whether the reco jets carry jet energy corrections (JEC plots are only booked if so)
+        hasJEC = cms.bool(hasJEC),
+        jetDeltaR = cms.double(0.2),
+        # turn gen jets on or off
+        genJetsOn = cms.bool(genJetsOn),
+        recoJetsOn = cms.bool(True),
+        responsePlots = cms.VPSet(createResponsePlots(ptbins, etabins)),
+        genJetPlots = cms.VPSet(createGenJetPlots(ptbins, etabins)),
+        recoJetPlots = cms.VPSet(createRecoJetPlots(ptbins, etabins)),
+    )
+
+def createJetPostProcessor(recoJets, hasJEC, offsetDir, genjetDir):
+    dirs = [jetResponseDir + jets + "/" + corr + "/"
+            for jets in recoJets
+            for corr in (["JEC", "noJEC"] if hasJEC else ["noJEC"])]
+    return DQMEDHarvester("PFJetDQMPostProcessor",
+        jetResponseDir = cms.vstring( dirs ),
+        genjetDir = cms.string(genjetDir),
+        offsetDir = cms.string(offsetDir),
+        ptBins = cms.vdouble( ptbins ),
+        etaBins = cms.vdouble( etabins ),
+        recoPtCut = cms.double(10.)
+    )
+
+# RECO/AOD
+pfJetAnalyzerDQM = createJetAnalyzer('ak4PFJets', 'ak4GenJets', genjetDir, hasJEC = False)
+pfPuppiJetAnalyzerDQM = createJetAnalyzer('ak4PFJetsPuppi', 'ak4GenJets', genjetDir, hasJEC = False, genJetsOn = False)
+pfJetDQMPostProcessor = createJetPostProcessor(['ak4PFJets', 'ak4PFJetsPuppi'], hasJEC = False, offsetDir = 'ParticleFlow/Offset/', genjetDir = genjetDir)
+
+# miniAOD
+pfJetAnalyzerMiniAODDQM = createJetAnalyzer('slimmedJets', 'slimmedGenJets', genjetDirMiniAOD, hasJEC = True)
+pfPuppiJetAnalyzerMiniAODDQM = createJetAnalyzer('slimmedJetsPuppi', 'slimmedGenJets', genjetDirMiniAOD, hasJEC = True, genJetsOn = False)
+pfJetDQMPostProcessorMiniAOD = createJetPostProcessor(['slimmedJets', 'slimmedJetsPuppi'], hasJEC = True, offsetDir = 'ParticleFlow/MiniAOD/Offset/', genjetDir = genjetDirMiniAOD)
+
+# Particle Flow Candidates
+from DQMOffline.ParticleFlow.pfAnalyzer_cfi import pfAnalyzer
+
+pfAnalyzerDQM = pfAnalyzer.clone(
+    folder = "ParticleFlow",
+    pfCandidates = "particleFlow",
+    TriggerResultsLabel = cms.InputTag("TriggerResults::HLT"),
+    TriggerNames = ["HLT_PFJet450"],
+    pfAnalysis = cms.PSet(
+        NPVBins = cms.vdouble(0, 100, 250),
+        observables = cms.vstring(
+            'pt;p_{T,PFC};50.;0.;350.',
+            'eta;#eta;50;-5;5',
+            'phi;#phi;50;-3.14;3.14',
+            'energy;E;50;0;300',
+        ),
+        eventObservables = cms.vstring(),
+        pfInJetObservables = cms.vstring(),
+        binList2D = cms.vstring(
+            '[eta;30;-5;5][phi;30;-3.14;3.14]',
+            '[eta;30;-5;5][logPt;50;-1.5;4.]',
+            '[eta;30;-5;5][pt;100;0;10.]',
+            '[eta;30;-5;5][energy;50;0;50.]',
+        ),
+        cutList = cms.vstring(
+            '[pt;1;0;10000]',
+            '[pt;1;0;10000][abseta;0;1.47;4.;6.]',
+            '[pt;0;1;2;4;6;10;20;50;100][abseta;0;1.47;4.;6.]',
+        ),
+        jetCutList = cms.vstring('[pt;20;10000]'),
+    ),
+)
+
+pfAnalyzerMiniAODDQM = pfAnalyzer.clone(
+    folder = "ParticleFlow/MiniAOD",
+    pfCandidates = "packedPFCandidates",
+    pfJetCollection = cms.InputTag("slimmedJets"),
+    PVCollection = "offlineSlimmedPrimaryVertices",
+    puppiWeight = cms.InputTag(""), # no external value map in miniAOD: the weights are stored in the packed candidates
+    TriggerResultsLabel = cms.InputTag("TriggerResults::HLT"),
+    TriggerNames = [""],
+    pfAnalysis = cms.PSet(
+        NPVBins = cms.vdouble(0, 100, 250),
+        observables = cms.vstring(
+            'pt;p_{T,PFC};50.;0.;350.',
+            'eta;#eta;50;-5;5',
+            'phi;#phi;50;-3.14;3.14',
+            'energy;E;50;0;300',
+        ),
+        eventObservables = cms.vstring('NPFC;N_{PFC};500;0;10000;100;0;100',),
+        pfInJetObservables = cms.vstring('PFSpectrum;E_{PF}/E_{jet};50;0;1',),
+        binList2D = cms.vstring(
+            '[eta;30;-5;5][phi;30;-3.14;3.14]',
+            '[eta;30;-5;5][logPt;50;-1.5;4.]',
+            '[eta;30;-5;5][pt;100;0;10.]',
+            '[eta;30;-5;5][energy;50;0;50.]',
+        ),
+        cutList = cms.vstring(
+            '[pt;1;0;10000]',
+            '[pt;1;0;10000][abseta;0;1.47;4.;6.]',
+            '[pt;0;1;2;4;6;10;20;50;100][abseta;0;1.47;4.;6.]',
+        ),
+        jetCutList = cms.vstring('[pt;20;10000]'),
+    ),
+)

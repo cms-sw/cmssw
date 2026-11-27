@@ -93,7 +93,8 @@ cmssw			= os.getenv("CMSSW_VERSION").split("_")
 #	PF DQM Tasks and Harvesters import
 #	New Style
 #-------------------------------------
-process.load('DQM.PFTasks.pfHcalGPUComparisonTask_cfi')
+process.load('DQMOffline.ParticleFlow.pfHcalGPUComparisonTask_cfi')
+process.pfHcalGPUComparisonTask.compDir = cms.untracked.string('HeterogeneousComparisons/ParticleFlow/HCAL')
 
 #-------------------------------------
 #	Some Settings before Finishing up

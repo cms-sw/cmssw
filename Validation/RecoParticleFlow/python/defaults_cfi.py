@@ -64,7 +64,6 @@ candidateType = ["chm", "chu", "nh", "ne", "hfh", "hfe", "lep"]
 pdgIDDict = {211: "chargedHadron", 11:"electron", 13:"muon", 22:"photon", 130:"neutralHadron", 1:"HF_hadron", 2: "HF_EM_particle"}
 
 offsetPlotBaseName = 'p_offset_eta'
-offsetDir = 'ParticleFlow/Offset/'
 offsetR = 0.4
 
 offsetVariableType = ["npv", "mu"]
