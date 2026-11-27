@@ -4,6 +4,7 @@
 <use name="FWCore/Utilities"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="Geometry/CaloGeometry"/>
+<use name="CondFormats/HGCalObjects"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
 <use name="RecoEgamma/EgammaTools"/>
