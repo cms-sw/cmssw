@@ -62,6 +62,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
   HOST_DEVICE_CONSTANT int kNTripletThreshold = 1000;
   HOST_DEVICE_CONSTANT int kNQuintupletThreshold = 100000;
   HOST_DEVICE_CONSTANT int kLogicalOTLayers = 11;  // logical OT layers are 1..11
+  // pLS radius of 5 GeV. Below it the pT5 r-z and rPhi chi2 cuts check the pLS-to-T5 pairing; at or above it
+  // there are no such cuts, and pT5s whose score exceeds kpT5DemoteScore are written as T5 track candidates.
+  HOST_DEVICE_CONSTANT float kpT5HighPtRadius = 5.0f * kR1GeVf;
+  // pT5s above 5 GeV whose score (pLS-to-T5 rPhiChiSquared) exceeds this are written as T5 track candidates.
+  HOST_DEVICE_CONSTANT float kpT5DemoteScore = 200.f;
   HOST_DEVICE_CONSTANT auto kMaxPLSHitBitsInHitsSoA = ::lst::kMaxPLSHitBitsInHitsSoA;
 
   HOST_DEVICE_CONSTANT float kMiniDeltaTilted[3] = {0.26f, 0.26f, 0.26f};

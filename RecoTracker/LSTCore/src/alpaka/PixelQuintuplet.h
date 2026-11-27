@@ -554,7 +554,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                           pixelData.pz,
                                           pixelData.charge);
 
-    if (pixelRadius < 5.0f * kR1GeVf) {  //only apply r-z chi2 cuts for <5GeV tracks
+    if (pixelRadius < kpT5HighPtRadius) {  //only apply r-z chi2 cuts for <5GeV tracks
       if (not passPT5RZChiSquaredCuts(modules,
                                       lowerModuleIndex1,
                                       lowerModuleIndex2,
@@ -587,7 +587,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
 
     rPhiChiSquared = computePT5RPhiChiSquared(acc, modules, lowerModuleIndices, centerX, centerY, pixelRadius, xs, ys);
 
-    if (pixelRadius < 5.0f * kR1GeVf) {
+    if (pixelRadius < kpT5HighPtRadius) {
       if (not passPT5RPhiChiSquaredCuts(modules,
                                         lowerModuleIndex1,
                                         lowerModuleIndex2,
@@ -624,9 +624,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                   MiniDoubletsConst mds,
                                   SegmentsConst segments,
                                   PixelSeedsConst pixelSeeds,
-                                  PixelSegments pixelSegments,
-                                  Triplets triplets,
-                                  Quintuplets quintuplets,
+                                  PixelSegmentsConst pixelSegments,
+                                  TripletsConst triplets,
+                                  QuintupletsConst quintuplets,
                                   QuintupletsOccupancyConst quintupletsOccupancy,
                                   PixelQuintuplets pixelQuintuplets,
                                   unsigned int* connectedPixelSize,
@@ -714,11 +714,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE::lst {
                                            quintupletRadius,
                                            centerX,
                                            centerY);
-
-                triplets.partOfPT5()[quintuplets.tripletIndices()[quintupletIndex][0]] = true;
-                triplets.partOfPT5()[quintuplets.tripletIndices()[quintupletIndex][1]] = true;
-                pixelSegments.partOfPT5()[i_pLS] = true;
-                quintuplets.partOfPT5()[quintupletIndex] = true;
               }  // tot occupancy
             }  // end success
           }  // end T5
