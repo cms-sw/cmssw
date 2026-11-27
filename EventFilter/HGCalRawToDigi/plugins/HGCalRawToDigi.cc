@@ -100,6 +100,7 @@ void HGCalRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     econdPacketInfo.view()[i].cbFlag() = 0;
     econdPacketInfo.view()[i].econdFlag() = 0;
     econdPacketInfo.view()[i].exception() = 0;
+    econdPacketInfo.view()[i].cm().Zero();
   }
   hgcaldigi::HGCalFEDPacketInfoHost fedPacketInfo(cms::alpakatools::host(), moduleIndexer.fedCount());
 
