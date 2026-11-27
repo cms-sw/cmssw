@@ -102,27 +102,34 @@ def runRecoForSep2024TB(process):
                                              k_noise=cms.double(5.)
                                              )
 
-    from RecoTICL.LayerClustering.hgCalSoARecHitsLayerClustersProducer_cfi import hgCalSoARecHitsLayerClustersProducer
-    process.hgcalSoARecHitsLayerClusters = hgCalSoARecHitsLayerClustersProducer.clone(
-        hgcalRecHitsSoA="hgcalSoARecHits"
+    # The layer clusters: the rechits grouped by layer, clustered with CLUEstering, then converted to reco::CaloCluster
+    process.hgcalSoARecHitsByLayer = cms.EDProducer('HGCalSoARecHitsByLayerProducer@alpaka',
+                                                    recHits=cms.InputTag('hgcalSoARecHits')
+                                                    )
+
+    from RecoTICL.LayerClustering.hgCalCLUEsteringLayerClustersProducer_cfi import hgCalCLUEsteringLayerClustersProducer
+    process.hgcalSoARecHitsLayerClusters = hgCalCLUEsteringLayerClustersProducer.clone(
+        hgcalRecHitsSoA="hgcalSoARecHitsByLayer",
+        extremesFromGeometry=False
     )
 
     from RecoTICL.LayerClustering.hgCalSoALayerClustersProducer_cfi import hgCalSoALayerClustersProducer
     process.hgcalSoALayerClusters = hgCalSoALayerClustersProducer.clone(
         hgcalRecHitsLayerClustersSoA="hgcalSoARecHitsLayerClusters",
-        hgcalRecHitsSoA="hgcalSoARecHits"
+        hgcalRecHitsSoA="hgcalSoARecHitsByLayer"
     )
 
     from RecoTICL.LayerClustering.hgCalLayerClustersFromSoAProducer_cfi import hgCalLayerClustersFromSoAProducer
     process.hgcalMergeLayerClusters = hgCalLayerClustersFromSoAProducer.clone(
         hgcalRecHitsLayerClustersSoA="hgcalSoARecHitsLayerClusters",
-        hgcalRecHitsSoA="hgcalSoARecHits",
+        hgcalRecHitsSoA="hgcalSoARecHitsByLayer",
         src="hgcalSoALayerClusters"
     )
 
     process.reco_task = cms.Task(
         process.hgcalDigis,
         process.hgcalSoARecHits,
+        process.hgcalSoARecHitsByLayer,
         process.hgcalSoARecHitsLayerClusters,
         process.hgcalSoALayerClusters,
         process.hgcalMergeLayerClusters
@@ -134,7 +141,7 @@ def runRecoForSep2024TB(process):
     process.load('DQMServices.Core.DQMStore_cfi')
     process.load('DQM.HGCAL.hgcalDQM_cff')
     process.hgcalrechitdqm.RecHits = 'hgcalSoARecHits'
-    process.hgcallayerclusterdqm.RecHits = 'hgcalSoARecHits'
+    process.hgcallayerclusterdqm.RecHits = 'hgcalSoARecHitsByLayer'
     process.hgcalTestBeamDQMPath = cms.Path(process.hgcalDQMSources + process.hgcalRecoDQMSources)
     process.schedule.insert(1, process.hgcalTestBeamDQMPath)
     process.DQMoutput = cms.OutputModule('DQMRootOutputModule',

@@ -11,5 +11,3 @@
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHits.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsExtra.h"
 #include "DataFormats/HGCalReco/interface/HGCalSoARecHitsExtraHostCollection.h"
-#include "DataFormats/HGCalReco/interface/HGCalSoAClusters.h"
-#include "DataFormats/HGCalReco/interface/HGCalSoAClustersHostCollection.h"
