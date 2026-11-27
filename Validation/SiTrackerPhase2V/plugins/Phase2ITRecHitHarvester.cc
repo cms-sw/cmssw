@@ -60,7 +60,8 @@ Phase2ITRecHitHarvester::~Phase2ITRecHitHarvester() {}
 
 void Phase2ITRecHitHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   // Could this use TrackerPhase2DQMUtil?
-  if (topFolder_ == "TrackerPhase2ITTrackingRecHitV" || topFolder_ == "TrackerPhase2ITRecHitV") {  // IT ONLY - Shells
+  bool innerTracker = (topFolder_ == "TrackerPhase2ITTrackingRecHitV" || topFolder_ == "TrackerPhase2ITRecHitV");
+  if (innerTracker) {  // IT ONLY - Shells
     for (unsigned int shell = 0; shell < shellNames_.size(); shell++) {
       for (unsigned int i = 1; i <= nbarrelLayers_; i++) {
         std::string iFolder = topFolder_ + "/Barrel/" + shellNames_[shell] + "/Layer" + std::to_string(i);
@@ -76,12 +77,12 @@ void Phase2ITRecHitHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
   for (unsigned int shell = 0; shell < shellNames_.size(); shell++) {
     std::string ecapbasedisk1;
     std::string ecapbasedisk2;
-    if (topFolder_ == "TrackerPhase2ITTrackingRecHitV" || topFolder_ == "TrackerPhase2ITRecHitV") {  // IT
+    if (innerTracker) {  // IT
       ecapbasedisk1 = topFolder_ + "/Endcaps/" + ecapdisk1Name_ + "/" + shellNames_[shell] + "/Wheel";
       ecapbasedisk2 = topFolder_ + "/Endcaps/" + ecapdisk2Name_ + "/" + shellNames_[shell] + "/Wheel";
     } else {  // OT
-      ecapbasedisk1 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/" + ecapdisk1Name_ + "/Wheel";
-      ecapbasedisk2 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/" + ecapdisk2Name_ + "/Wheel";
+      ecapbasedisk1 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/DoubleDisk";
+      ecapbasedisk2 = topFolder_ + "/Endcaps/" + shellNames_[shell] + "/DoubleDisk";
     }
     //FPix or TEDD_1
     for (unsigned int fpixw = 1; fpixw <= ndisk1Wheels_; fpixw++) {
@@ -94,7 +95,7 @@ void Phase2ITRecHitHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
     //EPix or TEDD_2
     for (unsigned int epixw = ndisk1Wheels_ + 1; epixw <= ndisk1Wheels_ + ndisk2Wheels_; epixw++) {
       std::string iFolder = ecapbasedisk2 + std::to_string(epixw) + "/Ring";
-      for (unsigned int epixr = 1; epixr <= ndisk2Rings_; epixr++) {
+      for (unsigned int epixr = 1 + (3 * !innerTracker); epixr <= ndisk2Rings_; epixr++) {
         std::string folderKey = iFolder + std::to_string(epixr);
         dofitsForLayer(folderKey, ibooker, igetter);
       }

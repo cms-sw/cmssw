@@ -70,9 +70,9 @@ private:
     MonitorElement *NClustersByRing = nullptr;
     MonitorElement *NClustersIMemByRing = nullptr;
     MonitorElement *NClustersOMemByRing = nullptr;
-    MonitorElement *NClustersByWheel = nullptr;
-    MonitorElement *NClustersIMemByWheel = nullptr;
-    MonitorElement *NClustersOMemByWheel = nullptr;
+    MonitorElement *NClustersByDDisk = nullptr;
+    MonitorElement *NClustersIMemByDDisk = nullptr;
+    MonitorElement *NClustersOMemByDDisk = nullptr;
     unsigned int clusterCounter = 0;
     unsigned int clusterCounterIMem = 0;
     unsigned int clusterCounterOMem = 0;
@@ -200,20 +200,20 @@ void Phase2OTMonitorTTCluster::analyze(const edm::Event &iEvent, const edm::Even
           local_mes.clusterCounterOMem++;
 
         if (detIdClu.subdetId() == static_cast<int>(StripSubdetector::TID)) {
-          if (local_mes.NClustersByWheel)
-            local_mes.NClustersByWheel->Fill(tTopo_->tidWheel(detIdClu));
+          if (local_mes.NClustersByDDisk)
+            local_mes.NClustersByDDisk->Fill(tTopo_->tidWheel(detIdClu));
           if (local_mes.NClustersByRing)
-            local_mes.NClustersByRing->Fill(tTopo_->tidRing(detIdClu));
+            local_mes.NClustersByRing->Fill(phase2tkutil::getOTTEDDRing(detIdClu, tTopo_));
           if (memberClu == 0) {
-            if (local_mes.NClustersIMemByWheel)
-              local_mes.NClustersIMemByWheel->Fill(tTopo_->tidWheel(detIdClu));
+            if (local_mes.NClustersIMemByDDisk)
+              local_mes.NClustersIMemByDDisk->Fill(tTopo_->tidWheel(detIdClu));
             if (local_mes.NClustersIMemByRing)
-              local_mes.NClustersIMemByRing->Fill(tTopo_->tidRing(detIdClu));
+              local_mes.NClustersIMemByRing->Fill(phase2tkutil::getOTTEDDRing(detIdClu, tTopo_));
           } else {
-            if (local_mes.NClustersOMemByWheel)
-              local_mes.NClustersOMemByWheel->Fill(tTopo_->tidWheel(detIdClu));
+            if (local_mes.NClustersOMemByDDisk)
+              local_mes.NClustersOMemByDDisk->Fill(tTopo_->tidWheel(detIdClu));
             if (local_mes.NClustersOMemByRing)
-              local_mes.NClustersOMemByRing->Fill(tTopo_->tidRing(detIdClu));
+              local_mes.NClustersOMemByRing->Fill(phase2tkutil::getOTTEDDRing(detIdClu, tTopo_));
           }
         }
       }  // end loop fillingDepth
@@ -309,12 +309,12 @@ void Phase2OTMonitorTTCluster::bookLayerHistos(DQMStore::IBooker &ibooker, uint3
       if (DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TID)) {
         if (bookingDepth >= phase2tkutil::SUBSTRUCTURE && bookingDepth < phase2tkutil::LAYER) {
           if (bookingDepth != phase2tkutil::ENDCAP_WHEEL) {
-            local_mes.NClustersByWheel = phase2tkutil::book1DFromPSet(
-                conf_.getParameter<edm::ParameterSet>("NClustersByWheel"), ibooker, prettyName);
-            local_mes.NClustersIMemByWheel = phase2tkutil::book1DFromPSet(
-                conf_.getParameter<edm::ParameterSet>("NClustersIMemByWheel"), ibooker, prettyName);
-            local_mes.NClustersOMemByWheel = phase2tkutil::book1DFromPSet(
-                conf_.getParameter<edm::ParameterSet>("NClustersOMemByWheel"), ibooker, prettyName);
+            local_mes.NClustersByDDisk = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersByDDisk"), ibooker, prettyName);
+            local_mes.NClustersIMemByDDisk = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersIMemByDDisk"), ibooker, prettyName);
+            local_mes.NClustersOMemByDDisk = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NClustersOMemByDDisk"), ibooker, prettyName);
           }
           if (bookingDepth != phase2tkutil::ENDCAP_RING) {
             local_mes.NClustersByRing = phase2tkutil::book1DFromPSet(
@@ -452,39 +452,39 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           0,
                           300000);
 
-  // endcap
+  // booking level endcap
   phase2tkutil::add1DDesc(desc,
-                          "NClustersByWheel",
-                          "Num_L1Clusters_Wheels",
-                          "Number of L1Clusters in {} by wheel",
-                          "Wheel",
+                          "NClustersByDDisk",
+                          "Num_L1Clusters_By_DDisk",
+                          "Number of L1Clusters in {} by DDisk",
+                          "Double Disk",
                           "Number of clusters",
-                          6,
+                          5,
                           0.5,
-                          6.5);
+                          5.5);
   phase2tkutil::add1DDesc(desc,
-                          "NClustersIMemByWheel",
-                          "Num_L1Clusters_Wheels_IMem",
-                          "Number of L1Clusters in inner member of modules in {} by wheel",
-                          "Wheel",
+                          "NClustersIMemByDDisk",
+                          "Num_L1Clusters_IMem_By_DDisk",
+                          "Number of L1Clusters in inner member of modules in {} by DDisk",
+                          "Double Disk",
                           "Number of clusters",
-                          6,
+                          5,
                           0.5,
-                          6.5);
+                          5.5);
   phase2tkutil::add1DDesc(desc,
-                          "NClustersOMemByWheel",
-                          "Num_L1Clusters_Wheels_OMem",
-                          "Number of L1Clusters in outer member of modules in {} by wheel",
-                          "Wheel",
+                          "NClustersOMemByDDisk",
+                          "Num_L1Clusters_OMem_By_DDisk",
+                          "Number of L1Clusters in outer member of modules in {} by DDisk",
+                          "Double Disk",
                           "Number of clusters",
-                          6,
+                          5,
                           0.5,
-                          6.5);
+                          5.5);
 
-  //wheel
+  // booking level wheel
   phase2tkutil::add1DDesc(desc,
                           "NClustersByRing",
-                          "Num_L1Clusters_Rings",
+                          "Num_L1Clusters_By_Ring",
                           "Number of L1Clusters in {} by ring",
                           "Ring",
                           "Number of clusters",
@@ -493,7 +493,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           16.5);
   phase2tkutil::add1DDesc(desc,
                           "NClustersIMemByRing",
-                          "Num_L1Clusters_Rings_IMem",
+                          "Num_L1Clusters_IMem_By_Ring",
                           "Number of L1Clusters in inner member of modules in {} by ring",
                           "Ring",
                           "Number of clusters",
@@ -502,7 +502,7 @@ void Phase2OTMonitorTTCluster::fillDescriptions(edm::ConfigurationDescriptions &
                           16.5);
   phase2tkutil::add1DDesc(desc,
                           "NClustersOMemByRing",
-                          "Num_L1Clusters_Rings_OMem",
+                          "Num_L1Clusters_OMem_By_Ring",
                           "Number of L1Clusters in outer member of modules in {} by ring",
                           "Ring",
                           "Number of clusters",

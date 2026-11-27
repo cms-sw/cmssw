@@ -85,11 +85,11 @@ private:
   struct TTStubMEs {
     MonitorElement *NStubs = nullptr;
     MonitorElement *NStubsByRing = nullptr;
-    MonitorElement *NStubsByWheel = nullptr;
+    MonitorElement *NStubsByDDisk = nullptr;
     MonitorElement *StubOffsetByRing = nullptr;
-    MonitorElement *StubOffsetByWheel = nullptr;
+    MonitorElement *StubOffsetByDDisk = nullptr;
     MonitorElement *StubWidthByRing = nullptr;
-    MonitorElement *StubWidthByWheel = nullptr;
+    MonitorElement *StubWidthByDDisk = nullptr;
     unsigned int stubCounter = 0;
   };
 
@@ -157,8 +157,8 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
 
       // Get module
       unsigned int module = tTopo_->module(detIdStub);
-      int wheel = tTopo_->tidWheel(detIdStub);
-      int ring = tTopo_->tidRing(detIdStub);
+      int disk = tTopo_->tidWheel(detIdStub);
+      int ring = phase2tkutil::getOTTEDDRing(detIdStub, tTopo_);
       int layer = tTopo_->getOTLayerNumber(detIdStub);
       // CRACK is viewed from behind, so to align plots with what is seen in real life, modules are flipped
       if (CrackOverview)
@@ -205,16 +205,16 @@ void Phase2OTMonitorTTStub::analyze(const edm::Event &iEvent, const edm::EventSe
 
         local_mes.stubCounter++;
 
-        if (local_mes.NStubsByWheel)
-          local_mes.NStubsByWheel->Fill(wheel);
+        if (local_mes.NStubsByDDisk)
+          local_mes.NStubsByDDisk->Fill(disk);
         if (local_mes.NStubsByRing)
           local_mes.NStubsByRing->Fill(ring);
-        if (local_mes.StubOffsetByWheel)
-          local_mes.StubOffsetByWheel->Fill(wheel, bendOffset);
+        if (local_mes.StubOffsetByDDisk)
+          local_mes.StubOffsetByDDisk->Fill(disk, bendOffset);
         if (local_mes.StubOffsetByRing)
           local_mes.StubOffsetByRing->Fill(ring, bendOffset);
-        if (local_mes.StubWidthByWheel)
-          local_mes.StubWidthByWheel->Fill(wheel, rawBend - bendOffset);
+        if (local_mes.StubWidthByDDisk)
+          local_mes.StubWidthByDDisk->Fill(disk, rawBend - bendOffset);
         if (local_mes.StubWidthByRing)
           local_mes.StubWidthByRing->Fill(ring, rawBend - bendOffset);
 
@@ -320,12 +320,12 @@ void Phase2OTMonitorTTStub::bookLayerHistos(DQMStore::IBooker &ibooker, uint32_t
       if (DetId(det_id).subdetId() == static_cast<int>(StripSubdetector::TID)) {
         if (bookingDepth >= phase2tkutil::SUBSTRUCTURE && bookingDepth < phase2tkutil::LAYER) {
           if (bookingDepth != phase2tkutil::ENDCAP_WHEEL) {
-            local_mes.NStubsByWheel = phase2tkutil::book1DFromPSet(
-                conf_.getParameter<edm::ParameterSet>("NStubsByWheel"), ibooker, prettyName);
-            local_mes.StubOffsetByWheel = phase2tkutil::book2DFromPSet(
-                conf_.getParameter<edm::ParameterSet>("StubOffsetByWheel"), ibooker, prettyName);
-            local_mes.StubWidthByWheel = phase2tkutil::book2DFromPSet(
-                conf_.getParameter<edm::ParameterSet>("StubWidthByWheel"), ibooker, prettyName);
+            local_mes.NStubsByDDisk = phase2tkutil::book1DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("NStubsByDDisk"), ibooker, prettyName);
+            local_mes.StubOffsetByDDisk = phase2tkutil::book2DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("StubOffsetByDDisk"), ibooker, prettyName);
+            local_mes.StubWidthByDDisk = phase2tkutil::book2DFromPSet(
+                conf_.getParameter<edm::ParameterSet>("StubWidthByDDisk"), ibooker, prettyName);
           }
           if (bookingDepth != phase2tkutil::ENDCAP_RING) {
             local_mes.NStubsByRing = phase2tkutil::book1DFromPSet(
@@ -447,17 +447,17 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           0,
                           50000);
   phase2tkutil::add1DDesc(desc,
-                          "NStubsByWheel",
-                          "Num_L1Stubs_Wheels",
-                          "Number of L1Stubs in {} by wheel",
-                          "Wheel",
+                          "NStubsByDDisk",
+                          "Num_L1Stubs_By_DDisk",
+                          "Number of L1Stubs in {} by DDisk",
+                          "Double Disk",
                           "Number of stubs",
-                          6,
+                          5,
                           0.5,
-                          6.5);
+                          5.5);
   phase2tkutil::add1DDesc(desc,
                           "NStubsByRing",
-                          "Num_L1Stubs_Rings",
+                          "Num_L1Stubs_By_Ring",
                           "Number of L1Stubs in {} by ring",
                           "Ring",
                           "Number of stubs",
@@ -478,10 +478,10 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           -10.75,
                           10.75);
   phase2tkutil::add2DDesc(desc,
-                          "StubWidthByWheel",
-                          "L1Stub_Width_By_Wheel",
-                          "L1Stub width in {} by wheel",
-                          "Wheel",
+                          "StubWidthByDDisk",
+                          "L1Stub_Width_By_DDisk",
+                          "L1Stub width in {} by DDisk",
+                          "Double Disk",
                           "Displacement - Offset",
                           5,
                           0.5,
@@ -503,10 +503,10 @@ void Phase2OTMonitorTTStub::fillDescriptions(edm::ConfigurationDescriptions &des
                           -10.75,
                           10.75);
   phase2tkutil::add2DDesc(desc,
-                          "StubOffsetByWheel",
-                          "L1Stub_Offset_By_Wheel",
-                          "L1Stub offset in {} by wheel",
-                          "Wheel",
+                          "StubOffsetByDDisk",
+                          "L1Stub_Offset_By_DDisk",
+                          "L1Stub offset in {} by DDisk",
+                          "Double Disk",
                           "Trigger Offset",
                           5,
                           0.5,

@@ -520,8 +520,7 @@ void Phase2TrackerMonitorDigi::bookLayerHistos(DQMStore::IBooker& ibooker, unsig
 
       std::string folderKey = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, false);
       std::string prettyName = phase2tkutil::getHistoId(det_id, tTopo_, detPos.phi(), bookingDepth, true);
-      // For endCap: P-type sensors are present only upto ring 10 for discs 1&2
-      // (TEDD-1) and upto ring 7 for discs 3,4&5 (TEDD-2)
+      // For endCap: P-type sensors are present only upto ring 10
       bool isPtypeSensor = (pixelFlag_ || moduleType == TrackerGeometry::ModuleType::Ph2PSP);
 
       ibooker.cd();
