@@ -7,3 +7,4 @@
 #include "DataFormats/Luminosity/interface/BeamCurrentInfo.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
+#include "DataFormats/Luminosity/interface/PccVetoListTransient.h"
