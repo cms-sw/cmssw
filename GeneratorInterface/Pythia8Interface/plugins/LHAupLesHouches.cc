@@ -127,6 +127,13 @@ bool LHAupLesHouches::setEvent(int inProcId) {
       (*infoPtr->eventAttributes)["#rwgt"] = comments[i];
   }
 
+  // Match Pythia's LHAupLHEF reader: setPdf alone does not set x1()/x2().
+  // Photon sub-beams need these fractions in PhaseSpaceLHA::trialKin().
+  this->setIdX(hepeup.IDUP[0],
+               hepeup.IDUP[1],
+               hepeup.PUP[0][3] / runInfo->getHEPRUP()->EBMUP.first,
+               hepeup.PUP[1][3] / runInfo->getHEPRUP()->EBMUP.second);
+
   const lhef::LHEEvent::PDF *pdf = event->getPDF();
   if (pdf) {
     this->setPdf(pdf->id.first,
