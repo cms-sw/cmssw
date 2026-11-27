@@ -45,6 +45,13 @@ develop and maintain.). For transient types, TClass::GetMissingDictionaries
 is not used because it requires too many of the constituent types
 to have dictionaries.
 
+The checks listed in 1-4 miss classes without dictionaries that are only
+reached through container elements (or pair/tuple template arguments) that
+have a dictionary, where TClass::GetMissingDictionaries stops recursing.
+findClassesWithoutDictionaries complements them, to warn (without stopping
+the job) about products for which ROOT silently falls back to the slower
+interpreter (cling) or streamer emulation.
+
 */
 
 #include "FWCore/Reflection/interface/DictionaryTools.h"
@@ -56,9 +63,13 @@ to have dictionaries.
 #include "FWCore/Reflection/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
+#include "TBaseClass.h"
 #include "TClass.h"
 #include "TClassEdit.h"
+#include "TDataMember.h"
 #include "THashTable.h"
+#include "TListOfDataMembers.h"
+#include "TVirtualCollectionProxy.h"
 
 #include <algorithm>
 #include <sstream>
@@ -163,6 +174,91 @@ namespace edm {
       result = false;
     }
     return result;
+  }
+
+  namespace {
+    // Recursive version of TClass::GetMissingDictionaries (see ROOT's
+    // TClass.cxx) that also descends into the container elements and the
+    // template arguments that have a dictionary, where ROOT's version stops.
+    void collectClassesWithoutDictionaries(TClass* tClass,
+                                           std::set<std::string>& missingDictionaries,
+                                           std::set<std::string>& visited) {
+      if (tClass == nullptr) {
+        return;
+      }
+      std::string const name = tClass->GetName();
+      if (!visited.emplace(name).second) {
+        return;
+      }
+      auto collectTemplateArgument = [&](std::string const& templateArg) {
+        collectClassesWithoutDictionaries(TClass::GetClass(templateArg.c_str()), missingDictionaries, visited);
+      };
+      // Special cases with transparent containers, as in
+      // TClass::GetMissingDictionariesWithRecursionCheck: check the elements
+      // of the template, not the template itself.
+      TClassEdit::TSplitType splitType(name.c_str());
+      if (splitType.IsTemplate()) {
+        const auto& elements = splitType.fElements;
+        // The last element of the split type counts the trailing '*'s and is
+        // not a template argument.
+        const auto nTemplateArgs = elements.size() - 1;
+        const auto& templName = elements[0];
+        if (templName == "pair" || templName == "tuple") {
+          for (size_t i = 1; i < nTemplateArgs; ++i) {
+            collectTemplateArgument(elements[i]);
+          }
+          return;
+        }
+        if (templName == "unique_ptr" || templName == "array") {
+          collectTemplateArgument(elements[1]);
+          return;
+        }
+      }
+      // ROOT's fallbacks (classes built by cling or emulated from the streamer
+      // info of a file) never have HasDictionary() true.
+      if (!tClass->HasDictionary()) {
+        missingDictionaries.emplace(name);
+      }
+      TVirtualCollectionProxy const* collectionProxy = tClass->GetCollectionProxy();
+      if (collectionProxy != nullptr) {
+        collectClassesWithoutDictionaries(collectionProxy->GetValueClass(), missingDictionaries, visited);
+        return;
+      }
+      // Do not recurse into the data members of STL classes: they are
+      // implementation details of the standard library.
+      if (TClassEdit::IsStdClass(name.c_str())) {
+        return;
+      }
+      if (TListOfDataMembers* ldm = static_cast<TListOfDataMembers*>(tClass->GetListOfDataMembers())) {
+        TIter nextMemb(ldm);
+        TDataMember* dm = nullptr;
+        while ((dm = static_cast<TDataMember*>(nextMemb()))) {
+          // Only persistent, non-static data members are relevant for I/O.
+          if (!dm->IsPersistent() || (dm->Property() & kIsStatic) != 0) {
+            continue;
+          }
+          if (!dm->GetDataType() && dm->GetTypeName() != nullptr) {
+            collectClassesWithoutDictionaries(TClass::GetClass(dm->GetTypeName()), missingDictionaries, visited);
+          }
+        }
+      }
+      TList* lb = tClass->GetListOfBases();
+      if (lb != nullptr) {
+        TIter nextBase(lb);
+        TBaseClass* base = nullptr;
+        while ((base = static_cast<TBaseClass*>(nextBase()))) {
+          collectClassesWithoutDictionaries(base->GetClassPointer(), missingDictionaries, visited);
+        }
+      }
+    }
+  }  // namespace
+
+  void findClassesWithoutDictionaries(std::set<std::string>& missingDictionaries, TypeWithDict const& typeWithDict) {
+    if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
+      return;
+    }
+    std::set<std::string> visited;
+    collectClassesWithoutDictionaries(typeWithDict.getClass(), missingDictionaries, visited);
   }
 
   void addToMissingDictionariesException(edm::Exception& exception,

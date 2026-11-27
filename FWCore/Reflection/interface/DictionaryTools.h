@@ -36,6 +36,12 @@ namespace edm {
                               std::string const& name,
                               TypeWithDict const& typeWithDict);
 
+  // Finds the classes reachable from typeWithDict (including through container
+  // elements that have a dictionary, where TClass::GetMissingDictionaries
+  // stops) that need a ROOT data dictionary and do not have one. The class
+  // names are inserted into missingDictionaries.
+  void findClassesWithoutDictionaries(std::set<std::string>& missingDictionaries, TypeWithDict const& typeWithDict);
+
   void addToMissingDictionariesException(edm::Exception& exception,
                                          std::vector<std::string>& missingDictionaries,
                                          std::string const& context);
