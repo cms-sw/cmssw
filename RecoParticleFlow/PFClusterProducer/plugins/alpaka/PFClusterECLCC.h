@@ -63,13 +63,30 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
   /* intermediate pointer jumping */
 
-  ALPAKA_FN_ACC inline int representative(const int idx,
+  // Device-coherent accesses to pfrh_topoId: ECLCCCompute1 updates it with atomicCas while other threads read and
+  // write it, and on GPUs whose caches are not coherent for plain accesses (e.g. the 8 XCDs of an MI300X) plain loads
+  // can see stale values. The original ECL-CC code uses volatile accesses for the same reason.
+  ALPAKA_FN_ACC inline int loadTopoId(Acc1D const& acc,
+                                      reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
+                                      const int idx) {
+    return alpaka::atomicAdd(acc, &pfClusteringVars[idx].pfrh_topoId(), 0);
+  }
+
+  ALPAKA_FN_ACC inline void storeTopoId(Acc1D const& acc,
+                                        reco::PFClusteringVarsDeviceCollection::View pfClusteringVars,
+                                        const int idx,
+                                        const int value) {
+    alpaka::atomicExch(acc, &pfClusteringVars[idx].pfrh_topoId(), value);
+  }
+
+  ALPAKA_FN_ACC inline int representative(Acc1D const& acc,
+                                          const int idx,
                                           reco::PFClusteringVarsDeviceCollection::View pfClusteringVars) {
-    int curr = pfClusteringVars[idx].pfrh_topoId();
+    int curr = loadTopoId(acc, pfClusteringVars, idx);
     if (curr != idx) {
       int next, prev = idx;
-      while (curr > (next = pfClusteringVars[curr].pfrh_topoId())) {
-        pfClusteringVars[prev].pfrh_topoId() = next;
+      while (curr > (next = loadTopoId(acc, pfClusteringVars, curr))) {
+        storeTopoId(acc, pfClusteringVars, prev, next);
         prev = curr;
         curr = next;
       }
@@ -110,15 +127,15 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const int nRH = pfRecHits.size();
 
       for (int v : cms::alpakatools::uniform_elements(acc, nRH)) {
-        const int vstat = pfClusteringVars[v].pfrh_topoId();
+        const int vstat = loadTopoId(acc, pfClusteringVars, v);
         if (v != vstat) {
           const int beg = pfClusteringEdgeVars[v].pfrh_edgeIdx();
           const int end = pfClusteringEdgeVars[v + 1].pfrh_edgeIdx();
-          int vstat = representative(v, pfClusteringVars);
+          int vstat = representative(acc, v, pfClusteringVars);
           for (int i = beg; i < end; i++) {
             const int nli = pfClusteringEdgeVars[i].pfrh_edgeList();
             if (v > nli) {
-              int ostat = representative(nli, pfClusteringVars);
+              int ostat = representative(acc, nli, pfClusteringVars);
               bool repeat;
               do {
                 repeat = false;
@@ -154,13 +171,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       const int nRH = pfRecHits.size();
 
       for (int v : cms::alpakatools::uniform_elements(acc, nRH)) {
-        int next, vstat = pfClusteringVars[v].pfrh_topoId();
+        int next, vstat = loadTopoId(acc, pfClusteringVars, v);
         const int old = vstat;
-        while (vstat > (next = pfClusteringVars[vstat].pfrh_topoId())) {
+        while (vstat > (next = loadTopoId(acc, pfClusteringVars, vstat))) {
           vstat = next;
         }
         if (old != vstat)
-          pfClusteringVars[v].pfrh_topoId() = vstat;
+          storeTopoId(acc, pfClusteringVars, v, vstat);
       }
     }
   };
