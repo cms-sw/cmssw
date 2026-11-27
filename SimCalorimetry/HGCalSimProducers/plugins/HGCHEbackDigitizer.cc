@@ -313,7 +313,7 @@ void HGCHEbackDigitizer::runRealisticSciDigitizer(std::unique_ptr<HGCalDigiColle
     scaledLYPerMip = opChar.lySF;
     tunedNoise = opChar.n / nPEperMIP_ * scaledLYPerMip;
     gainIdx = opChar.gain;
-    thrADC = std::floor(vanillaADCThr * scaledLYPerMip);
+    thrADC = std::floor(vanillaADCThr * scaledLYPerMip * gainValue);
     float adcLsb = 1;
 
     //set mean for poissonian noise
