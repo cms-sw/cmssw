@@ -9,4 +9,20 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="TestEventSeededRandom.cc" name="IOMCRandomEngineTestEventSeededRandom">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <test name="TestIOMCRandomEngineService" command="testRandomService.sh"/>
+
+<bin file="test_catch2_PhiloxEngine.cc" name="testIOMCRandomEnginePhiloxEngine">
+  <use name="catch2"/>
+  <use name="clhep"/>
+  <use name="IOMC/RandomEngine"/>
+</bin>
+
+<bin file="reseedCost.cc" name="IOMCRandomEngineReseedCost">
+  <use name="clhep"/>
+  <use name="IOMC/RandomEngine"/>
+  <flags NO_TESTRUN="1"/>
+</bin>

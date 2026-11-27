@@ -1,7 +1,12 @@
 #include <memory>
 
 #include "SimCalorimetry/HGCalSimProducers/interface/HGCDigitizerBase.h"
+#include "FWCore/AbstractServices/interface/RandomNumberGenerator.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Philox.h"
+#include "FWCore/Utilities/interface/calculateCRC32.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
+#include "IOMC/RandomEngine/interface/PhiloxEngine.h"
 
 using namespace hgc_digi;
 using namespace hgc_digi_utils;
@@ -15,6 +20,8 @@ HGCDigitizerBase::HGCDigitizerBase(const edm::ParameterSet& ps)
   bxTime_ = ps.getParameter<double>("bxTime");
   myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
   NoiseGeneration_Method_ = ps.getParameter<bool>("NoiseGeneration_Method");
+  noiseTableFromJobSeed_ = ps.getParameter<bool>("noiseTableFromJobSeed");
+  noiseTableId_ = cms::calculateCRC32(ps.getParameter<std::string>("digiCollection"));
   doTimeSamples_ = myCfg_.getParameter<bool>("doTimeSamples");
   thresholdFollowsMIP_ = myCfg_.getParameter<bool>("thresholdFollowsMIP");
   if (myCfg_.exists("keV2fC"))
@@ -104,7 +111,18 @@ void HGCDigitizerBase::run(std::unique_ptr<HGCDigitizerBase::DColl>& digiColl,
   }
   if (NoiseGeneration_Method_ == true) {
     if (RandNoiseGenerationFlag_ == false) {
-      GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
+      if (noiseTableFromJobSeed_) {
+        // The table depends on the configured seed of the module, not on eventSeedOffset.
+        // Run 0, lumi 0 and event 0 select the stream of the job.
+        edm::Service<edm::RandomNumberGenerator> rng;
+        auto const id = edm::philox::streamId(rng->mySeed(), noiseTableId_, 0, 0, 0);
+        long const seeds[4] = {id[0], id[1], id[2], id[3]};
+        edm::PhiloxEngine tableEngine;
+        tableEngine.setSeeds(seeds, 4);
+        GenerateGaussianNoise(&tableEngine, NoiseMean_, NoiseStd_);
+      } else {
+        GenerateGaussianNoise(engine, NoiseMean_, NoiseStd_);
+      }
       RandNoiseGenerationFlag_ = true;
     }
   }

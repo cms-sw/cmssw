@@ -33,6 +33,13 @@
   <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
+<bin name="alpakaTestPhilox" file="alpaka/testPhilox.dev.cc">
+  <use name="alpaka"/>
+  <use name="catch2"/>
+  <use name="HeterogeneousCore/AlpakaInterface"/>
+  <flags ALPAKA_BACKENDS="1"/>
+</bin>
+
 <bin name="alpakaTestBackend" file="testBackend.cc">
   <use name="catch2"/>
   <use name="HeterogeneousCore/AlpakaInterface"/>

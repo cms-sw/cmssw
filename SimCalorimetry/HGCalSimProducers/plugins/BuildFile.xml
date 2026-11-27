@@ -1,7 +1,9 @@
 <library file="*.cc" name="SimCalorimetryHGCalSimProducersPlugins">
   <use name="FWCore/AbstractServices"/>
   <use name="FWCore/Framework"/>
+  <use name="FWCore/ServiceRegistry"/>
   <use name="FWCore/Utilities"/>
+  <use name="IOMC/RandomEngine"/>
   <use name="Geometry/Records"/>
   <use name="CondFormats/HGCalObjects"/>
   <use name="SimCalorimetry/HGCalSimProducers"/>
