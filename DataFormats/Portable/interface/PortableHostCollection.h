@@ -167,6 +167,7 @@ public:
   // Copy column by column the content of the given ConstView into this PortableHostCollection.
   // The view must point to data in host memory.
   void deepCopy(ConstView const& view) { layout_.deepCopy(view); }
+  void deepCopyTruncated(ConstView const& view) { layout_.deepCopyTruncated(view); }
 
   // Copy column by column or block by block heterogeneously for device to host data transfer.
   template <typename TQueue>
@@ -174,6 +175,15 @@ public:
     ConstDescriptor desc{view};
     Descriptor desc_{view_};
     portablecollection::deepCopy(queue, desc_, desc);
+  }
+
+  // Copy column by column or block by block heterogeneously for device to host data transfer.
+  // This function allows that the destination collection is smaller than the source collection.
+  template <typename TQueue>
+  void deepCopyTruncated(TQueue& queue, ConstView const& view) {
+    ConstDescriptor desc{view};
+    Descriptor desc_{view_};
+    portablecollection::deepCopyTruncated(queue, desc_, desc);
   }
 
   // Either Layout::size_type for normal layouts or std::array<Layout::size_type, N> for SoABlocks layouts

@@ -93,6 +93,17 @@ TEST_CASE("Deep copy from SoA Generic View") {
     REQUIRE(genericCollection.view().metadata().addressOf_zPos() != positionCollectionView.metadata().addressOf_z());
     REQUIRE(genericCollection.view().metadata().addressOf_candidateDirection() !=
             pcaCollectionView.metadata().addressOf_candidateDirection());
+
+    for (size_t i = 0; i < elems; i++) {
+      REQUIRE_THAT(genericCollection.view()[i].xPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionView[i].x(), 1.e-6));
+      REQUIRE_THAT(genericCollection.view()[i].yPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionView[i].y(), 1.e-6));
+      REQUIRE_THAT(genericCollection.view()[i].zPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionView[i].z(), 1.e-6));
+      REQUIRE((genericCollection.view()[i].candidateDirection() - pcaCollectionView[i].candidateDirection()).norm() <
+              1.e-6);
+    }
   }
 
   SECTION("Deep copy the ConstView") {
@@ -123,5 +134,51 @@ TEST_CASE("Deep copy from SoA Generic View") {
             positionCollectionView.metadata().addressOf_z());
     REQUIRE(genericCollection.const_view().metadata().addressOf_candidateDirection() !=
             pcaCollectionView.metadata().addressOf_candidateDirection());
+
+    for (size_t i = 0; i < elems; i++) {
+      REQUIRE_THAT(genericCollection.const_view()[i].xPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionConstView[i].x(), 1.e-6));
+      REQUIRE_THAT(genericCollection.const_view()[i].yPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionConstView[i].y(), 1.e-6));
+      REQUIRE_THAT(genericCollection.const_view()[i].zPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionConstView[i].z(), 1.e-6));
+      REQUIRE((genericCollection.const_view()[i].candidateDirection() - pcaCollectionConstView[i].candidateDirection())
+                  .norm() < 1.e-6);
+    }
+  }
+
+  SECTION("Deep copy to smaller Collection") {
+    // addresses and size of the SoA columns
+    const auto posRecs = positionCollectionConstView.records();
+    const auto pcaRecs = pcaCollectionConstView.records();
+
+    // building the View with runtime check for the size
+    GenericSoAConstView genericConstView(posRecs.x(), posRecs.y(), posRecs.z(), pcaRecs.candidateDirection());
+
+    // PortableHostCollection smaller than the original SoA
+    const std::size_t smallerElems = elems / 2;
+    PortableHostCollection<GenericSoA> genericCollection(cms::alpakatools::host(), smallerElems);
+    genericCollection.deepCopyTruncated(genericConstView);
+
+    // Check for inequality of memory addresses
+    REQUIRE(genericCollection.const_view().metadata().addressOf_xPos() !=
+            positionCollectionView.metadata().addressOf_x());
+    REQUIRE(genericCollection.const_view().metadata().addressOf_yPos() !=
+            positionCollectionView.metadata().addressOf_y());
+    REQUIRE(genericCollection.const_view().metadata().addressOf_zPos() !=
+            positionCollectionView.metadata().addressOf_z());
+    REQUIRE(genericCollection.const_view().metadata().addressOf_candidateDirection() !=
+            pcaCollectionView.metadata().addressOf_candidateDirection());
+
+    for (size_t i = 0; i < smallerElems; i++) {
+      REQUIRE_THAT(genericCollection.const_view()[i].xPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionConstView[i].x(), 1.e-6));
+      REQUIRE_THAT(genericCollection.const_view()[i].yPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionConstView[i].y(), 1.e-6));
+      REQUIRE_THAT(genericCollection.const_view()[i].zPos(),
+                   Catch::Matchers::WithinAbs(positionCollectionConstView[i].z(), 1.e-6));
+      REQUIRE((genericCollection.const_view()[i].candidateDirection() - pcaCollectionConstView[i].candidateDirection())
+                  .norm() < 1.e-6);
+    }
   }
 }
