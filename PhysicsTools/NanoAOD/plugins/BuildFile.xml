@@ -53,6 +53,9 @@
   <use name="SimDataFormats/TrackingAnalysis"/>
   <use name="SimTracker/Common"/>
   <use name="DataFormats/RPCRecHit"/>
+  <use name="DataFormats/CaloRecHit"/>
+  <use name="DataFormats/EgammaReco"/>
+  <use name="DataFormats/ParticleFlowReco"/>
   <flags EDM_PLUGIN="1"/>
 </library>
 <library file="rntuple/*.cc" name="PhysicsToolsNanoAODRNuplePlugins">
