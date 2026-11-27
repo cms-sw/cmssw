@@ -17,6 +17,8 @@ MuonStub::MuonStub()
       bxNum_(17),
       eta1_(0),
       eta2_(0),
+      z_(0),
+      kSlope_(0),
       etaQuality_(-1),
       type_(0) {}
 
@@ -32,7 +34,9 @@ MuonStub::MuonStub(int etaRegion,
                    int eta1,
                    int eta2,
                    int etaQuality,
-                   int type)
+                   int type,
+                   int z,
+                   int kSlope)
     : etaRegion_(etaRegion),
       phiRegion_(phiRegion),
       depthRegion_(depthRegion),
@@ -44,6 +48,8 @@ MuonStub::MuonStub(int etaRegion,
       bxNum_(bx),
       eta1_(eta1),
       eta2_(eta2),
+      z_(z),
+      kSlope_(kSlope),
       etaQuality_(etaQuality),
       type_(type) {}
 
@@ -70,6 +76,10 @@ bool MuonStub::operator==(const MuonStub& id) const {
     return false;
   if (eta2_ != id.eta2_)
     return false;
+  if (z_ != id.z_)
+    return false;
+  if (kSlope_ != id.kSlope_)
+    return false;
   if (etaQuality_ != id.etaQuality_)
     return false;
   if (type_ != id.type_)
@@ -84,8 +94,8 @@ bool MuonStub::operator==(const MuonStub& id) const {
 void MuonStub::print() const {
   LogDebug("MuonStub") << " MuonStub : BX=" << bxNum_ << " etaRegion=" << etaRegion_ << " phiRegion=" << phiRegion_
                        << " depth=" << depthRegion_ << " ID=" << id_ << " coord1=" << coord1_ << " coord2=" << coord2_
-                       << " quality=" << quality_ << " eta1=" << eta1_ << " eta2=" << eta2_
-                       << " etaQuality=" << etaQuality_ << " type=" << type_;
+                       << " quality=" << quality_ << " eta1=" << eta1_ << " eta2=" << eta2_ << " z=" << z_
+                       << " kSlope=" << kSlope_ << " etaQuality=" << etaQuality_ << " type=" << type_;
 }
 
 const Phase2L1GMT::wordtype MuonStub::hybridStubWord() const {
