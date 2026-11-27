@@ -35,11 +35,13 @@ from Configuration.PyReleaseValidation.relval_Run4 import prefixDet
 #           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 #           Alpaka HLTTiming75e33:                              TTbar: any backend
 #           Alpaka HLTTiming75e33:                              Single Nu E10: any backend
+#           egammaPixelSeedingPortable HLTTiming75e33:          TTbar: any backend
 # with PU
 #           Alpaka pixel-only:                                  TTbar: quadruplets any backend, CA Extension any backend, any backend vs cpu validation, profiling
 #           Alpaka HCAL-only:                                   TTbar: any backend, any backend vs cpu validation, profiling
 #           Alpaka LST-only:                                    TTbar: TRK-only w/ 2 iterations and LST building on any backend
 #           Alpaka HLTTiming75e33:                              TTbar: any backend
+#           egammaPixelSeedingPortable HLTTiming75e33:          TTbar: any backend
 numWFIB = [
            # 2026, Alpaka-based noPU
            18434.402, 18434.403, 18434.404,
@@ -60,6 +62,7 @@ numWFIB = [
            prefixDet+34.712, prefixDet+34.713, prefixDet+34.715,
            prefixDet+34.7503,
            prefixDet+34.751,
+           prefixDet+34.7511,
            prefixDet+61.751,
 
            # Run4, alpaka-based workflows with pileup
@@ -68,6 +71,7 @@ numWFIB = [
            prefixDet+234.712, prefixDet+234.713,
            prefixDet+234.7503,
            prefixDet+234.751,
+           prefixDet+234.7511,
         ]
 
 for numWF in numWFIB:
