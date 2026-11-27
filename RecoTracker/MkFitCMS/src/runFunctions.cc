@@ -33,7 +33,11 @@ namespace mkfit {
                         TrackVec &out_tracks,
                         bool do_seed_clean,
                         bool do_backward_fit,
-                        bool do_remove_duplicates) {
+                        bool do_remove_duplicates,
+                        bool use_v2p2) {
+    const MkBuilder::FindTracks_foo FindTracks =
+        use_v2p2 ? &MkBuilder::findTracksStandardv2p2 : &MkBuilder::findTracksCloneEngine;
+
     IterationMaskIfcCmssw it_mask_ifc(trackerInfo, hit_masks);
 
     MkJob job({trackerInfo, itconf, eoh, eoh.refBeamSpot(), &it_mask_ifc});
@@ -57,7 +61,7 @@ namespace mkfit {
 
     builder.find_tracks_load_seeds(seeds, do_seed_clean);
 
-    builder.findTracksCloneEngine();
+    (builder.*FindTracks)(SteeringParams::IT_FwdSearch);
 
     // Pre backward-fit filtering.
     filter_candidates_func pre_filter;
@@ -84,8 +88,7 @@ namespace mkfit {
 
       if (itconf.m_backward_search) {
         builder.beginBkwSearch();
-        builder.findTracksCloneEngine(SteeringParams::IT_BkwSearch);
-        builder.gateBkwSearch();
+        (builder.*FindTracks)(SteeringParams::IT_BkwSearch);
       }
     }
 

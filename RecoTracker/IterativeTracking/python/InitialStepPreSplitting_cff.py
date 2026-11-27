@@ -177,6 +177,8 @@ initialStepTrackCandidatesMkFitPreSplitting = _mkFitProducer_cfi.mkFitProducer.c
     seeds = 'initialStepTrackCandidatesMkFitSeedsPreSplitting',
     config = ('', 'initialStepTrackCandidatesMkFitConfigPreSplitting'),
 )
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140 as _trackingPhase2PU140
+(trackingMkFitInitialStepPreSplitting & _trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFitPreSplitting, buildingRoutine = 'v2p2')
 trackingMkFitInitialStepPreSplitting.toReplaceWith(initialStepTrackCandidatesPreSplitting, _mkFitOutputConverter_cfi.mkFitOutputConverter.clone(
     mkFitPixelHits = 'mkFitSiPixelHitsPreSplitting',
     mkFitEventOfHits = 'mkFitEventOfHitsPreSplitting',

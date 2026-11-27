@@ -774,6 +774,8 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     pconf.apply_tracker_info(trackerInfo.get());
   }
 
+  trackerInfo->setup_double_layers([this](int l) { return layerNrConv_.doubleLayerPartner(l); });
+
 #ifdef DUMP_MKF_GEO
   printf("Total number of modules %u, 14-bits fit up to %u modules\n", n_mod, 1u << 13);
 #endif

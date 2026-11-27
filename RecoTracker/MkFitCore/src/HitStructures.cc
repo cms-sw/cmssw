@@ -4,8 +4,31 @@
 #include "Matriplex/Memory.h"
 
 #include "Debug.h"
+#include <algorithm>
 
 namespace mkfit {
+
+  // Half-extent of a hit in phi [rad], from its covariance:
+  //     sigma_phi^2 = (y^2 exx - 2 xy exy + x^2 eyy) / r^4
+  // See doc/MkFinderV2p2-DesignNotes.md, "Hit extents".
+  static inline float hit_phi_half_extent_of(const Hit &h, float hl_fac) {
+    const float x = h.x(), y = h.y();
+    const float r2 = x * x + y * y;
+    if (r2 <= 0.0f)
+      return 0.0f;
+    const float var_phi = (y * y * h.exx() - 2.0f * x * y * h.exy() + x * x * h.eyy()) / (r2 * r2);
+    return hl_fac * std::sqrt(var_phi > 0.0f ? var_phi : 0.0f);
+  }
+
+  // hl_fac * sigma_r, the hit's radial half-extent; barrel only.
+  static inline float hit_r_half_extent_of(const Hit &h, float hl_fac) {
+    const float x = h.x(), y = h.y();
+    const float r2 = x * x + y * y;
+    if (r2 <= 0.0f)
+      return 0.0f;
+    const float var_r = (x * x * h.exx() + 2.0f * x * y * h.exy() + y * y * h.eyy()) / r2;
+    return hl_fac * std::sqrt(var_r > 0.0f ? var_r : 0.0f);
+  }
 
   void LayerOfHits::Initializator::setup(float qmin, float qmax, float dq) {
     assert(qmax > qmin);
@@ -67,6 +90,8 @@ namespace mkfit {
     m_min_ext_idx = std::numeric_limits<unsigned int>::max();
     m_max_ext_idx = std::numeric_limits<unsigned int>::min();
     m_n_hits = 0;
+    m_max_q_half_length = 0.0f;
+    m_max_phi_half_extent = 0.0f;
     m_binnor.reset_contents();
   }
 
@@ -111,7 +136,11 @@ namespace mkfit {
           half_length = hl_fac * std::sqrt(h.exx() + h.eyy());
           qbar = h.z();
         }
-        hinfos.emplace_back(HitInfo({phi, q, half_length, qbar}));
+        const float phi_half = hit_phi_half_extent_of(h, hl_fac);
+        m_max_q_half_length = std::max(m_max_q_half_length, half_length);
+        m_max_phi_half_extent = std::max(m_max_phi_half_extent, phi_half);
+        const float qbar_half = m_is_barrel ? hit_r_half_extent_of(h, hl_fac) : 0.0f;
+        hinfos.emplace_back(HitInfo({phi, q, half_length, qbar, phi_half, qbar_half}));
       }
     }
 
@@ -170,7 +199,9 @@ namespace mkfit {
     m_binnor.register_entry_safe(phi, q);
 
     if (Config::usePhiQArrays) {
-      // Factor to get from hit sigma to half-length in q direction.
+      // Factor to get from hit sigma to half-length in q direction: 3 sigma for
+      // pixels, sqrt(3) sigma (the half-length of a uniform segment) for strips.
+      // See doc/MkFinderV2p2-DesignNotes.md, "Hit extents".
       const float hl_fac = is_pixel() ? 3.0f : std::sqrt(3.0f);
       float half_length, qbar;
       if (m_is_barrel) {
@@ -180,7 +211,11 @@ namespace mkfit {
         half_length = hl_fac * std::sqrt(h.exx() + h.eyy());
         qbar = h.z();
       }
-      m_hit_infos.emplace_back(HitInfo({phi, q, half_length, qbar}));
+      const float phi_half = hit_phi_half_extent_of(h, hl_fac);
+      m_max_q_half_length = std::max(m_max_q_half_length, half_length);
+      m_max_phi_half_extent = std::max(m_max_phi_half_extent, phi_half);
+      const float qbar_half = m_is_barrel ? hit_r_half_extent_of(h, hl_fac) : 0.0f;
+      m_hit_infos.emplace_back(HitInfo({phi, q, half_length, qbar, phi_half, qbar_half}));
     }
   }
 

@@ -51,6 +51,61 @@ namespace mkfit {
     return res;
   }
 
+  void TrackCand::recountHolesAndOverlaps() {
+    const CombCandidate &cc = *m_comb_candidate;
+    // Nodes are numbered from the first of the chain; the first getNSeedHits() are the seed's.
+    int n_nodes = 0;
+    for (int idx = lastHitIdx_; idx >= 0; idx = cc.hot_node(idx).m_prev_idx)
+      ++n_nodes;
+    const int n_seed = getNSeedHits();
+    auto found = [](const HitOnTrack &h) { return h.index >= 0 || h.index == Hit::kHitCCCFilterIdx; };
+
+    int n_inside = 0, n_tail = 0, n_overlap = 0;
+    bool seen_found = false;  // a found hit later in the chain
+    int later_found_layer = -1;
+    // After the seed's hits, a run of consecutive nodes on one layer is one crossing of the layer:
+    // one hole if it has a miss and no found hit. Rejecting one hit of an overlap pair leaves no
+    // hole, rejecting both leaves one.
+    int run_layer = -1;
+    bool run_found = false, run_miss = false, run_seen_found = false;
+    auto close_run = [&]() {
+      if (run_miss && !run_found)
+        ++(run_seen_found ? n_inside : n_tail);
+      run_layer = -1;
+      run_found = run_miss = false;
+    };
+    int pos = n_nodes;
+    for (int idx = lastHitIdx_; idx >= 0; idx = cc.hot_node(idx).m_prev_idx) {
+      --pos;
+      const HitOnTrack &h = cc.hot_node(idx).m_hot;
+      const bool after_seed = pos >= n_seed;
+      if (!after_seed || h.layer != run_layer) {
+        close_run();
+        if (after_seed) {
+          run_layer = h.layer;
+          run_seen_found = seen_found;
+        }
+      }
+      if (found(h)) {
+        if (h.layer == later_found_layer && after_seed)
+          ++n_overlap;
+        later_found_layer = h.layer;
+        seen_found = true;
+        if (after_seed)
+          run_found = true;
+      } else if (h.index == Hit::kHitMissIdx) {
+        if (after_seed)
+          run_miss = true;
+        else
+          ++(seen_found ? n_inside : n_tail);
+      }
+    }
+    close_run();
+    nInsideMinusOneHits_ = n_inside;
+    nTailMinusOneHits_ = n_tail;
+    nOverlapHits_ = n_overlap;
+  }
+
   //==============================================================================
   // CombCandidate
   //==============================================================================
@@ -228,6 +283,21 @@ namespace mkfit {
     tc.setNTailMinusOneHits(0);
   }
 
+  void CombCandidate::addPreBkwSearchHoles() {
+    // Called at the end of the backward search, before its final sort, so that the
+    // final sort scores whole tracks. The hole counts were zeroed in beginBkwSearch()
+    // so that the search's stopping cuts see only the holes the search makes.
+
+    auto add = [this](TrackCand &tc) {
+      tc.setNInsideMinusOneHits(m_nInsideMinusOneHits_before_bkwsearch + tc.nInsideMinusOneHits());
+      tc.setNTailMinusOneHits(m_nTailMinusOneHits_before_bkwsearch + tc.nTailMinusOneHits());
+    };
+    for (auto &tc : m_trk_cands)
+      add(tc);
+    if (m_best_short_cand.combCandidate())
+      add(m_best_short_cand);
+  }
+
   void CombCandidate::repackCandPostBkwSearch(int i) {
     // Called during filtering following backward search when a TrackCand's
     // front hits need to be reindexed.
@@ -252,8 +322,7 @@ namespace mkfit {
     }
 
     tc.setLastCcIndex(m_lastHitIdx_before_bkwsearch);
-    tc.setNInsideMinusOneHits(m_nInsideMinusOneHits_before_bkwsearch + tc.nInsideMinusOneHits());
-    tc.setNTailMinusOneHits(m_nTailMinusOneHits_before_bkwsearch + tc.nTailMinusOneHits());
+    // The hole counts were restored by addPreBkwSearchHoles().
   }
 
   //==============================================================================
@@ -266,38 +335,38 @@ namespace mkfit {
     m_bkw_min_pixel_layers.resize(gate ? m_size : 0);
     for (int i = 0; i < m_size; ++i) {
       CombCandidate &cc = m_candidates[i];
-      if (gate)
+      if (gate) {
         m_bkw_min_pixel_layers[i] = std::abs(cc[0].d0BeamSpot(bs_x, bs_y)) < prompt_max_d0 ? 1 : min_pixel_layers;
-      cc.beginBkwSearch();
-      if (gate)
+        // Taken before CombCandidate::beginBkwSearch(): a complete forward track, hole counts and score included.
         m_pre_bkw_cands[i] = cc[0];
+      }
+      cc.beginBkwSearch();
     }
     m_cands_in_backward_rep = true;
   }
 
-  namespace {
-    // Number of distinct pixel layers with found hits that the backward search added to tc.
-    int bkwSearchPixelLayers(const CombCandidate &cc, const TrackCand &tc, const TrackerInfo &trk_info) {
-      uint64_t layers = 0;
-      for (int idx = tc.lastCcIndex(); idx > 0; idx = cc.hot_node(idx).m_prev_idx) {
-        const HitOnTrack &hot = cc.hot_node(idx).m_hot;
-        if (hot.index >= 0 && hot.layer < std::numeric_limits<uint64_t>::digits && trk_info[hot.layer].is_pixel())
-          layers |= uint64_t(1) << hot.layer;
-      }
-      return std::popcount(layers);
+  bool EventOfCombCandidates::passesBkwSearchGate(int i, const TrackCand &tc, const TrackerInfo &trk_info) const {
+    // Distinct pixel layers with found hits that the backward search added to tc. After
+    // compactifyHitStorageForBestCand() the pre-search hits are nodes 0 .. lastHitIdxBeforeBkwSearch(),
+    // and the search only appends, so this holds before and after repackCandPostBkwSearch().
+    const CombCandidate &cc = m_candidates[i];
+    uint64_t layers = 0;
+    for (int idx = tc.lastCcIndex(); idx >= 0; idx = cc.hot_node(idx).m_prev_idx) {
+      const HitOnTrack &hot = cc.hot_node(idx).m_hot;
+      if (idx > cc.lastHitIdxBeforeBkwSearch() && hot.index >= 0 && hot.layer < std::numeric_limits<uint64_t>::digits &&
+          trk_info[hot.layer].is_pixel())
+        layers |= uint64_t(1) << hot.layer;
     }
-  }  // namespace
+    return std::popcount(layers) >= m_bkw_min_pixel_layers[i];
+  }
 
-  void EventOfCombCandidates::gateBkwSearch(const TrackerInfo &trk_info) {
-    if (m_bkw_min_pixel_layers.empty())
-      return;
-    for (int i = 0; i < m_size; ++i) {
-      CombCandidate &cc = m_candidates[i];
-      if (cc.empty() || bkwSearchPixelLayers(cc, cc[0], trk_info) >= m_bkw_min_pixel_layers[i])
-        continue;
-      cc[0] = m_pre_bkw_cands[i];
-      cc.resize(1);
-    }
+  void EventOfCombCandidates::restorePreBkwSearchCand(int i) {
+    CombCandidate &cc = m_candidates[i];
+    // repackCandPostBkwSearch() linked node 0, the innermost pre-search hit, to the hits the
+    // search added. The other pre-search nodes are as they were.
+    cc.hot_node_nc(0).m_prev_idx = -1;
+    cc[0] = m_pre_bkw_cands[i];
+    cc.resize(1);
   }
 
 }  // namespace mkfit

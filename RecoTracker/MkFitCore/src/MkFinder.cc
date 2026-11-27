@@ -535,7 +535,7 @@ namespace mkfit {
       const auto ngr = [](float f) { return isFinite(f) ? f : -999.0f; };
 
       const int seed_lbl = m_event->currentSeed(m_SeedOriginIdx[itrack]).label();
-      const Event::SimLabelFromHits slfh = m_event->simLabelForCurrentSeed(m_SeedOriginIdx[itrack]);
+      Event::SimInfoFromHits slfh = m_event->simInfoForCurrentSeed(m_SeedOriginIdx[itrack]);
       const int seed_mcid = (slfh.is_set() && slfh.good_frac() > 0.7f) ? slfh.label : -999999;
 #endif
 
@@ -779,9 +779,9 @@ namespace mkfit {
 
 #ifdef RNT_DUMP_MkF_SelHitIdcs
     rnt_shi.InnerIdcsReset(N_proc);
-    Event::SimLabelFromHits sim_lbls[NN];
+    Event::SimInfoFromHits sim_lbls[NN];
     for (int i = 0; i < N_proc; ++i) {
-      sim_lbls[i] = m_event->simLabelForCurrentSeed(m_SeedOriginIdx[i]);
+      sim_lbls[i] = m_event->simInfoForCurrentSeed(m_SeedOriginIdx[i]);
       if (m_FailFlag[i]) {
         rnt_shi.RegisterFailedProp(i, m_Par[1 - iI], m_Par[iI], m_event, m_SeedOriginIdx[i]);
       } else if (sim_lbls[i].is_set()) {
@@ -835,8 +835,8 @@ namespace mkfit {
 
         // Matriplex::min_max(sp1.dphi, sp2.dphi, dphi_min, dphi_max);
         // the above is wrong: dalpha is not dphi --> renamed variable in State
-        const auto xp1 = mp::fast_atan2(sp1.y, sp1.x);
-        const auto xp2 = mp::fast_atan2(sp2.y, sp2.x);
+        const auto xp1 = Matriplex::fast_atan2(sp1.y, sp1.x);
+        const auto xp2 = Matriplex::fast_atan2(sp2.y, sp2.x);
         MPlexQF pmin, pmax;
         Matriplex::min_max(xp1, xp2, pmin, pmax);
         // Matriplex::min_max(mp::fast_atan2(sp1.y, sp1.x), smp::fast_atan2(sp2.y, sp2.x), pmin, pmax);
@@ -933,8 +933,8 @@ namespace mkfit {
                           m_XWsrResult[i].m_wsr,
                           m_XWsrResult[i].m_in_gap,
                           false});
-      ci.ps_min = statep2propstate(B.sp1, i);
-      ci.ps_max = statep2propstate(B.sp2, i);
+      ci.ps_min = statep2propinfo(B.sp1, i);
+      ci.ps_max = statep2propinfo(B.sp2, i);
     }
 #endif
 
@@ -972,8 +972,8 @@ namespace mkfit {
 
       // clang-format off
       dprintf("  %2d/%2d: %6.3f %6.3f %6.6f %7.5f %3u %3u %4u %4u\n",
-              L.layer_id(), itrack, B.m_q_center[itrack], B.m_phi_center[itrack],
-              B.m_q_max[itrack] - B.m_q_min[itrack], B.m_phi_delta[itrack],
+              L.layer_id(), itrack, B.q_c[itrack], B.phi_c[itrack],
+              B.qmax[itrack] - B.qmin[itrack], B.dphi[itrack],
               qb1, qb2, pb1, pb2);
 #ifdef RNT_DUMP_MkF_SelHitIdcs
       int hit_out_idx = 0;
@@ -990,8 +990,8 @@ namespace mkfit {
         for (bidx_t pi = pb1; pi != pb2; pi = L.phiMaskApply(pi + 1)) {
           // Limit to central Q-bin
           if (qi == qb && L.isBinDead(pi, qi) == true) {
-            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pi=" << pi << " q="
-                                                     << B.m_q_center[itrack] << " phi=" << B.m_phi_center[itrack]);
+            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pi=" << pi
+                                                     << " q=" << B.q_c[itrack] << " phi=" << B.phi_c[itrack]);
             m_XWsrResult[itrack].m_in_gap = true;
           }
 
@@ -1026,7 +1026,7 @@ namespace mkfit {
 
               // This could work well instead of prop-to-r, too. Limit to 0.05 rad, 2.85 deg.
               if (std::abs(mi.zdir(2)) > 0.05f) {
-                prop_fail = mp_is.propagate_to_plane(mp::PA_Line, mi, mp_s, true);
+                prop_fail = mp_is.propagate_to_plane(mp::PA_Line, mi.pos, mi.zdir, mp_s, true);
                 new_q = mp_s.z;
                 /*
                 // This for calculating ddq on the dector plane, along the "strip" direction.
@@ -1968,7 +1968,7 @@ namespace mkfit {
   // Backward Fit hack
   //==============================================================================
 
-  void MkFinder::bkFitInputTracks(TrackVec &cands, int beg, int end) {
+  void MkFinder::bkFitInputTracks(TrackVec &cands, int beg, int end, bool scale_errors) {
     // Uses HitOnTrack vector from Track directly + a local cursor array to current hit.
 
     MatriplexTrackPacker mtp(&cands[beg]);
@@ -1989,10 +1989,11 @@ namespace mkfit {
 
     mtp.pack(m_Err[iC], m_Par[iC]);
 
-    m_Err[iC].scale(100.0f);
+    if (scale_errors)
+      m_Err[iC].scale(100.0f);
   }
 
-  void MkFinder::bkFitInputTracks(EventOfCombCandidates &eocss, int beg, int end) {
+  void MkFinder::bkFitInputTracks(EventOfCombCandidates &eocss, int beg, int end, bool scale_errors) {
     // Could as well use HotArrays from tracks directly + a local cursor array to last hit.
 
     // XXXX - shall we assume only TrackCand-zero is needed and that we can freely
@@ -2020,7 +2021,8 @@ namespace mkfit {
 
     mtp.pack(m_Err[iC], m_Par[iC]);
 
-    m_Err[iC].scale(100.0f);
+    if (scale_errors)
+      m_Err[iC].scale(100.0f);
   }
 
   //------------------------------------------------------------------------------
@@ -2040,7 +2042,7 @@ namespace mkfit {
 
       trk.setChi2(m_Chi2(itrack, 0, 0));
       if (isFinite(trk.chi2())) {
-        trk.setScore(getScoreCand(m_steering_params->m_track_scorer, trk));
+        trk.setScore(getScoreCand(m_steering_params->m_post_bkfit_track_scorer, trk));
       }
     }
   }
@@ -2062,7 +2064,7 @@ namespace mkfit {
 
       trk.setChi2(m_Chi2(itrack, 0, 0));
       if (isFinite(trk.chi2())) {
-        trk.setScore(getScoreCand(m_steering_params->m_track_scorer, trk));
+        trk.setScore(getScoreCand(m_steering_params->m_post_bkfit_track_scorer, trk));
       }
     }
   }
@@ -2507,8 +2509,11 @@ namespace mkfit {
           m_Par[iC].copyOut(i, trk.parameters_nc().Array());
           trk.setCharge(m_Chg[i]);
           trk.setChi2(m_Chi2[i]);
+          // Outliers became misses: the hole and overlap counts follow before the score.
+          if (nOutliers[i] > 0)
+            trk.recountHolesAndOverlaps();
           if (isFinite(trk.chi2())) {
-            trk.setScore(getScoreCand(m_steering_params->m_track_scorer, trk));
+            trk.setScore(getScoreCand(m_steering_params->m_post_bkfit_track_scorer, trk));
           }
         } else {
           // Prepare the next hit and module info.

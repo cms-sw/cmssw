@@ -10,6 +10,10 @@
 //#define DEBUG
 #include "Debug.h"
 
+#ifdef DEBUG
+#include "RecoTracker/MkFitCore/src/Matriplex/MatriplexDebugPrint.icc"
+#endif
+
 namespace {
   using namespace mkfit;
 
@@ -104,11 +108,7 @@ namespace {
     const MPF alpha = s * sin_mom_tht * inPar(3, 0) * kinv;
 
     MPF sinah, cosah;
-    if constexpr (Config::useTrigApprox) {
-      mpt::sincos4(0.5f * alpha, sinah, cosah);
-    } else {
-      mpt::fast_sincos(0.5f * alpha, sinah, cosah);
-    }
+    mpt::fast_sincos(0.5f * alpha, sinah, cosah);
 
     outPar.aij(0, 0) = inPar(0, 0) + 2.f * sinah * (cos_mom_phi * cosah - sin_mom_phi * sinah) / (inPar(3, 0) * kinv);
     outPar.aij(1, 0) = inPar(1, 0) + 2.f * sinah * (sin_mom_phi * cosah + cos_mom_phi * sinah) / (inPar(3, 0) * kinv);
@@ -255,38 +255,7 @@ namespace {
     for (int n = 0; n < NN; ++n) {
       if (debug && g_debug && n < N_proc) {
         dmutex_guard;
-        std::cout << n << ": errorPropCurv" << std::endl;
-        printf("%5f %5f %5f %5f %5f\n",
-               errorPropCurv(n, 0, 0),
-               errorPropCurv(n, 0, 1),
-               errorPropCurv(n, 0, 2),
-               errorPropCurv(n, 0, 3),
-               errorPropCurv(n, 0, 4));
-        printf("%5f %5f %5f %5f %5f\n",
-               errorPropCurv(n, 1, 0),
-               errorPropCurv(n, 1, 1),
-               errorPropCurv(n, 1, 2),
-               errorPropCurv(n, 1, 3),
-               errorPropCurv(n, 1, 4));
-        printf("%5f %5f %5f %5f %5f\n",
-               errorPropCurv(n, 2, 0),
-               errorPropCurv(n, 2, 1),
-               errorPropCurv(n, 2, 2),
-               errorPropCurv(n, 2, 3),
-               errorPropCurv(n, 2, 4));
-        printf("%5f %5f %5f %5f %5f\n",
-               errorPropCurv(n, 3, 0),
-               errorPropCurv(n, 3, 1),
-               errorPropCurv(n, 3, 2),
-               errorPropCurv(n, 3, 3),
-               errorPropCurv(n, 3, 4));
-        printf("%5f %5f %5f %5f %5f\n",
-               errorPropCurv(n, 4, 0),
-               errorPropCurv(n, 4, 1),
-               errorPropCurv(n, 4, 2),
-               errorPropCurv(n, 4, 3),
-               errorPropCurv(n, 4, 4));
-        printf("\n");
+        matriplex_print_n(errorPropCurv, n, std::to_string(n) + ": errorPropCurv");
       }
     }
 #endif
@@ -320,39 +289,6 @@ namespace {
     MPlex65 tmp;
     JacErrPropCurv1(jacCurv2CCS, errorPropCurv, tmp);
     JacErrPropCurv2(tmp, jacCCS2Curv, errorProp);
-    /*
-    Matriplex::multiplyGeneral(jacCurv2CCS, errorPropCurv, tmp);
-    for (int kk = 0; kk < 1; ++kk) {
-      std::cout << "jacCurv2CCS" << std::endl;
-      for (int i = 0; i < 6; ++i) {
-      for (int j = 0; j < 5; ++j)
-        std::cout << jacCurv2CCS.constAt(kk, i, j) << " ";
-      std::cout << std::endl;;
-      }
-      std::cout << std::endl;;
-      std::cout << "errorPropCurv" << std::endl;
-      for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 5; ++j)
-        std::cout << errorPropCurv.constAt(kk, i, j) << " ";
-      std::cout << std::endl;;
-      }
-      std::cout << std::endl;;
-      std::cout << "tmp" << std::endl;
-      for (int i = 0; i < 6; ++i) {
-      for (int j = 0; j < 5; ++j)
-        std::cout << tmp.constAt(kk, i, j) << " ";
-      std::cout << std::endl;;
-      }
-      std::cout << std::endl;;
-      std::cout << "jacCCS2Curv" << std::endl;
-      for (int i = 0; i < 5; ++i) {
-      for (int j = 0; j < 6; ++j)
-        std::cout << jacCCS2Curv.constAt(kk, i, j) << " ";
-      std::cout << std::endl;;
-      }
-    }
-    Matriplex::multiplyGeneral(tmp, jacCCS2Curv, errorProp);
-    */
   }
 
   // from P.Avery's notes (http://www.phys.ufl.edu/~avery/fitting/transport.pdf eq. 5)
@@ -368,7 +304,8 @@ namespace {
              float cosT,
              float ipt,
              int q,
-             float kinv) {
+             float kinv,
+             float* ambiguity = nullptr) {
     const float A = delta0 * eta0 + delta1 * eta1 + delta2 * eta2;
     const float p0[3] = {cosP * sinT, sinP * sinT, cosT};
     const float B = (p0[0] * eta0 + p0[1] * eta1 + p0[2] * eta2);
@@ -379,7 +316,46 @@ namespace {
     if (debug)
       std::cout << "A=" << A << " B=" << B << " C=" << C << " s1=" << s1 << std::endl;
 #endif
+    // Negative when the two roots are of comparable size, see getSNearPlanePoint().
+    if (ambiguity)
+      *ambiguity = B * B - 50.f * std::abs(A * C);
     return s1;
+  }
+
+  // For a lane getS() marks as ambiguous. Near the turning point of a low-pT track the momentum
+  // is almost in the module plane, B ~ 0, the two roots of A + B s + C s^2 = 0 are of comparable
+  // size, and the small-root formula picks one by the sign of B alone: the other crossing of the
+  // module's infinite plane can be the right one, tens of cm away across the module. So take the
+  // root whose landing point is nearer the plane point, the module centre. Comparable: with r the
+  // ratio of the two roots, B^2 / |AC| = (r -+ 1)^2 / r, so B^2 < 50 |AC| is r below about 50;
+  // measured, the turning-point cases have r <= 20 and a start already on a coplanar module r ~ 1e5.
+  float getSNearPlanePoint(float delta0,
+                           float delta1,
+                           float delta2,
+                           float eta0,
+                           float eta1,
+                           float eta2,
+                           float sinP,
+                           float cosP,
+                           float sinT,
+                           float cosT,
+                           float ipt,
+                           float kinv,
+                           float s1) {
+    const float A = delta0 * eta0 + delta1 * eta1 + delta2 * eta2;
+    const float p0[3] = {cosP * sinT, sinP * sinT, cosT};
+    const float rho = kinv * sinT * ipt;
+    const float C = -(eta0 * p0[1] - eta1 * p0[0]) * rho * 0.5f;
+    const float s2 = A / (C * s1);  // s1 s2 = A / C
+    // Landing point relative to the plane point: delta + s p0 + (rho / 2) s^2 (-p0y, p0x, 0).
+    auto dist2 = [&](float s) {
+      const float c = 0.5f * rho * s * s;
+      const float x = delta0 + s * p0[0] - c * p0[1];
+      const float y = delta1 + s * p0[1] + c * p0[0];
+      const float z = delta2 + s * p0[2];
+      return x * x + y * y + z * z;
+    };
+    return dist2(s2) < dist2(s1) ? s2 : s1;
   }
 
   // The path length to the plane (plPnt, plNrm) is solved in three parts: a first solve from the start
@@ -424,7 +400,7 @@ namespace {
 
     // The helix and the disk solutions are computed for every lane without a branch, so that they vectorise (a
     // select around the square root and the divisions keeps the loop scalar), and the plane type picks one after.
-    MPF sH, sZ;
+    MPF sH, sZ, amb;
     for (int n = 0; n < NN; ++n)
       sH[n] = getS(delta0[n],
                    delta1[n],
@@ -438,7 +414,24 @@ namespace {
                    cosT[n],
                    inPar(n, 3, 0),
                    inChg(n, 0, 0),
-                   kinv[n]);
+                   kinv[n],
+                   &amb[n]);
+    // The rare lanes with two comparable roots, see getSNearPlanePoint().
+    for (int n = 0; n < N_proc; ++n)
+      if (amb[n] < 0.f && std::abs(plNrm(n, 2, 0)) < 1.f)
+        sH[n] = getSNearPlanePoint(delta0[n],
+                                   delta1[n],
+                                   delta2[n],
+                                   plNrm(n, 0, 0),
+                                   plNrm(n, 1, 0),
+                                   plNrm(n, 2, 0),
+                                   sinP[n],
+                                   cosP[n],
+                                   sinT[n],
+                                   cosT[n],
+                                   inPar(n, 3, 0),
+                                   kinv[n],
+                                   sH[n]);
     for (int n = 0; n < NN; ++n)
       sZ[n] = (plPnt.constAt(n, 2, 0) - inPar.constAt(n, 2, 0)) / cosT[n];
     for (int n = 0; n < N_proc; ++n)

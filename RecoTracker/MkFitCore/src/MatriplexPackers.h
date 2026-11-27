@@ -72,7 +72,7 @@ namespace mkfit {
 
   public:
     MatriplexErrParPackerSlurpIn(const T* t)
-        : MatriplexPackerSlurpIn<D>(t ? t->errArray() : nullptr), m_off_param(t ? (t->posArray() - this->m_base) : 0) {}
+        : MatriplexPackerSlurpIn<D>(t ? t->errArray() : nullptr), m_off_param(t ? (t->parArray() - this->m_base) : 0) {}
 
     void addInput(const T& item) {
       // Could issue L1 prefetch requests here.

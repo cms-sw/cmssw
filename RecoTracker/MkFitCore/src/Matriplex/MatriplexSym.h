@@ -39,7 +39,12 @@ namespace Matriplex {
     T fArray[kTotSize];
 
     MatriplexSym() {}
-    MatriplexSym(T v) { setVal(v); }
+
+    // Allow construction from scalar T only, do not support automatic conversions.
+    template <typename R, typename = typename std::enable_if<std::is_same<T, R>::value>::type>
+    MatriplexSym(R v) {
+      setVal(v);
+    }
 
     idx_t plexSize() const { return N; }
 
@@ -267,13 +272,19 @@ namespace Matriplex {
       }
     }
 
-    Matriplex<T, 1, 1, N> ReduceFixedIJ(idx_t i, idx_t j) const {
-      Matriplex<T, 1, 1, N> t;
+    // reduction operators
+
+    using QReduced = Matriplex<T, 1, 1, N>;
+
+    QReduced ReduceFixedIJ(idx_t i, idx_t j) const {
+      QReduced t;
       for (idx_t n = 0; n < N; ++n) {
         t[n] = constAt(n, i, j);
       }
       return t;
     }
+    QReduced rij(idx_t i, idx_t j) const { return ReduceFixedIJ(i, j); }
+    QReduced operator()(idx_t i, idx_t j) const { return ReduceFixedIJ(i, j); }
   };
 
   template <typename T, idx_t D, idx_t N>

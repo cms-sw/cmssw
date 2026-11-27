@@ -20,7 +20,8 @@ namespace mkfit {
                         TrackVec &out_tracks,
                         bool do_seed_clean,
                         bool do_backward_fit,
-                        bool do_remove_duplicates);
+                        bool do_remove_duplicates,
+                        bool use_v2p2);
 
   void run_MkFitFit(const TrackerInfo &trackerInfo,
                     const IterationConfig &itconf,

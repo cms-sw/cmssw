@@ -1,9 +1,9 @@
 #ifndef RecoTracker_MkFitCore_src_MkBase_h
 #define RecoTracker_MkFitCore_src_MkBase_h
 
-#include "Matrix.h"
-
-#include "PropagationMPlex.h"
+#include "RecoTracker/MkFitCore/src/Matrix.h"
+#include "RecoTracker/MkFitCore/src/PropagationMPlex.h"
+#include "RecoTracker/MkFitCore/interface/MathInlineFunctions.h"
 
 namespace mkfit {
 

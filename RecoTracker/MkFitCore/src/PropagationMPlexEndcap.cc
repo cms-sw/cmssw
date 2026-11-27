@@ -7,6 +7,11 @@
 
 //#define DEBUG
 #include "Debug.h"
+#include "vdt/sincos.h"
+
+#ifdef DEBUG
+#include "RecoTracker/MkFitCore/src/Matriplex/MatriplexDebugPrint.icc"
+#endif
 
 namespace {
   using namespace mkfit;
@@ -77,27 +82,10 @@ namespace mkfit {
 #ifdef DEBUG
     if (debug && g_debug) {
       for (int kk = 0; kk < N_proc; ++kk) {
-        dprintf("inPar %d\n", kk);
-        for (int i = 0; i < 6; ++i) {
-          dprintf("%8f ", inPar.constAt(kk, i, 0));
-        }
-        dprintf("\n");
-
-        dprintf("inErr %d\n", kk);
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            dprintf("%8f ", inErr.constAt(kk, i, j));
-          dprintf("\n");
-        }
-        dprintf("\n");
-
-        dprintf("errorProp %d\n", kk);
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            dprintf("%8f ", errorProp.At(kk, i, j));
-          dprintf("\n");
-        }
-        dprintf("\n");
+        dmutex_guard;
+        matriplex_print_n(inPar, kk, "inPar " + std::to_string(kk));
+        matriplex_print_n(inErr, kk, "inErr " + std::to_string(kk));
+        matriplex_print_n(errorProp, kk, "errorProp " + std::to_string(kk));
       }
     }
 #endif
@@ -105,13 +93,8 @@ namespace mkfit {
 #ifdef DEBUG
     if (debug && g_debug) {
       for (int kk = 0; kk < N_proc; ++kk) {
-        dprintf("outErr %d\n", kk);
-        for (int i = 0; i < 6; ++i) {
-          for (int j = 0; j < 6; ++j)
-            dprintf("%8f ", outErr.constAt(kk, i, j));
-          dprintf("\n");
-        }
-        dprintf("\n");
+        dmutex_guard;
+        matriplex_print_n(outErr, kk, "outErr " + std::to_string(kk));
       }
     }
 #endif
@@ -159,23 +142,10 @@ namespace mkfit {
 #ifdef DEBUG
       if (debug && g_debug) {
         for (int kk = 0; kk < N_proc; ++kk) {
-          dprintf("propSign %d\n", kk);
-          for (int i = 0; i < 1; ++i) {
-            dprintf("%8f ", propSign.constAt(kk, i, 0));
-          }
-          dprintf("\n");
-          dprintf("plNrm %d\n", kk);
-          for (int i = 0; i < 3; ++i) {
-            dprintf("%8f ", plNrm.constAt(kk, i, 0));
-          }
-          dprintf("\n");
-          dprintf("outErr(after material) %d\n", kk);
-          for (int i = 0; i < 6; ++i) {
-            for (int j = 0; j < 6; ++j)
-              dprintf("%8f ", outErr.constAt(kk, i, j));
-            dprintf("\n");
-          }
-          dprintf("\n");
+          dmutex_guard;
+          matriplex_print_n(propSign, kk, "propSign " + std::to_string(kk));
+          matriplex_print_n(plNrm, kk, "plNrm " + std::to_string(kk));
+          matriplex_print_n(outErr, kk, "outErr(after material) " + std::to_string(kk));
         }
       }
 #endif
@@ -332,26 +302,11 @@ namespace mkfit {
 
     float cosahTmp[NN];
     float sinahTmp[NN];
-    if constexpr (Config::useTrigApprox) {
 #if !defined(__INTEL_COMPILER)
 #pragma omp simd
 #endif
-      for (int n = 0; n < NN; ++n) {
-        sincos4(alpha[n] * 0.5f, sinahTmp[n], cosahTmp[n]);
-      }
-    } else {
-#if !defined(__INTEL_COMPILER)
-#pragma omp simd
-#endif
-      for (int n = 0; n < NN; ++n) {
-        cosahTmp[n] = std::cos(alpha[n] * 0.5f);
-      }
-#if !defined(__INTEL_COMPILER)
-#pragma omp simd
-#endif
-      for (int n = 0; n < NN; ++n) {
-        sinahTmp[n] = std::sin(alpha[n] * 0.5f);
-      }
+    for (int n = 0; n < NN; ++n) {
+      vdt::fast_sincosf(alpha[n] * 0.5f, sinahTmp[n], cosahTmp[n]);
     }
 
     float cosah[NN];
@@ -468,49 +423,7 @@ namespace mkfit {
     if (debug && g_debug) {
       for (int n = 0; n < N_proc; ++n) {
         dmutex_guard;
-        std::cout << n << ": jacobian" << std::endl;
-        printf("%5f %5f %5f %5f %5f %5f\n",
-               errorProp(n, 0, 0),
-               errorProp(n, 0, 1),
-               errorProp(n, 0, 2),
-               errorProp(n, 0, 3),
-               errorProp(n, 0, 4),
-               errorProp(n, 0, 5));
-        printf("%5f %5f %5f %5f %5f %5f\n",
-               errorProp(n, 1, 0),
-               errorProp(n, 1, 1),
-               errorProp(n, 1, 2),
-               errorProp(n, 1, 3),
-               errorProp(n, 1, 4),
-               errorProp(n, 1, 5));
-        printf("%5f %5f %5f %5f %5f %5f\n",
-               errorProp(n, 2, 0),
-               errorProp(n, 2, 1),
-               errorProp(n, 2, 2),
-               errorProp(n, 2, 3),
-               errorProp(n, 2, 4),
-               errorProp(n, 2, 5));
-        printf("%5f %5f %5f %5f %5f %5f\n",
-               errorProp(n, 3, 0),
-               errorProp(n, 3, 1),
-               errorProp(n, 3, 2),
-               errorProp(n, 3, 3),
-               errorProp(n, 3, 4),
-               errorProp(n, 3, 5));
-        printf("%5f %5f %5f %5f %5f %5f\n",
-               errorProp(n, 4, 0),
-               errorProp(n, 4, 1),
-               errorProp(n, 4, 2),
-               errorProp(n, 4, 3),
-               errorProp(n, 4, 4),
-               errorProp(n, 4, 5));
-        printf("%5f %5f %5f %5f %5f %5f\n",
-               errorProp(n, 5, 0),
-               errorProp(n, 5, 1),
-               errorProp(n, 5, 2),
-               errorProp(n, 5, 3),
-               errorProp(n, 5, 4),
-               errorProp(n, 5, 5));
+        matriplex_print_n(errorProp, n, std::to_string(n) + ": jacobian");
       }
     }
 #endif

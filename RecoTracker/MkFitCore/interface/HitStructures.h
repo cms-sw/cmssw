@@ -80,6 +80,20 @@ namespace mkfit {
 
     bin_index_t phiMaskApply(bin_index_t in) const { return in & m_ax_phi.c_N_mask; }
 
+    // The axis's own half-open range [begin, end) covering [lo, hi] inclusive, with
+    // the mask applied after the "+1". Prefer this to a pair of phiBinChecked()
+    // calls, which misses the bin holding hi.
+    axis_phi_t::I_pair phiRangeBins(float lo, float hi) const { return m_ax_phi.from_R_minmax_to_N_bins(lo, hi); }
+
+    // q is a bounded axis: its helper clamps where the phi one wraps.
+    axis_eta_t::I_pair qRangeBins(float lo, float hi) const { return m_ax_eta.from_R_minmax_to_N_bins(lo, hi); }
+    unsigned int qNBins() const { return m_ax_eta.size_of_N(); }
+
+    // Largest hit extents in this layer, computed at fill. The v2p2 fetch uses
+    // them, since it runs before any hit is known.
+    float max_hit_q_half_length() const { return m_max_q_half_length; }
+    float max_hit_phi_half_extent() const { return m_max_phi_half_extent; }
+
     binnor_t::C_pair phiQBinContent(bin_index_t pi, bin_index_t qi) const { return m_binnor.get_content(pi, qi); }
 
     bool isBinDead(bin_index_t pi, bin_index_t qi) const { return m_dead_bins[qi * m_ax_phi.size_of_N() + pi]; }
@@ -89,12 +103,20 @@ namespace mkfit {
       float q;
       float q_half_length;
       float qbar;
+      // Half-extent in phi, from the hit covariance, same hl_fac convention as
+      // q_half_length.
+      float phi_half_extent;
+      // Half-extent in qbar, from the hit covariance: hl_fac * sigma_r in the
+      // barrel, 0 in the endcap. Used by the line pre-cut.
+      float qbar_half_extent;
     };
     const HitInfo& hit_info(unsigned int i) const { return m_hit_infos[i]; }
     float hit_phi(unsigned int i) const { return m_hit_infos[i].phi; }
     float hit_q(unsigned int i) const { return m_hit_infos[i].q; }
     float hit_q_half_length(unsigned int i) const { return m_hit_infos[i].q_half_length; }
+    float hit_phi_half_extent(unsigned int i) const { return m_hit_infos[i].phi_half_extent; }
     float hit_qbar(unsigned int i) const { return m_hit_infos[i].qbar; }
+    float hit_qbar_half_extent(unsigned int i) const { return m_hit_infos[i].qbar_half_extent; }
 
     // Use this to map original indices to sorted internal ones. m_ext_idcs needs to be initialized.
     unsigned int getHitIndexFromOriginal(unsigned int i) const { return m_ext_idcs[i - m_min_ext_idx]; }
@@ -136,15 +158,18 @@ namespace mkfit {
     int subdet() const { return m_layer_info->subdet(); }
 
   private:
+    float m_max_q_half_length = 0.0f;    // see max_hit_q_half_length()
+    float m_max_phi_half_extent = 0.0f;  // see max_hit_phi_half_extent()
+
     axis_phi_t m_ax_phi;
     axis_eta_t m_ax_eta;
     binnor_t m_binnor;
 
 #ifdef COPY_SORTED_HITS
     void alloc_hits(int size);
-    void free_hits()
+    void free_hits();
 
-        Hit* m_hits = nullptr;
+    Hit* m_hits = nullptr;
     int m_capacity = 0;
 #else
     const HitVec* m_ext_hits;

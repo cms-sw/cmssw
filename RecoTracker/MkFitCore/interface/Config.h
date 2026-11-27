@@ -48,7 +48,6 @@ namespace mkfit {
 
     // Config for propagation - could/should enter into PropagationFlags?!
     constexpr int Niter = 5;
-    constexpr bool useTrigApprox = true;
     // for prop to plane getS step
     constexpr int nSStepsInProp2Plane = 2;
     // Move to Config.cc, make a command-line option in mkFit.cc to ease profiling comparisons.
@@ -57,6 +56,10 @@ namespace mkfit {
     // constexpr bool usePtMultScat = true;
     extern bool usePropToPlane;
     extern bool usePtMultScat;
+
+    // MkFinderV2p2 parameters live in two places:
+    // - interface/V2p2Params.h: per iteration (IterationConfig::m_v2p2), set from python in CMSSW;
+    // - src/V2p2Config.h: global, constexpr in CMSSW, settable from the command line standalone.
 
     // Config for Bfield.  bFieldFromZR() below: Bz = (b0 z^2 + b1 z + c1) (a r^2 + 1), the form of
     // ParabolicParametrizedMagneticField, with two sets of constants (defaults in Config.cc):

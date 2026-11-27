@@ -67,7 +67,6 @@ namespace mkfit {
     }
 
     void beginBkwSearch();
-    void gateBkwSearch() { m_event_of_comb_cands.gateBkwSearch(m_job->m_trk_info); }
     void endBkwSearch() { m_event_of_comb_cands.endBkwSearch(); }
 
     // MIMI hack to export tracks for BH
@@ -75,6 +74,7 @@ namespace mkfit {
     TrackVec &ref_tracks_nc() { return m_tracks; }
 
     const EventOfCombCandidates &ref_eocc() const { return m_event_of_comb_cands; }
+    EventOfCombCandidates &ref_eocc_nc() { return m_event_of_comb_cands; }
 
     // --------
 
@@ -109,8 +109,10 @@ namespace mkfit {
 
     void seed_post_cleaning(TrackVec &tv);
 
+    using FindTracks_foo = void (MkBuilder::*)(SteeringParams::IterationType_e);
     void findTracksBestHit(SteeringParams::IterationType_e iteration_dir = SteeringParams::IT_FwdSearch);
     void findTracksStandard(SteeringParams::IterationType_e iteration_dir = SteeringParams::IT_FwdSearch);
+    void findTracksStandardv2p2(SteeringParams::IterationType_e iteration_dir = SteeringParams::IT_FwdSearch);
     void findTracksCloneEngine(SteeringParams::IterationType_e iteration_dir = SteeringParams::IT_FwdSearch);
 
     void backwardFitBH();
@@ -135,6 +137,8 @@ namespace mkfit {
     void set_hit_states_output(FinalFitHitStates *hs) { m_hsOut = hs; }
 
   private:
+    void skipBkwSearchRegion(int region);
+
     void fit_one_seed_set(TrackVec &simtracks, int itrack, int end, MkFitter *mkfttr, const bool is_brl[]);
 
     MkJob *m_job = nullptr;
@@ -147,6 +151,9 @@ namespace mkfit {
 
     // State for Std / CloneEngine
     EventOfCombCandidates m_event_of_comb_cands;
+    // The candidates in m_event_of_comb_cands were made by findTracksStandardv2p2();
+    // fit_cands() then uses MkFinder::bkFitFitTracksV2p2(). Reset in begin_event().
+    bool m_cands_from_v2p2 = false;
 
     // Per-region seed information
     std::vector<int> m_seedEtaSeparators;

@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # InitialStepTrackCandidatesMkFit options
 hltInitialStepTrackCandidatesMkFit = cms.EDProducer("MkFitProducer",
         backwardFitInCMSSW = cms.bool(False),
-        buildingRoutine = cms.string('cloneEngine'),
+        buildingRoutine = cms.string('v2p2'),
         clustersToSkip = cms.InputTag(""),
         config = cms.ESInputTag("","hltInitialStepTrackCandidatesMkFitConfig"),
         eventOfHits = cms.InputTag("hltMkFitEventOfHits"),

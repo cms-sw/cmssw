@@ -1,6 +1,7 @@
 #ifndef RecoTracker_MkFitCMS_interface_LayerNumberConverter_h
 #define RecoTracker_MkFitCMS_interface_LayerNumberConverter_h
 
+#include <span>
 #include <stdexcept>
 
 namespace mkfit {
@@ -70,6 +71,43 @@ namespace mkfit {
         return true;
       }
       return false;
+    }
+
+    // The other sensor layer of a module pair, or -1. The pairs are the mono and the stereo
+    // mkFit layer of each CMS layer or disk with stereo modules, as convertLayerNumber()
+    // numbers them: the stereo (P) layer first in phase 2, the mono layer first in phase 1.
+    int doubleLayerPartner(int layer) const {
+      struct SubDet {
+        int det, n_lay;
+        bool two_sides;
+      };
+      // Subdetectors with stereo modules and their numbers of layers or disks.
+      static constexpr SubDet kPhase1[] = {{3, 4, false}, {5, 6, false}, {4, 3, true}, {6, 9, true}};
+      static constexpr SubDet kPhase2[] = {{5, 6, false}, {4, 5, true}};
+      std::span<const SubDet> sds;
+      if (lo_ == TkLayout::phase1)
+        sds = kPhase1;
+      else if (lo_ == TkLayout::phase2)
+        sds = kPhase2;
+      else
+        return -1;
+      for (const SubDet& sd : sds) {
+        for (int lay = 1; lay <= sd.n_lay; ++lay) {
+          if (!doesHaveStereo(sd.det, lay))
+            continue;
+          for (int side = 0; side < (sd.two_sides ? 2 : 1); ++side) {
+            const int mono = convertLayerNumber(sd.det, lay, false, 0, side == 0);
+            const int stereo = convertLayerNumber(sd.det, lay, false, 1, side == 0);
+            if (mono < 0 || stereo < 0 || mono == stereo)
+              continue;
+            if (layer == mono)
+              return stereo;
+            if (layer == stereo)
+              return mono;
+          }
+        }
+      }
+      return -1;
     }
 
     int convertBarrelLayerNumber(int cmsswdet, int cmsswlay, bool useMatched, int isStereo) const {

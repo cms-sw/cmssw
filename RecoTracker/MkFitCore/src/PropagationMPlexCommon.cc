@@ -85,6 +85,11 @@ namespace mkfit {
                             MPlexLV& outPar,
                             const int N_proc,
                             const float* msRefP) {
+    // sin and cos of theta and phi for the whole plex, ahead of the lane loop: called per lane inside the loop,
+    // vdt::fast_sincosf stays out of line under gcc 14.3 and the loop is not vectorised.
+    MPlexQF sin_theta, cos_theta, sin_phi, cos_phi;
+    Matriplex::fast_sincos(outPar.ReduceFixedIJ(5, 0), sin_theta, cos_theta);
+    Matriplex::fast_sincos(outPar.ReduceFixedIJ(4, 0), sin_phi, cos_phi);
 #pragma omp simd
     for (int n = 0; n < NN; ++n) {
       if (n >= N_proc)
@@ -92,14 +97,12 @@ namespace mkfit {
       float radL = hitsRl.constAt(n, 0, 0);
       if (radL < 1e-13f)
         continue;  //ugly, please fixme
-      const float theta = outPar.constAt(n, 5, 0);
       // const float pt = 1.f / outPar.constAt(n, 3, 0);  //fixme, make sure it is positive?
       const float ipt = outPar.constAt(n, 3, 0);
       const float pt = 1.f / ipt;  //fixme, make sure it is positive?
       const float ipt2 = ipt * ipt;
-      float sT;
-      float cT;
-      vdt::fast_sincosf(theta, sT, cT);
+      const float sT = sin_theta[n];
+      const float cT = cos_theta[n];
       const float p = pt / sT;
       const float pz = p * cT;
       const float p2 = p * p;
@@ -108,9 +111,8 @@ namespace mkfit {
       const float beta2 = p2 / (p2 + mpi2);
       const float beta = std::sqrt(beta2);
       //radiation lenght, corrected for the crossing angle (cos alpha from dot product of radius vector and momentum)
-      float sinP;
-      float cosP;
-      vdt::fast_sincosf(outPar.constAt(n, 4, 0), sinP, cosP);
+      const float sinP = sin_phi[n];
+      const float cosP = cos_phi[n];
       const float invCos = p / std::abs(pt * cosP * plNrm.constAt(n, 0, 0) + pt * sinP * plNrm.constAt(n, 1, 0) +
                                         pz * plNrm.constAt(n, 2, 0));
       radL = radL * invCos;  // general: invCos is p/|p.n| with n the module normal
@@ -165,7 +167,7 @@ namespace mkfit {
       //std::cout << "dEdx=" << dEdx << " delta=" << deltahalf << " wmax=" << wmax << " Xi=" << hitsXi.constAt(n,0,0) << std::endl;
       const float dP = propSign.constAt(n, 0, 0) * dEdx / beta;
       outPar.At(n, 3, 0) = p / (std::max(p - dP, 0.001f) * pt);  //stay above 1MeV
-      //assume 100% uncertainty
+      // Bethe-Bloch straggling variance, the CMS EnergyLossUpdator form.
       const float dEdx2 = (hitsXi.constAt(n, 0, 0) * invCos / beta2) * wmax * (1 - beta2 * 0.5);
       outErr.At(n, 3, 3) += dEdx2 / (beta2 * p2 * pt * pt);
     }

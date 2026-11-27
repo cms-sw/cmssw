@@ -485,6 +485,7 @@ _InitialStepTask_trackingPhase2_LST = InitialStepTask.copyAndExclude([initialSte
 (trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFit, stripHits=cms.InputTag('mkFitSiPhase2Hits'))
 (trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidates, mkFitStripHits=cms.InputTag('mkFitSiPhase2Hits'))
 (trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFitConfig, config='RecoTracker/MkFit/data/mkfit-phase2-initialStep.json')
+(trackingMkFitInitialStep & trackingPhase2PU140).toModify(initialStepTrackCandidatesMkFit, buildingRoutine='v2p2')
 
 # mkFit final fit in place of the CKF fit (Phase 2); the per-hit smoothed states give the TrackExtras and Trajectories
 from Configuration.ProcessModifiers.trackingMkFitFit_cff import trackingMkFitFit
