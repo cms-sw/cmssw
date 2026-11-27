@@ -25,7 +25,10 @@ trackingPhase1.toModify(initialStepSeedLayersPreSplitting,
 )
 from Configuration.ProcessModifiers.splitClustersInPhase2Pixel_cff import splitClustersInPhase2Pixel
 splitClustersInPhase2Pixel.toModify(initialStepSeedLayersPreSplitting,
-    layerList = RecoTracker.TkSeedingLayers.PixelLayerQuadruplets_cfi.PixelLayerQuadruplets.layerList.value()
+    layerList = ['BPix1+BPix2+BPix3+BPix4',
+                 'BPix1+BPix2+BPix3+FPix1_pos','BPix1+BPix2+BPix3+FPix1_neg',
+                 'BPix1+BPix2+FPix1_pos+FPix2_pos', 'BPix1+BPix2+FPix1_neg+FPix2_neg',
+                 'BPix1+FPix1_pos+FPix2_pos+FPix3_pos','BPix1+FPix1_neg+FPix2_neg+FPix3_neg']
 )
 
 # TrackingRegion
@@ -36,7 +39,7 @@ initialStepTrackingRegionsPreSplitting = _globalTrackingRegionFromBeamSpot.clone
     nSigmaZ      = 4.0
 ))
 trackingPhase1.toModify(initialStepTrackingRegionsPreSplitting, RegionPSet = dict(ptMin = 0.5))
-splitClustersInPhase2Pixel.toModify(initialStepTrackingRegionsPreSplitting, RegionPSet = dict(ptMin = 0.6,originRadius = 0.03))
+splitClustersInPhase2Pixel.toModify(initialStepTrackingRegionsPreSplitting, RegionPSet = dict(ptMin = 3.2,originRadius = 0.03))
 
 # seeding
 from RecoTracker.TkHitPairs.hitPairEDProducer_cfi import hitPairEDProducer as _hitPairEDProducer
@@ -293,6 +296,21 @@ trackingMkFitCommon.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSp
 _InitialStepPreSplittingTask_trackingMkFit = InitialStepPreSplittingTask.copy()
 _InitialStepPreSplittingTask_trackingMkFit.add(mkFitSiPixelHitsPreSplitting, mkFitEventOfHitsPreSplitting, initialStepTrackCandidatesMkFitSeedsPreSplitting, initialStepTrackCandidatesMkFitPreSplitting, initialStepTrackCandidatesMkFitConfigPreSplitting)
 trackingMkFitInitialStepPreSplitting.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_trackingMkFit)
+
+from Configuration.Eras.Modifier_trackingPhase2PU140_cff import trackingPhase2PU140
+# Phase-2: mkFit pre-splitting initialStep uses the Phase-2 OT hits (no SiStrip) and the Phase-2 iteration config
+from RecoTracker.IterativeTracking.InitialStep_cff import mkFitSiPhase2Hits
+from RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi import siPhase2RecHits
+_trackingMkFitInitialStepPreSplitting_Phase2 = trackingMkFitInitialStepPreSplitting & trackingPhase2PU140
+_trackingMkFitInitialStepPreSplitting_Phase2.toModify(initialStepTrackCandidatesMkFitConfigPreSplitting,
+    config = "RecoTracker/MkFit/data/mkfit-phase2-initialStep.json")
+_trackingMkFitInitialStepPreSplitting_Phase2.toModify(mkFitEventOfHitsPreSplitting,
+    stripHits = "mkFitSiPhase2Hits", useStripStripQualityDB = False)
+_trackingMkFitInitialStepPreSplitting_Phase2.toModify(initialStepTrackCandidatesMkFitPreSplitting, stripHits = "mkFitSiPhase2Hits")
+_trackingMkFitInitialStepPreSplitting_Phase2.toModify(initialStepTrackCandidatesPreSplitting, mkFitStripHits = "mkFitSiPhase2Hits")
+_InitialStepPreSplittingTask_trackingMkFit_Phase2 = InitialStepPreSplittingTask.copyAndExclude([mkFitSiStripHits])
+_InitialStepPreSplittingTask_trackingMkFit_Phase2.add(siPhase2RecHits, mkFitSiPhase2Hits)
+_trackingMkFitInitialStepPreSplitting_Phase2.toReplaceWith(InitialStepPreSplittingTask, _InitialStepPreSplittingTask_trackingMkFit_Phase2)
 
 
 # Although InitialStepPreSplitting is not really part of LowPU/Run1/Phase2PU140

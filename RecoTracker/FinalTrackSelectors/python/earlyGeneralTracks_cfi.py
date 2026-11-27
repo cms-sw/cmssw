@@ -121,7 +121,10 @@ def _remove_initial(x):
      del x.hasSelector[_idx]
      del x.indivShareFrac[_idx]
      del x.selectedTrackQuals[_idx]
-     del x.setsToMerge[0].tLists[_idx]
+     # renumber the merge set (deleting the element would drop index 0 = highPtTripletStepTracks, i.e. LST, from the cleaning)
+     x.setsToMerge[0].tLists = [i - (i > _idx) for i in x.setsToMerge[0].tLists if i != _idx]
+     # no hit-sharing cleaning among the LST tracks themselves (it removes genuine tracks in dense jet cores)
+     x.indivShareFrac[x.TrackProducers.index('highPtTripletStepTracks')] = 1.0
 (trackingPhase2PU140 & trackingLST).toModify(earlyGeneralTracks, _remove_initial)
 
 (trackingPhase2PU140 & trackingIters01).toModify(earlyGeneralTracks,
