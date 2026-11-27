@@ -48,6 +48,10 @@ truthGraphRecoLabelsPSet = cms.PSet(
     # that does run them replaces this with what its process actually schedules, via
     # setTracksterLabelsFromProcess below.
     tracksters=cms.vstring(*sorted(ticlIterLabelsPSet.labels)),
+    # HGCAL layer clusters, the constituents of the tracksters, matched on their own cells
+    # against the same candidate roots as the tracksters, so a layer cluster and the
+    # trackster built from it point at the same truth.
+    layerClusters=cms.vstring("hgcalMergeLayerClusters"),
     # TICL candidates, matched on the layer clusters of their tracksters; their tracks are matched as tracks.
     candidates=cms.vstring("ticlCandidate"),
 )
@@ -57,6 +61,7 @@ truthGraphRecoLabelsPSet = cms.PSet(
 # the truth objects with a hit in them. An empty list means the whole hit channel.
 truthBranchDenominatorDetectors = dict(
     tracks=[],
+    layerClusters=["HGCalEE", "HGCalHSi", "HGCalHSc"],
     tracksters=["HGCalEE", "HGCalHSi", "HGCalHSc"],
     candidates=["HGCalEE", "HGCalHSi", "HGCalHSc"],
     pfClustersEcal=["Ecal"],
@@ -78,6 +83,7 @@ truthGraphHltRecoLabelsPSet = cms.PSet(
     # Validation/HGCalValidation. A RECO or DQM job reads the HLT tracksters from its
     # input file and so has no HLT producer to discover.
     tracksters=cms.vstring(*sorted(hltTiclIterLabelsPSet.labels)),
+    layerClusters=cms.vstring(),
 )
 
 # Working points of the branch association. Fixed is the plain per-root match; the
