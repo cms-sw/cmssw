@@ -7,7 +7,7 @@
 <flags ALPAKA_BACKENDS="1"/>
 </bin>
 
-<library name="testVertexSoA" file="TestWriteHostVertexSoA.cc,TestReadHostVertexSoA.cc,">
+<library name="testVertexSoA" file="TestWriteHostVertexSoA.cc,TestReadHostVertexSoA.cc,TestWriteHostVertexGNNSoA.cc,TestReadHostVertexGNNSoA.cc">
   <flags EDM_PLUGIN="1"/>
   <use name="alpaka"/>
   <use name="eigen"/>
@@ -18,4 +18,5 @@
 </library>
 
 <test name="testWriteAndReadVertexSoA" command="testWriteAndReadVertexSoA.sh" />
+<test name="testWriteAndReadVertexGNNSoA" command="testWriteAndReadVertexGNNSoA.sh" />
 

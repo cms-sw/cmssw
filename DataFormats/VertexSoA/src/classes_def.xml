@@ -9,4 +9,16 @@
   <class name="reco::ZVertexTracksLayout<128, false>"/>
 
   <class name="edm::Wrapper<reco::ZVertexHost>" splitLevel="0"/>
+
+  <class name="vertexgnn::TrackFeaturesHostCollection" rntupleStreamerMode="true"/>
+  <class name="vertexgnn::TrackFeaturesHostCollection::Layout"/>
+  <class name="edm::Wrapper<vertexgnn::TrackFeaturesHostCollection>" splitLevel="0"/>
+
+  <class name="vertexgnn::GNNOutputHostCollection" rntupleStreamerMode="true"/>
+  <class name="vertexgnn::GNNOutputHostCollection::Layout"/>
+  <class name="edm::Wrapper<vertexgnn::GNNOutputHostCollection>" splitLevel="0"/>
+
+  <class name="vertexgnn::GNNSlotHostCollection" rntupleStreamerMode="true"/>
+  <class name="vertexgnn::GNNSlotHostCollection::Layout"/>
+  <class name="edm::Wrapper<vertexgnn::GNNSlotHostCollection>" splitLevel="0"/>
 </lcgdict>
