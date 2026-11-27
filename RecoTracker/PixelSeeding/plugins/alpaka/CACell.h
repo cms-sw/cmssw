@@ -47,7 +47,6 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 
     static constexpr auto invalidHitId = std::numeric_limits<hindex_type>::max();
 
-    using TmpTuple = cms::alpakatools::VecArray<uint32_t, TrackerTraits::maxLayersPerTrack>;
     using HitContainer = caStructures::SequentialContainer;
     using CellToCell = caStructures::GenericContainer;
     using CellToTracks = caStructures::GenericContainer;
@@ -190,8 +189,9 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // compatible neighbour ends an ntuplet, which is saved if it has enough hits.
 
     // Save the ntuplet made of the cells path[0..len), whose last cell was reached with the pre-fit curvature
-    // curvature, if it has at least minHitsPerNtuplet layers. hits is a per-thread buffer of maxHitsOnTrack entries,
-    // owned by the caller.
+    // curvature, if it has at least minHitsPerNtuplet layers. path is indexable (a pointer, or GlobalFrames::Path).
+    // hits is a per-thread buffer of maxHitsOnTrack entries, owned by the caller.
+    template <typename Path>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static void save_ntuplet(Acc1D const& acc,
                                                             const HitsMultiView& hh,
                                                             CACell* __restrict__ cells,
@@ -203,7 +203,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                             Quality* __restrict__ quality,
                                                             int8_t* __restrict__ nLayers,
                                                             float* __restrict__ pt,
-                                                            uint32_t const* path,
+                                                            Path const& path,
                                                             int len,
                                                             float curvature,
                                                             hindex_type* __restrict__ hits,
@@ -254,12 +254,61 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
 #endif
     }
 
+    // Frame stores of the depth-first search find_ntuplets: on the stack of the thread (StackFrames), or in global
+    // memory as structure of arrays with one slot per search (GlobalFrames, see GlobalFrameBuffers). path() gives the
+    // cells of the frames, for save_ntuplet.
+    template <int MAXDEPTH>
+    struct StackFrames {
+      uint32_t cell_[MAXDEPTH];
+      uint32_t next_[MAXDEPTH];
+      float curvature_[MAXDEPTH];
+      uint8_t pass_[MAXDEPTH];
+      bool found_[MAXDEPTH];
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t& cell(int l) { return cell_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t& next(int l) { return next_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float& curvature(int l) { return curvature_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint8_t& pass(int l) { return pass_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE bool& found(int l) { return found_[l]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t const* path() const { return cell_; }
+    };
+
+    // the arrays of the global frame store: entry (l, slot) at l * stride + slot, and maxHitsOnTrack hits per slot
+    struct GlobalFrameBuffers {
+      uint32_t* cell;
+      uint32_t* next;
+      float* curvature;
+      uint8_t* pass;
+      bool* found;
+      hindex_type* hits;
+      uint32_t stride;  // number of slots
+    };
+
+    struct GlobalFrames {
+      struct Path {
+        uint32_t const* cell;
+        uint32_t stride;
+        uint32_t slot;
+        ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t operator[](int l) const { return cell[l * stride + slot]; }
+      };
+      GlobalFrameBuffers b;
+      uint32_t slot;
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t& cell(int l) { return b.cell[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint32_t& next(int l) { return b.next[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE float& curvature(int l) { return b.curvature[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE uint8_t& pass(int l) { return b.pass[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE bool& found(int l) { return b.found[l * b.stride + slot]; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE Path path() const { return Path{b.cell, b.stride, slot}; }
+      ALPAKA_FN_ACC ALPAKA_FN_INLINE hindex_type* hits() const { return b.hits + slot * TrackerTraits::maxHitsOnTrack; }
+    };
+
     // Depth-first search of the subtree of the cell startCell, reached through the cells prefix[0..prefixLen) with the
     // pre-fit curvature startCurvature, saving the ntuplets it finds. A search from a starting cell has an empty
-    // prefix and kUninitializeCurvature. The visit uses an explicit stack, one frame per depth, instead of a recursion
-    // that the compiler would inline once per depth. Used by Kernel_find_ntuplets (back-ends with a single thread per
-    // block) and by Kernel_find_ntuplets_level for the nodes that do not fit in its node storage.
-    template <int MAXDEPTH>
+    // prefix and kUninitializeCurvature; the neighbour loop of startCell starts at (startPass, startNext, startFound),
+    // from the beginning or where the level-by-level search stopped. The visit uses an explicit stack of frames (fr,
+    // StackFrames or GlobalFrames), one per depth, instead of a recursion that the compiler would inline once per
+    // depth. Used by Kernel_find_ntuplets (back-ends with a single thread per block) and by
+    // Kernel_find_ntuplets_overflow, when the node storage of the level-by-level search is full.
+    template <int MAXDEPTH, typename Frames>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static void find_ntuplets(Acc1D const& acc,
                                                              const HitsMultiView& hh,
                                                              const ::reco::CANtupletCutsSoAConstView& ntupletCuts,
@@ -274,37 +323,39 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                              Quality* __restrict__ quality,
                                                              int8_t* __restrict__ nLayers,
                                                              float* __restrict__ pt,
-                                                             TmpTuple& tmpNtuplet,
+                                                             Frames& fr,
                                                              hindex_type* __restrict__ hits,
                                                              const unsigned int minHitsPerNtuplet,
                                                              uint32_t const* prefix,
                                                              int prefixLen,
                                                              uint32_t startCell,
-                                                             float startCurvature) {
+                                                             float startCurvature,
+                                                             uint8_t startPass = 0,
+                                                             uint32_t startNext = 0,
+                                                             bool startFound = false) {
       static_assert(MAXDEPTH > 0);
-      // one frame per depth: where the neighbour loop of its cell is, and the curvature passed to it by its parent
-      uint32_t frameNext[MAXDEPTH];    // next neighbour index to try
-      uint8_t framePass[MAXDEPTH];     // 0: non layer-skipping neighbours, 1: layer-skipping ones, 2: done
-      bool frameFound[MAXDEPTH];       // a compatible neighbour was found (and visited)
-      float frameCurvature[MAXDEPTH];  // pre-fit curvature with which the cell was reached
+      // one frame per depth: its cell (the path of the search is fr.cell(0..level]), where the neighbour loop of the
+      // cell is (next: next neighbour index to try; pass: 0 for the non layer-skipping neighbours, 1 for the
+      // layer-skipping ones, 2 when done), whether a compatible neighbour was found (and visited), and the pre-fit
+      // curvature with which the cell was reached
 
       // the cells of the prefix are done: when the search returns to them it stops, without saving them
       for (int l = 0; l < prefixLen; ++l) {
-        tmpNtuplet.push_back_unsafe(prefix[l]);
-        frameNext[l] = 0;
-        framePass[l] = 2;
-        frameFound[l] = true;
-        frameCurvature[l] = kUninitializeCurvature;
+        fr.cell(l) = prefix[l];
+        fr.next(l) = 0;
+        fr.pass(l) = 2;
+        fr.found(l) = true;
+        fr.curvature(l) = kUninitializeCurvature;
       }
       int level = prefixLen;
-      tmpNtuplet.push_back_unsafe(startCell);
-      frameNext[level] = 0;
-      framePass[level] = 0;
-      frameFound[level] = false;
-      frameCurvature[level] = startCurvature;
+      fr.cell(level) = startCell;
+      fr.next(level) = startNext;
+      fr.pass(level) = startPass;
+      fr.found(level) = startFound;
+      fr.curvature(level) = startCurvature;
 
       while (level >= prefixLen) {
-        uint32_t const doubletId = tmpNtuplet[level];
+        uint32_t const doubletId = fr.cell(level);
         CACell const& cell = cells[doubletId];
         auto const* __restrict__ neighborCells = cellNeighborsHisto->begin(doubletId);
         auto const nNeighbors = cellNeighborsHisto->size(doubletId);
@@ -315,16 +366,16 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         // look for the next compatible neighbour, the non layer-skipping ones first
         int child = -1;
         float childCurvature = kUninitializeCurvature;
-        while (not lastDepth and framePass[level] < 2) {
+        while (not lastDepth and fr.pass(level) < 2) {
           // the layer-skipping pass is skipped if, when it would start, a non layer-skipping neighbour has already
           // been found at triplet-or-more depth
-          if (framePass[level] == 1 && frameNext[level] == 0 && frameFound[level] && tripletOrMore) {
-            framePass[level] = 2;
+          if (fr.pass(level) == 1 && fr.next(level) == 0 && fr.found(level) && tripletOrMore) {
+            fr.pass(level) = 2;
             break;
           }
-          const uint32_t wantSkip = (framePass[level] == 0) ? 0u : caStructures::kSkipsLayerFlag;
-          while (frameNext[level] < nNeighbors) {
-            auto encoded = neighborCells[frameNext[level]++];
+          const uint32_t wantSkip = (fr.pass(level) == 0) ? 0u : caStructures::kSkipsLayerFlag;
+          while (fr.next(level) < nNeighbors) {
+            auto encoded = neighborCells[fr.next(level)++];
             if ((encoded & caStructures::kSkipsLayerFlag) != wantSkip)
               continue;
             auto otherCell = encoded & caStructures::kCellIndexMask;
@@ -332,7 +383,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               continue;
             float thisCurvature{kUninitializeCurvature};
             if (cells[otherCell].quadrupletCut(
-                    frameCurvature[level], thisCurvature, ntupletCuts, cc, hh, cell.inner_x(hh), cell.inner_y(hh))) {
+                    fr.curvature(level), thisCurvature, ntupletCuts, cc, hh, cell.inner_x(hh), cell.inner_y(hh))) {
               continue;
             }
             child = otherCell;
@@ -342,25 +393,25 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           if (child >= 0)
             break;
           // this pass is over, start the next one from the first neighbour
-          ++framePass[level];
-          frameNext[level] = 0;
+          ++fr.pass(level);
+          fr.next(level) = 0;
         }
 
         if (child >= 0) {
           // go down to the neighbour
-          frameFound[level] = true;
+          fr.found(level) = true;
           ++level;
-          tmpNtuplet.push_back_unsafe(child);
-          ALPAKA_ASSERT_ACC(tmpNtuplet.size() <= int(TrackerTraits::maxLayersPerTrack - 1));
-          frameNext[level] = 0;
-          framePass[level] = 0;
-          frameFound[level] = false;
-          frameCurvature[level] = childCurvature;
+          ALPAKA_ASSERT_ACC(level < MAXDEPTH);
+          fr.cell(level) = child;
+          fr.next(level) = 0;
+          fr.pass(level) = 0;
+          fr.found(level) = false;
+          fr.curvature(level) = childCurvature;
           continue;
         }
 
         // all neighbours of this cell have been visited: if none was found, save the ntuplet if long enough
-        if (!frameFound[level]) {
+        if (!fr.found(level)) {
           save_ntuplet(acc,
                        hh,
                        cells,
@@ -372,14 +423,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                        quality,
                        nLayers,
                        pt,
-                       tmpNtuplet.data(),
-                       tmpNtuplet.size(),
-                       frameCurvature[level],
+                       fr.path(),
+                       level + 1,
+                       fr.curvature(level),
                        hits,
                        minHitsPerNtuplet);
         }
         // go back up to the parent cell
-        tmpNtuplet.pop_back();
         --level;
       }
     }
@@ -390,9 +440,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     // one frame of the depth-first search and either records the compatible neighbours as nodes of the next depth or,
     // if there is none, saves the ntuplet.
 
+    // Where expand_cell stopped because a neighbour could not be stored: the search of the cell resumes at neighbour
+    // next of pass pass (that neighbour included), with found = whether a neighbour was stored before it.
+    struct ExpandStop {
+      bool stopped = false;
+      uint8_t pass = 0;
+      uint32_t next = 0;
+      bool found = false;
+    };
+
     // Calls emit(neighbour, curvature) for each compatible neighbour of the cell doubletId at depth level, reached
-    // with the pre-fit curvature curvature, in the order and with the cuts of find_ntuplets. Returns whether any was
-    // found. At the last depth the cell is not extended.
+    // with the pre-fit curvature curvature, in the order and with the cuts of find_ntuplets, until emit returns false
+    // (the neighbour could not be stored): then it fills stop and returns. Returns whether any compatible neighbour
+    // was found. At the last depth the cell is not extended.
     template <int MAXDEPTH, typename F>
     ALPAKA_FN_ACC ALPAKA_FN_INLINE static bool expand_cell(const HitsMultiView& hh,
                                                            const ::reco::CANtupletCutsSoAConstView& ntupletCuts,
@@ -402,7 +462,8 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                            uint32_t doubletId,
                                                            int level,
                                                            float curvature,
-                                                           F&& emit) {
+                                                           F&& emit,
+                                                           ExpandStop& stop) {
       if (level == MAXDEPTH - 1)
         return false;
       CACell const& cell = cells[doubletId];
@@ -426,8 +487,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                   curvature, thisCurvature, ntupletCuts, cc, hh, cell.inner_x(hh), cell.inner_y(hh))) {
             continue;
           }
+          if (not emit(otherCell, thisCurvature)) {
+            stop = ExpandStop{true, static_cast<uint8_t>(pass), n, found};
+            return true;
+          }
           found = true;
-          emit(otherCell, thisCurvature);
         }
       }
       return found;

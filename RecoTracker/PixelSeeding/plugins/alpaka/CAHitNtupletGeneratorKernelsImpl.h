@@ -1219,11 +1219,53 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       }
     };
 
+    // Resume records of the level-by-level ntuplet search: a node whose expansion stopped because its children did
+    // not fit in the node storage (see CACell::ExpandStop). ref is the node (its index in starts at depth 0, in the
+    // node storage otherwise), depth its depth, (pass, next, found) the state of its neighbour loop. overflowDepth is 0
+    // until a child does not fit, then the depth of that child. Only the depth that overflows writes records, so
+    // capacity = launchCells (>= the number of nodes of any depth) is enough.
+    struct OverflowRecords {
+      uint32_t *overflowDepth;
+      uint32_t *count;
+      uint32_t *ref;
+      uint32_t *next;
+      uint8_t *depth;
+      uint8_t *pass;
+      uint8_t *found;
+      uint32_t capacity;
+    };
+
+    // The path of cells to the node ref of depth level (its index in starts at depth 0), into path[0..level].
+    template <int maxDepth>
+    ALPAKA_FN_ACC ALPAKA_FN_INLINE void level_search_path(uint32_t *path,
+                                                          int level,
+                                                          uint32_t ref,
+                                                          uint32_t const *__restrict__ starts,
+                                                          uint32_t const *__restrict__ nodeCell,
+                                                          uint32_t const *__restrict__ nodeParent) {
+      if (level == 0) {
+        path[0] = starts[ref];
+        return;
+      }
+      path[level] = nodeCell[ref];
+      uint32_t p = ref;
+      for (int l = level; l >= 1; --l) {
+        uint32_t const parent = nodeParent[p];
+        if (l == 1) {
+          path[0] = starts[parent];
+        } else {
+          path[l - 1] = nodeCell[parent];
+          p = parent;
+        }
+      }
+    }
+
     // One depth of the level-by-level ntuplet search (GPU backends, see CACell::expand_cell). The nodes of depth 0
     // are the starting cells starts[0..nStarts); those of depth L >= 1 are stored from base(L) = sum of
     // levelCount[1..L) in nodeCell/nodeParent/nodeCurvature (the parent of a depth-1 node is its index in starts).
-    // A node that does not fit in the storage (capacity) is searched at once, depth first (CACell::find_ntuplets),
-    // by the thread that finds it.
+    // When a child does not fit in the storage (capacity), the expansion of its parent stops there and leaves a resume
+    // record, and the later depths return at once: Kernel_find_ntuplets_overflow completes the search depth first
+    // (CACell::find_ntuplets).
     template <typename TrackerTraits>
     class Kernel_find_ntuplets_level {
     public:
@@ -1250,9 +1292,19 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                     uint32_t capacity,
                                     int level,
                                     cms::alpakatools::AtomicPairCounter *apc,
-                                    AlgoParams const &params) const {
+                                    AlgoParams const &params,
+                                    OverflowRecords records) const {
         using Cell = CACell<TrackerTraits>;
         constexpr int maxDepth = TrackerTraits::maxLayersPerTrack - 1;
+        // an earlier launch did not fit its children (of depth overflowDepth <= level) in the node storage: the search is
+        // completed by Kernel_find_ntuplets_overflow. Read once per block, atomically; an overflow during this launch
+        // (overflowDepth = level + 1) does not stop it: the nodes of this depth are all expanded or recorded.
+        uint32_t &overflowDepth = alpaka::declareSharedVar<uint32_t, __COUNTER__>(acc);
+        if (cms::alpakatools::once_per_block(acc))
+          overflowDepth = alpaka::atomicAdd(acc, records.overflowDepth, 0u, alpaka::hierarchy::Blocks{});
+        alpaka::syncBlockThreads(acc);
+        if (overflowDepth != 0 and overflowDepth <= static_cast<uint32_t>(level))
+          return;
         uint32_t base = 0;
         for (int l = 1; l < level; ++l)
           base += levelCount[l];
@@ -1261,26 +1313,12 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (uint32_t k : cms::alpakatools::uniform_elements(acc, n)) {
           uint32_t const node = base + k;
           if (level >= 1 && node >= capacity)
-            continue;  // searched depth first when it was found
-          // the path of cells to this node
+            continue;  // did not fit: its parent left a resume record
+          uint32_t const ref = (level == 0) ? k : node;
           uint32_t path[maxDepth];
-          if (level == 0) {
-            path[0] = starts[k];
-          } else {
-            path[level] = nodeCell[node];
-            uint32_t p = node;
-            for (int l = level; l >= 1; --l) {
-              uint32_t const parent = nodeParent[p];
-              if (l == 1) {
-                path[0] = starts[parent];
-              } else {
-                path[l - 1] = nodeCell[parent];
-                p = parent;
-              }
-            }
-          }
+          level_search_path<maxDepth>(path, level, ref, starts, nodeCell, nodeParent);
           float const curvature = (level == 0) ? Cell::kUninitializeCurvature : nodeCurvature[node];
-          typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];
+          typename Cell::ExpandStop stop;
           bool const found = Cell::template expand_cell<maxDepth>(
               hh,
               ntupletCuts,
@@ -1293,37 +1331,27 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
               [&](uint32_t child, float childCurvature) {
                 uint32_t const g =
                     nextBase + alpaka::atomicAdd(acc, &levelCount[level + 1], 1u, alpaka::hierarchy::Blocks{});
-                if (g < capacity) {
-                  nodeCell[g] = child;
-                  nodeParent[g] = (level == 0) ? k : node;
-                  nodeCurvature[g] = childCurvature;
-                } else {
-                  typename Cell::TmpTuple stack;
-                  stack.reset();
-                  Cell::template find_ntuplets<maxDepth>(acc,
-                                                         hh,
-                                                         ntupletCuts,
-                                                         cc,
-                                                         cells,
-                                                         *foundNtuplets,
-                                                         cellNeighborsHisto,
-                                                         cellTracksHisto,
-                                                         nCellTracks,
-                                                         ct,
-                                                         *apc,
-                                                         tracks_view.quality().data(),
-                                                         tracks_view.nLayers().data(),
-                                                         tracks_view.pt().data(),
-                                                         stack,
-                                                         hits,
-                                                         params.minHitsPerNtuplet_,
-                                                         path,
-                                                         level + 1,
-                                                         child,
-                                                         childCurvature);
+                if (g >= capacity) {
+                  alpaka::atomicExch(
+                      acc, records.overflowDepth, static_cast<uint32_t>(level + 1), alpaka::hierarchy::Blocks{});
+                  return false;
                 }
-              });
-          if (not found) {
+                nodeCell[g] = child;
+                nodeParent[g] = ref;
+                nodeCurvature[g] = childCurvature;
+                return true;
+              },
+              stop);
+          if (stop.stopped) {
+            uint32_t const r = alpaka::atomicAdd(acc, records.count, 1u, alpaka::hierarchy::Blocks{});
+            ALPAKA_ASSERT_ACC(r < records.capacity);
+            records.ref[r] = ref;
+            records.depth[r] = static_cast<uint8_t>(level);
+            records.pass[r] = stop.pass;
+            records.next[r] = stop.next;
+            records.found[r] = stop.found;
+          } else if (not found) {
+            typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];
             Cell::save_ntuplet(acc,
                                hh,
                                cells,
@@ -1340,6 +1368,107 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                curvature,
                                hits,
                                params.minHitsPerNtuplet_);
+          }
+        }
+      }
+    };
+
+    // Completes the level-by-level search of an event whose node storage overflowed (records.overflowDepth = D > 0),
+    // depth first: from the resume record of each node whose expansion stopped, and from each stored node of depth D,
+    // which was not expanded because the later depths return at once. Returns at once without overflow; launched with
+    // a small grid. kGlobalFrames: frames of the depth-first search in global memory (one slot per thread of the
+    // grid, frameBuffers) or on the stack.
+    template <typename TrackerTraits, bool kGlobalFrames>
+    class Kernel_find_ntuplets_overflow {
+    public:
+      using HitsMultiView = caStructures::HitsViewT<TrackerTraits>;
+
+      ALPAKA_FN_ACC void operator()(Acc1D const &acc,
+                                    HitsMultiView hh,
+                                    const ::reco::CAGraphSoAConstView &cc,
+                                    const ::reco::CANtupletCutsSoAConstView &ntupletCuts,
+                                    TkSoAView tracks_view,
+                                    HitContainer *foundNtuplets,
+                                    CellToCell const *__restrict__ cellNeighborsHisto,
+                                    CellToTrack *cellTracksHisto,
+                                    caStructures::CAPairSoAView ct,
+                                    CACell<TrackerTraits> *__restrict__ cells,
+                                    uint32_t *nCellTracks,
+                                    uint32_t const *__restrict__ starts,
+                                    uint32_t const *__restrict__ nodeCell,
+                                    uint32_t const *__restrict__ nodeParent,
+                                    float const *__restrict__ nodeCurvature,
+                                    uint32_t const *levelCount,
+                                    uint32_t capacity,
+                                    cms::alpakatools::AtomicPairCounter *apc,
+                                    AlgoParams const &params,
+                                    OverflowRecords records,
+                                    typename CACell<TrackerTraits>::GlobalFrameBuffers frameBuffers) const {
+        using Cell = CACell<TrackerTraits>;
+        constexpr int maxDepth = TrackerTraits::maxLayersPerTrack - 1;
+        uint32_t const D = *records.overflowDepth;
+        if (D == 0)
+          return;
+        uint32_t const nRecords = *records.count;
+        // the stored nodes of depth D
+        uint32_t baseD = 0;
+        for (uint32_t l = 1; l < D; ++l)
+          baseD += levelCount[l];
+        uint32_t const endD = std::min<uint32_t>(baseD + levelCount[D], capacity);
+        uint32_t const nPending = (endD > baseD) ? endD - baseD : 0u;
+        for (uint32_t i : cms::alpakatools::uniform_elements(acc, nRecords + nPending)) {
+          int depth;
+          uint32_t ref;
+          uint8_t pass = 0;
+          uint32_t next = 0;
+          bool found = false;
+          if (i < nRecords) {
+            depth = records.depth[i];
+            ref = records.ref[i];
+            pass = records.pass[i];
+            next = records.next[i];
+            found = records.found[i];
+          } else {
+            depth = static_cast<int>(D);
+            ref = baseD + (i - nRecords);
+          }
+          uint32_t path[maxDepth];
+          level_search_path<maxDepth>(path, depth, ref, starts, nodeCell, nodeParent);
+          float const curvature = (depth == 0) ? Cell::kUninitializeCurvature : nodeCurvature[ref];
+          auto search = [&](auto &frames, typename Cell::hindex_type *hits) {
+            Cell::template find_ntuplets<maxDepth>(acc,
+                                                   hh,
+                                                   ntupletCuts,
+                                                   cc,
+                                                   cells,
+                                                   *foundNtuplets,
+                                                   cellNeighborsHisto,
+                                                   cellTracksHisto,
+                                                   nCellTracks,
+                                                   ct,
+                                                   *apc,
+                                                   tracks_view.quality().data(),
+                                                   tracks_view.nLayers().data(),
+                                                   tracks_view.pt().data(),
+                                                   frames,
+                                                   hits,
+                                                   params.minHitsPerNtuplet_,
+                                                   path,
+                                                   depth,
+                                                   path[depth],
+                                                   curvature,
+                                                   pass,
+                                                   next,
+                                                   found);
+          };
+          if constexpr (kGlobalFrames) {
+            typename Cell::GlobalFrames frames{
+                frameBuffers, static_cast<uint32_t>(alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u])};
+            search(frames, frames.hits());
+          } else {
+            typename Cell::template StackFrames<maxDepth> frames;
+            typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];
+            search(frames, hits);
           }
         }
       }
@@ -1381,11 +1510,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         for (auto i : cms::alpakatools::uniform_elements(acc, (*nStarts))) {
           auto const idx = starts[i];
           constexpr uint32_t maxDepth = TrackerTraits::maxLayersPerTrack - 1;
-          typename Cell::TmpTuple stack;
+          typename Cell::template StackFrames<maxDepth> frames;
           // per-thread buffer that save_ntuplet fills when it saves an ntuplet
           typename Cell::hindex_type hits[TrackerTraits::maxHitsOnTrack];
 
-          stack.reset();
           Cell::template find_ntuplets<maxDepth>(acc,
                                                  hh,
                                                  ntupletCuts,
@@ -1400,14 +1528,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                                                  tracks_view.quality().data(),
                                                  tracks_view.nLayers().data(),
                                                  tracks_view.pt().data(),
-                                                 stack,
+                                                 frames,
                                                  hits,
                                                  params.minHitsPerNtuplet_,
                                                  nullptr,
                                                  0,
                                                  idx,
                                                  Cell::kUninitializeCurvature);
-          ALPAKA_ASSERT_ACC(stack.empty());
         }
       }
     };
@@ -3367,6 +3494,23 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       blockSize = 128;
       numberOfBlocks = std::min<uint32_t>(cms::alpakatools::divide_up_by(launchCells, blockSize), 4096u);
       workDiv1D = cms::alpakatools::make_workdiv<Acc1D>(numberOfBlocks, blockSize);
+      // resume records of the nodes whose expansion stops when the node storage is full (see OverflowRecords)
+      auto overflowCounters = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, 2);  // overflowDepth, count
+      alpaka::memset(queue, overflowCounters, 0);
+      uint32_t const recordCapacity = std::max<uint32_t>(launchCells, 1u);
+      auto recordRef = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, recordCapacity);
+      auto recordNext = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, recordCapacity);
+      auto recordDepth = cms::alpakatools::make_device_buffer<uint8_t[]>(queue, recordCapacity);
+      auto recordPass = cms::alpakatools::make_device_buffer<uint8_t[]>(queue, recordCapacity);
+      auto recordFound = cms::alpakatools::make_device_buffer<uint8_t[]>(queue, recordCapacity);
+      OverflowRecords const records{overflowCounters.data(),
+                                    overflowCounters.data() + 1,
+                                    recordRef.data(),
+                                    recordNext.data(),
+                                    recordDepth.data(),
+                                    recordPass.data(),
+                                    recordFound.data(),
+                                    recordCapacity};
       for (int level = 0; level < maxDepth; ++level) {
         alpaka::exec<Acc1D>(queue,
                             workDiv1D,
@@ -3390,8 +3534,52 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
                             nodeCapacity,
                             level,
                             this->device_hitTuple_apc_,
-                            this->m_params.algoParams_);
+                            this->m_params.algoParams_,
+                            records);
       }
+      // completion of the search after an overflow (returns at once otherwise): a small grid, and frames of the
+      // depth-first search on the stack or in global memory (one slot per thread)
+      constexpr uint32_t kOverflowBlocks = 256;
+      constexpr uint32_t kOverflowBlockSize = 128;
+      constexpr bool kOverflowGlobalFrames = true;
+      uint32_t const overflowSlots = kOverflowGlobalFrames ? kOverflowBlocks * kOverflowBlockSize : 1u;
+      auto frameCell = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, maxDepth * overflowSlots);
+      auto frameNext = cms::alpakatools::make_device_buffer<uint32_t[]>(queue, maxDepth * overflowSlots);
+      auto frameCurvature = cms::alpakatools::make_device_buffer<float[]>(queue, maxDepth * overflowSlots);
+      auto framePass = cms::alpakatools::make_device_buffer<uint8_t[]>(queue, maxDepth * overflowSlots);
+      auto frameFound = cms::alpakatools::make_device_buffer<bool[]>(queue, maxDepth * overflowSlots);
+      auto frameHits = cms::alpakatools::make_device_buffer<caStructures::hindex_type[]>(
+          queue, TrackerTraits::maxHitsOnTrack * overflowSlots);
+      typename CACell<TrackerTraits>::GlobalFrameBuffers const frameBuffers{frameCell.data(),
+                                                                            frameNext.data(),
+                                                                            frameCurvature.data(),
+                                                                            framePass.data(),
+                                                                            frameFound.data(),
+                                                                            frameHits.data(),
+                                                                            overflowSlots};
+      alpaka::exec<Acc1D>(queue,
+                          cms::alpakatools::make_workdiv<Acc1D>(kOverflowBlocks, kOverflowBlockSize),
+                          Kernel_find_ntuplets_overflow<TrackerTraits, kOverflowGlobalFrames>{},
+                          hh,
+                          cc,
+                          ntupletCuts,
+                          tracks_view,
+                          this->device_hitContainer_->data(),
+                          this->device_cellToNeighbors_->data(),
+                          this->device_cellToTracks_->data(),
+                          this->deviceTracksCells_->view(),
+                          this->device_simpleCells_->data(),
+                          this->device_nCellTracks_->data(),
+                          starts.data(),
+                          nodeCell.data(),
+                          nodeParent.data(),
+                          nodeCurvature.data(),
+                          levelCount.data(),
+                          nodeCapacity,
+                          this->device_hitTuple_apc_,
+                          this->m_params.algoParams_,
+                          records,
+                          frameBuffers);
     } else {
       blockSize = 64;
       numberOfBlocks = cms::alpakatools::divide_up_by(launchCells, blockSize);
