@@ -1,4 +1,5 @@
 #include "L1Trigger/Phase2L1GT/interface/L1GTScales.h"
+#include "L1Trigger/Phase2L1GT/interface/L1GTOfflineThreshold.h"
 
 #include <pybind11/pybind11.h>
 
@@ -115,5 +116,12 @@ namespace l1t {
         .def("to_hw_InvMassSqrOver2DR", &L1GTScales::to_hw_InvMassSqrOver2DR)
         .def("neg_chg", &L1GTScales::neg_chg)
         .def("pos_chg", &L1GTScales::pos_chg);
+
+    m.def("offlineToOnlinePt",
+          &offlineToOnlinePt,
+          py::arg("offline"),
+          py::arg("offset"),
+          py::arg("slope"),
+          py::arg("minOnline") = 0.);
   }
 }  // namespace l1t

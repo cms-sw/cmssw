@@ -1,0 +1,1 @@
+<test name="testL1TGTMenuTools" command="python3 ${LOCALTOP}/src/L1Trigger/Phase2L1GT/test/testL1TGTMenuTools.py"/>
