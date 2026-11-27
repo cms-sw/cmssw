@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltPfTICL = cms.EDProducer("PFTICLProducer",
     mightGet = cms.optional.untracked.vstring,
-    muonSrc = cms.InputTag("hltPhase2L3Muons"),
+    muonSrc = cms.InputTag("hltPhase2MuonsForPF"),
     pfMuonAlgoParameters = cms.PSet(
         cosmicRejectionDistance = cms.double(1),
         eventFactorForCosmics = cms.double(10),

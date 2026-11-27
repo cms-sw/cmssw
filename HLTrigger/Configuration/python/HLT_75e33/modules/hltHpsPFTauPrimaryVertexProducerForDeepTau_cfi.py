@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 hltHpsPFTauPrimaryVertexProducerForDeepTau = cms.EDProducer("PFTauPrimaryVertexProducer",
     Algorithm = cms.int32(0),
     ElectronTag = cms.InputTag("hltEgammaCandidates"),
-    MuonTag = cms.InputTag("hltMuons"),
+    MuonTag = cms.InputTag("hltPhase2MuonsForPF"),
     PFTauTag = cms.InputTag("hltHpsPFTauProducer"),
     PVTag = cms.InputTag("hltPhase2PixelVertices"),
     RemoveElectronTracks = cms.bool(False),
