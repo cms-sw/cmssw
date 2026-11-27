@@ -405,7 +405,7 @@ void FastSimProducer::produce(edm::StreamID id, edm::Event& iEvent, const edm::E
 
       // MTD case
       if (!geometries->mtdGeometry.barrelLayers().empty() or !geometries->mtdGeometry.forwardLayers().empty()) {
-        propagateThroughLayers(*particle, geometries->geometry, particleManager, state);
+        propagateThroughLayers(*particle, geometries->mtdGeometry, particleManager, state);
       }
 
       // do decays
