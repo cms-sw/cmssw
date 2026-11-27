@@ -97,7 +97,8 @@
     <![CDATA[superClusterRelinked_.reset();]]>
   </ioread>
 
-  <class name="pat::io_v1::Jet"  ClassVersion="3">
+  <class name="pat::io_v1::Jet"  ClassVersion="4">
+   <version ClassVersion="4" checksum="3626757918"/>
    <version ClassVersion="3" checksum="2304093505"/>
    <field name="daughtersTemp_" transient="true"/>
    <field name="caloTowersTemp_" transient="true"/>
@@ -111,6 +112,10 @@
   </ioread>
   <ioread sourceClass = "pat::io_v1::Jet" version="[1-]" targetClass="pat::io_v1::Jet" source="" target="daughtersTemp_">
     <![CDATA[daughtersTemp_.reset();]]>
+  </ioread>
+  <!-- version 4 adds patGenJetRef_ (link to the matched pat::GenJet); files written before have no link -->
+  <ioread sourceClass = "pat::io_v1::Jet" version="[-3]" targetClass="pat::io_v1::Jet" source="" target="patGenJetRef_">
+    <![CDATA[patGenJetRef_ = pat::GenJetRef();]]>
   </ioread>
   <class name="pat::io_v1::MET"  ClassVersion="3">
     <version ClassVersion="3" checksum="967983118"/>
@@ -409,6 +414,37 @@
   <class name="edm::RefProd<std::vector<pat::GenericParticle>>" />
   <class name="edm::Association<std::vector<pat::GenericParticle>>" />
   <class name="edm::Wrapper<edm::Association<std::vector<pat::GenericParticle>> >" />
+
+  <!-- pat::GenJet -->
+  <class name="pat::PATObject<reco::io_v1::GenJet>" />
+  <class name="pat::io_v1::GenJet" ClassVersion="3">
+   <version ClassVersion="3" checksum="2965749205"/>
+   <field name="daughtersTemp_" transient="true"/>
+   <field name="genCandidatesTemp_" transient="true"/>
+  </class>
+  <ioread sourceClass = "pat::io_v1::GenJet" version="[1-]" targetClass="pat::io_v1::GenJet" source="" target="genCandidatesTemp_">
+    <![CDATA[genCandidatesTemp_.reset();]]>
+  </ioread>
+  <ioread sourceClass = "pat::io_v1::GenJet" version="[1-]" targetClass="pat::io_v1::GenJet" source="" target="daughtersTemp_">
+    <![CDATA[daughtersTemp_.reset();]]>
+  </ioread>
+  <class name="std::vector<pat::io_v1::GenJet>" />
+  <class name="std::vector<pat::io_v1::GenJet>::const_iterator" />
+  <class name="edm::Wrapper<std::vector<pat::io_v1::GenJet> >" />
+  <class name="edm::Ptr<pat::io_v1::GenJet>" />
+  <class name="std::vector<edm::Ptr<pat::io_v1::GenJet> >" />
+  <class name="std::vector< std::vector<edm::Ptr<pat::io_v1::GenJet> > >" />
+  <class name="edm::Wrapper< std::vector<edm::Ptr<pat::io_v1::GenJet> > >" />
+  <class name="edm::Wrapper< std::vector< std::vector<edm::Ptr<pat::io_v1::GenJet> > > >" />
+  <class name="pat::GenJetRef" />
+  <class name="pat::GenJetRefVector" />
+  <class name="edm::Wrapper<pat::GenJetRefVector>" />
+  <class name="edm::RefProd<std::vector<pat::io_v1::GenJet> >" />
+  <class name="edm::reftobase::Holder<reco::io_v1::Candidate, pat::GenJetRef>" />
+  <class name="edm::reftobase::RefHolder<pat::GenJetRef>" />
+  <class name="edm::refhelper::FindUsingAdvance<std::vector<pat::io_v1::GenJet>,pat::io_v1::GenJet>" />
+  <class name="edm::Association<std::vector<pat::io_v1::GenJet> >" />
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::io_v1::GenJet> > >" />
 
   </selection>
  <exclusion>

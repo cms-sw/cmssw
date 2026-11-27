@@ -2,6 +2,7 @@
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include "DataFormats/Scouting/interface/Run3ScoutingPFJet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -289,8 +290,19 @@ const reco::GenJet* Jet::genJet() const {
     return &(genJet_.front());
   else if (!genJetRef_.empty())
     return genJetRef_[0].get();
+  else if (patGenJetRef_.isNonnull())
+    return patGenJetRef_.get();
   else
     return genJetFwdRef_.get();
+}
+
+/// the matched gen jet as a Ptr: pat::GenJet link, else the back link of genJetFwdRef, else null
+edm::Ptr<reco::GenJet> Jet::matchedGenJetPtr() const {
+  if (patGenJetRef_.isNonnull())
+    return edm::Ptr<reco::GenJet>(edm::refToPtr(patGenJetRef_));
+  if (genJetFwdRef_.backRef().isNonnull())
+    return edm::refToPtr(genJetFwdRef_.backRef());
+  return edm::Ptr<reco::GenJet>();
 }
 
 /// return the parton-based flavour of the jet

@@ -4,3 +4,15 @@
 <bin name="testKinResolutions" file="testKinParametrizations.cc,testKinResolutions.cc,testRunner.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>
+<bin name="testGenJet" file="testGenJet.cpp">
+  <use name="catch2"/>
+  <use name="root"/>
+  <use name="DataFormats/HepMCCandidate"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+<bin name="testPatJetGenJetLink" file="testPatJetGenJetLink.cpp">
+  <use name="catch2"/>
+  <use name="root"/>
+  <use name="DataFormats/PatCandidates"/>
+</bin>
+<test name="testGenJetMemberParity" command="python3 ${LOCALTOP}/src/DataFormats/PatCandidates/test/patGenJet_check_member_parity.py"/>

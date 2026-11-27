@@ -24,3 +24,4 @@
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "DataFormats/TauReco/interface/TauDiscriminatorContainer.h"
+#include "DataFormats/PatCandidates/interface/GenJet.h"

@@ -19,6 +19,7 @@
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "PhysicsTools/PatAlgos/interface/PATGenJetLinker.h"
 #include "PhysicsTools/PatAlgos/interface/ObjectModifier.h"
 
 namespace pat {
@@ -38,6 +39,8 @@ namespace pat {
         dropSpecific_, dropTagInfos_;
     const bool modifyJet_, mayNeedDaughterMap_, mixedDaughters_;
     std::unique_ptr<pat::ObjectModifier<pat::Jet>> jetModifier_;
+    // optional link to the pat::GenJet twin of each jet's matched gen jet (parameter patGenJets, VInputTag)
+    pat::PATGenJetLinker patGenJetLinker_;
   };
 
 }  // namespace pat
@@ -53,7 +56,8 @@ pat::PATJetSlimmer::PATJetSlimmer(const edm::ParameterSet& iConfig)
       modifyJet_(iConfig.getParameter<bool>("modifyJets")),
       mayNeedDaughterMap_(iConfig.getParameter<std::string>("dropDaughters") != "1" &&
                           iConfig.getParameter<std::string>("rekeyDaughters") != "0"),
-      mixedDaughters_(iConfig.getParameter<bool>("mixedDaughters")) {
+      mixedDaughters_(iConfig.getParameter<bool>("mixedDaughters")),
+      patGenJetLinker_(iConfig, consumesCollector(), "PATJetSlimmer") {
   if (mayNeedDaughterMap_) {
     if (mixedDaughters_) {
       pf2pcAny_ =
@@ -91,6 +95,8 @@ void pat::PATJetSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   auto out = std::make_unique<std::vector<pat::Jet>>();
   out->reserve(src->size());
+  if (patGenJetLinker_.enabled())
+    patGenJetLinker_.newEvent(iEvent);
 
   if (modifyJet_) {
     jetModifier_->setEvent(iEvent);
@@ -103,6 +109,9 @@ void pat::PATJetSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     if (modifyJet_) {
       jetModifier_->modify(jet);
     }
+
+    if (patGenJetLinker_.enabled())
+      patGenJetLinker_.link(jet);
 
     if (dropTagInfos_(*it)) {
       jet.tagInfoLabels_.clear();
