@@ -1422,6 +1422,9 @@ namespace pixelTopology {
     static constexpr float avgCellsPerHit = 23.;
     static constexpr float avgCellsPerCell = 0.0984;
     static constexpr float avgTracksPerCell = 0.0997;
+
+    // Fit at most 10 hits of a vector-hit track in the BrokenLine fit.
+    static constexpr uint32_t maxHitsOnTrackForFullFit = 10;
   };
 
   struct Phase1 {
