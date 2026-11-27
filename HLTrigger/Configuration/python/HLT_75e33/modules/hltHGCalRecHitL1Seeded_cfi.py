@@ -16,7 +16,7 @@ hltHGCalRecHitL1Seeded = cms.EDProducer("HGCalRecHitProducer",
     HGCEErechitCollection = cms.string('HGCEERecHits'),
     HGCEEuncalibRecHitCollection = cms.InputTag("hltHGCalUncalibRecHitL1Seeded","HGCEEUncalibRecHits"),
     HGCHEB_isSiFE = cms.bool(True),
-    HGCHEB_keV2DIGI = cms.double(0.00148148148148),
+    HGCHEB_keV2DIGI = cms.double(1./455.0),
     HGCHEB_noise_MIP = cms.PSet(
         refToPSet_ = cms.string('HGCAL_noise_heback')
     ),

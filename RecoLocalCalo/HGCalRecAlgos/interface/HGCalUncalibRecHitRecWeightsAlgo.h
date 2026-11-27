@@ -17,6 +17,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
+#include "SimCalorimetry/HGCalSimAlgos/interface/HGCalSciNoiseMap.h"
+
 template <class C>
 class HGCalUncalibRecHitRecWeightsAlgo {
 public:
@@ -74,8 +76,8 @@ public:
         amplitude_ = (std::floor(tdcOnsetfC_ / adcLSB_) + 1.0) * adcLSB_ + (double(sample.data()) + 0.5) * tdcLSB_;
       } else {
         amplitude_ = double(sample.data()) * adcLSB_;  // why do we not have +0.5 here ?
-      }  //isSiFESim_
-    }  //mode()
+      }  //mode()
+    }  //isSiFESim_
 
     // trivial digitization, i.e. no signal shape
     else {
@@ -89,7 +91,17 @@ public:
     }
 
     int thickness = (ddd_ != nullptr) ? ddd_->waferType(dataFrame.id(), false) : 0;
-    amplitude_ = amplitude_ / fCPerMIP_[thickness];
+
+    if (dataFrame.id().det() == DetId::HGCalHSc) {
+      double gain = fCPerMIP_[1];
+      double nTotalPx = fCPerMIP_[2];
+      HGCScintillatorDetId scId(dataFrame.id().rawId());
+      double edge = pow(geom_->getArea(scId), 0.5);
+      double ly(HGCalSciNoiseMap::lyVsize(scId.type(), 0, edge, 9, 2));
+      amplitude_ = -nTotalPx * log(1 - ((amplitude_ / gain) / nTotalPx)) / ly;
+    } else {
+      amplitude_ = amplitude_ / fCPerMIP_[thickness];
+    }
 
     LogDebug("HGCUncalibratedRecHit") << "isSiFESim_: " << isSiFESim_ << " ADC+: set the charge to: " << amplitude_
                                       << ' ' << sample.data() << ' ' << adcLSB_ << ' '
