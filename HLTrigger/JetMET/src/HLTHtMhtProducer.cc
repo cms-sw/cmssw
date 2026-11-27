@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METFwd.h"
@@ -32,6 +33,9 @@ HLTHtMhtProducer::HLTHtMhtProducer(const edm::ParameterSet& iConfig)
       pfCandidatesLabel_(iConfig.getParameter<edm::InputTag>("pfCandidatesLabel")) {
   m_theJetToken = consumes<reco::CandidateView>(jetsLabel_);
   m_thePFCandidateToken = consumes<reco::PFCandidateCollection>(pfCandidatesLabel_);
+
+  if (excludePFMuons_ and pfCandidatesLabel_.label().empty())
+    throw cms::Exception("Configuration") << "HLTHtMhtProducer: excludePFMuons requires a non-empty pfCandidatesLabel.";
 
   // Register the products
   produces<reco::METCollection>();

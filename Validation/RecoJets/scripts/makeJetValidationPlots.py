@@ -858,7 +858,7 @@ if __name__ == '__main__':
                     tail_low_errors[ns].append(tail_frac_errlo)
                     tail_high_errors[ns].append(tail_frac_errhi)
             xlabel = hproj.GetXaxis().GetTitle().replace('#', '\\')
-            plotter_single.labels(x=f"{xlabel}", y=f"# Jets", legend_title='')
+            plotter_single.labels(x=f'${xlabel}$', y=f"# Jets", legend_title='')
             plotter_single.save( os.path.join(args.odir, Var2D  + '_tails_fit' + str(ipt)) )
 
         pt_centers = pt_bins[:-1] + (pt_bins[1:] - pt_bins[:-1])/2
@@ -869,7 +869,7 @@ if __name__ == '__main__':
             plotter.ax.axhline(y=ideal_fraction[ns], color=colors[ins], linestyle='--', label=f'{ns}$\sigma$ coverage')
         plotter.ax.set_xscale('log')
         xlabel = root_hist.GetXaxis().GetTitle().replace('#', '\\')
-        plotter.labels(x=f"{xlabel}", y="Resolution Tail Fraction", legend_title='Ideal Gaussian')
+        plotter.labels(x=f'${xlabel}$', y="Resolution Tail Fraction", legend_title='Ideal Gaussian')
         plotter.save( os.path.join(args.odir, Var2D  + '_tails') )
     
     ########################################

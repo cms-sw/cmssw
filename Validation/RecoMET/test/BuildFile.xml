@@ -1,1 +1,4 @@
-<test name="testMakeHLTMETValidationPlots" command="test_makeHLTMETValidationPlots.sh"/>
+<test name="testMakeMETValidationPlots" command="test_makeMETValidationPlots.sh"/>
+<bin name="testSliceBinRanges" file="testSliceBinRanges.cc">
+  <use name="root"/>
+</bin>

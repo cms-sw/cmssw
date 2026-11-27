@@ -83,4 +83,11 @@ METValidation = cms.Sequence(
     pfType01CorrectedMetAnalyzer
     )
 
+# Phase-2 only, so that the validation of the other eras is unchanged
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+from RecoMET.Configuration.GenMHT_cff import genMht, genMHTTask, genMHT
+_phase2_METValidation = METValidation.copy()
+_phase2_METValidation += cms.Sequence(pfMetPuppiAnalyzer + genMHT + pfPuppiMHT + pfPuppiMHTAnalyzer)
+phase2_common.toReplaceWith(METValidation, _phase2_METValidation)
+
 METValidationMiniAOD = cms.Sequence(pfType1CorrectedMetAnalyzerMiniAOD*pfPuppiMetAnalyzerMiniAOD)
