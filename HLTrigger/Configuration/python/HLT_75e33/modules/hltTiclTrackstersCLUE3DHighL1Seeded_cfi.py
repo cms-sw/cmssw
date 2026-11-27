@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 hltTiclTrackstersCLUE3DHighL1Seeded = cms.EDProducer("TrackstersProducer",
+    ticlGeom = cms.ESInputTag('', 'hlt'),
+    ticlGeomWithBarrel = cms.ESInputTag('', 'hltWithBarrel'),
     detector = cms.string('HGCAL'),
     filtered_mask = cms.InputTag("hltFilteredLayerClustersCLUE3DHighL1Seeded","CLUE3DHigh"),
     itername = cms.string('CLUE3DHigh'),

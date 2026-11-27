@@ -71,8 +71,8 @@ BarrelLayerClusterProducer::BarrelLayerClusterProducer(const edm::ParameterSet& 
       timeClname_(ps.getParameter<std::string>("timeClname")),
       nHitsTime_(ps.getParameter<unsigned int>("nHitsTime")),
       hits_token_{consumes<reco::PFRecHitCollection>(ps.getParameter<edm::InputTag>("recHits"))},
-      ticlGeomToken_{
-          consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", "withBarrel"))} {
+      ticlGeomToken_{consumesCollector().esConsumes<TICLGeomHost, CaloGeometryRecord>(
+          ps.getParameter<edm::ESInputTag>("ticlGeom"))} {
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("plugin");
   std::string type = pluginPSet.getParameter<std::string>("type");
   algo_ = HGCalLayerClusterAlgoFactory::get()->create(type, pluginPSet);
@@ -90,6 +90,7 @@ BarrelLayerClusterProducer::BarrelLayerClusterProducer(const edm::ParameterSet& 
 
 void BarrelLayerClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", "withBarrel"));
 
   edm::ParameterSetDescription pluginDesc;
   pluginDesc.addNode(edm::PluginDescription<HGCalLayerClusterAlgoFactory>("type", "EBCLUE", true));

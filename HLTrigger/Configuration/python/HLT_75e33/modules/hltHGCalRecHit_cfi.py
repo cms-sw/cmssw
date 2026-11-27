@@ -3,6 +3,7 @@ from ..psets.HGCAL_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_
 from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 hltHGCalRecHit = cms.EDProducer("HGCalRecHitProducer",
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     HGCEE_cce = cms.PSet(
         refToPSet_ = cms.string('HGCAL_chargeCollectionEfficiencies')
     ),

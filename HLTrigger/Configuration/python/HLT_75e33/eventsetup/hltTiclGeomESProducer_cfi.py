@@ -4,5 +4,5 @@ import FWCore.ParameterSet.Config as cms
 # never collides with the offline reco instance when HLT and RECO run together
 hltTiclGeomESProducer = cms.ESProducer('TICLGeomESProducer@alpaka',
     detectors = cms.vstring('HGCal'),
-    appendToDataLabel = cms.string('')
+    appendToDataLabel = cms.string('hlt')
 )

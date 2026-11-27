@@ -8,7 +8,7 @@
 template <typename HIT, typename CLUSTER>
 LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::LCToCPAssociatorByEnergyScoreProducerT(const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
-      ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomToken_(esConsumes(ps.getParameter<edm::ESInputTag>("ticlGeom"))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_token_(consumes<multiCollectionT>(ps.getParameter<edm::InputTag>("hits"))) {
   // Register the product
@@ -69,6 +69,7 @@ void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::produce(edm::StreamID
 template <typename HIT, typename CLUSTER>
 void LCToCPAssociatorByEnergyScoreProducerT<HIT, CLUSTER>::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   desc.add<bool>("hardScatterOnly", true);
   if constexpr (std::is_same_v<HIT, HGCRecHit>) {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));

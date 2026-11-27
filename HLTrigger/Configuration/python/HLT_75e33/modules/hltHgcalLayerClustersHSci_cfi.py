@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from ..psets.HGCAL_reco_constants_cfi import HGCAL_reco_constants as HGCAL_reco_constants
 
 hltHgcalLayerClustersHSci = cms.EDProducer("HGCalLayerClusterProducer",
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     detector = cms.string('BH'),
     mightGet = cms.optional.untracked.vstring,
     nHitsTime = cms.uint32(3),

@@ -28,6 +28,7 @@ from Validation.MtdValidation.hltMtdValidation_cff import *
 # HGCAL Rechit Calibration
 from Validation.HGCalValidation.hgcalHitCalibrationDefault_cfi import hgcalHitCalibrationDefault as _hgcalHitCalibrationDefault
 hgcalHitCalibrationHLT = _hgcalHitCalibrationDefault.clone(
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     folder = "HLT/HGCalHitCalibration",
     recHitsEE = ("hltHGCalRecHit", "HGCEERecHits", "HLT"),
     recHitsFH = ("hltHGCalRecHit", "HGCHEFRecHits", "HLT"),

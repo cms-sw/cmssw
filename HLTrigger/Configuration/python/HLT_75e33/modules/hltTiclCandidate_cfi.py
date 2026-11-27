@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltTiclCandidate = cms.EDProducer("TICLCandidateProducer",
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     inferenceAlgo = cms.string('TracksterInferenceByPFN'),
     regressionAndPid = cms.bool(True),
     pluginInferenceAlgoTracksterInferenceByPFN = cms.PSet(

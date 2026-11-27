@@ -131,7 +131,7 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
           consumes(ps.getParameter<edm::InputTag>("layerClusterSimClusterAssociator"))),
       associatorMapCaloParticleToReco_token_(
           consumes(ps.getParameter<edm::InputTag>("layerClusterCaloParticleAssociator"))),
-      ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomToken_(esConsumes(ps.getParameter<edm::ESInputTag>("ticlGeom"))),
       fractionCut_(ps.getParameter<float>("fractionCut")),
       qualityCutTrack_(ps.getParameter<float>("qualityCutTrack")),
       trackingParticleToken_(
@@ -153,6 +153,7 @@ SimTrackstersProducer::SimTrackstersProducer(const edm::ParameterSet& ps)
 
 void SimTrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   desc.add<std::string>("detector", "HGCAL");
   desc.add<bool>("computeLocalTime", "true");
   desc.add<edm::InputTag>("layer_clusters", edm::InputTag("hgcalMergeLayerClusters"));

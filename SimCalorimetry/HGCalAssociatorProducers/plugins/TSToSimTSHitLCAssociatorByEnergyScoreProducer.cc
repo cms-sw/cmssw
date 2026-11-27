@@ -41,7 +41,7 @@ template <typename HIT>
 TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::TSToSimTSHitLCAssociatorByEnergyScoreProducer(
     const edm::ParameterSet &ps)
     : hitMap_(consumes<std::unordered_map<DetId, const unsigned int>>(ps.getParameter<edm::InputTag>("hitMapTag"))),
-      ticlGeomToken_(esConsumes(edm::ESInputTag("", ""))),
+      ticlGeomToken_(esConsumes(ps.getParameter<edm::ESInputTag>("ticlGeom"))),
       hardScatterOnly_(ps.getParameter<bool>("hardScatterOnly")),
       hits_label_(ps.getParameter<std::vector<edm::InputTag>>("hits")) {
   for (auto &label : hits_label_) {
@@ -98,6 +98,7 @@ void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::produce(edm::StreamID,
 template <typename HIT>
 void TSToSimTSHitLCAssociatorByEnergyScoreProducer<HIT>::fillDescriptions(edm::ConfigurationDescriptions &cfg) {
   edm::ParameterSetDescription desc;
+  desc.add<edm::ESInputTag>("ticlGeom", edm::ESInputTag("", ""));
   if constexpr (std::is_same_v<HIT, HGCRecHit>) {
     desc.add<edm::InputTag>("hitMapTag", edm::InputTag("recHitMapProducer", "hgcalRecHitMap"));
     desc.add<std::vector<edm::InputTag>>("hits",

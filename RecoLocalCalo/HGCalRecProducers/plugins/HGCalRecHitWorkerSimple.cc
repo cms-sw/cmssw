@@ -14,7 +14,7 @@
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps, edm::ConsumesCollector iC)
     : HGCalRecHitWorkerBaseClass(ps, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
-      ticlGeomToken_(iC.esConsumes<TICLGeomHost, CaloGeometryRecord>(edm::ESInputTag("", ""))),
+      ticlGeomToken_(iC.esConsumes<TICLGeomHost, CaloGeometryRecord>(ps.getParameter<edm::ESInputTag>("ticlGeom"))),
       ee_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalEESensitive"))),
       hef_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHESiliconSensitive"))),
       hfnose_geometry_token_(iC.esConsumes(edm::ESInputTag("", "HGCalHFNoseSensitive"))) {

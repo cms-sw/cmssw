@@ -4,6 +4,7 @@ from Configuration.Eras.Modifier_phase2_hgcalV19_cff import phase2_hgcalV19
 
 
 hltHGCalRecHitL1Seeded = cms.EDProducer("HGCalRecHitProducer",
+    ticlGeom = cms.ESInputTag('', 'hlt'),
     HGCEE_cce = cms.PSet(
         refToPSet_ = cms.string('HGCAL_chargeCollectionEfficiencies')
     ),
