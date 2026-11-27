@@ -44,7 +44,7 @@ hltPhase2L3MuonsTrkIsoRegionalNewdR0p3dRVeto0p005dz0p25dr0p20ChisqInfPtMin0p0Cut
         Pt_Min = cms.double(-1.0),
         ReferenceRadius = cms.double(6.0),
         VetoLeadingTrack = cms.bool(True),
-        inputTrackCollection = cms.InputTag("hltPhase2L3MuonGeneralTracks")
+        inputTrackCollection = cms.InputTag("hltPhase2L3MuonIsoTracks")
     ),
     UseCaloIso = cms.bool(False),
     UseRhoCorrectedCaloDeposits = cms.bool(False),

@@ -4,8 +4,7 @@ hltL2MuonSeedsFromL1TkMuon = cms.EDProducer('Phase2L2MuonSeedCreator',
     inputObjects = cms.InputTag('l1tTkMuonsGmt'),
     cscRecSegmentLabel = cms.InputTag('hltCscSegments'),
     dtRecSegmentLabel = cms.InputTag('hltDt4DSegments'),
-    minPL1Tk = cms.double(3.5),
-    maxPL1Tk = cms.double(200),
+    minL1pT = cms.double(0.0),
     stubMatchDPhi = cms.double(0.05),
     stubMatchDTheta = cms.double(0.1),
     extrapolationWindowClose = cms.double(0.2),
@@ -19,5 +18,4 @@ hltL2MuonSeedsFromL1TkMuon = cms.EDProducer('Phase2L2MuonSeedCreator',
         UseMuonNavigation = cms.untracked.bool(True)
     ),
     estimatorMaxChi2 = cms.double(1000.0)
-)   
-
+)

@@ -11,7 +11,7 @@ from ..sequences.HLTLocalrecoSequence_cfi import *
 from ..sequences.HLTRawToDigiSequence_cfi import *
 from ..sequences.HLTHPSDeepTauPFTauSequence_cfi import *
 from ..sequences.HLTParticleFlowSequence_cfi import *
-from ..sequences.HLTPhase2L3MuonGeneralTracksSequence_cfi import *
+from ..sequences.HLTPhase2L3MuonIsoTracksSequence_cfi import *
 from ..modules.hltAK4PFJetsForTaus_cfi import *
 from ..modules.hltPhase2L3MuonCandidates_cfi import *
 from ..modules.hltHpsSelectedPFTauLooseTauWPDeepTau_cfi import *
@@ -52,7 +52,7 @@ HLT_IsoMu20_eta2p1_LooseDeepTauPFTauHPS27_eta2p1_CrossL1 = cms.Path(
     + hltL3crIsoL1TkSingleMu22EcalIso0p41
     + hltL3crIsoL1TkSingleMu22HcalIso0p40
     + hltL3crIsoL1TkSingleMu22HgcalIso4p70
-    + HLTPhase2L3MuonGeneralTracksSequence
+    + HLTPhase2L3MuonIsoTracksSequence
     + hltPhase2L3MuonsTrkIsoRegionalNewdR0p3dRVeto0p005dz0p25dr0p20ChisqInfPtMin0p0Cut0p07
     + hltL3crIsoL1TkSingleMu22TrkIsoRegionalNewFiltered0p07EcalHcalHgcalTrk
     + HLTAK4PFJetsReconstruction

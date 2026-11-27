@@ -44,8 +44,7 @@ Phase2L2MuonSeedCreator::Phase2L2MuonSeedCreator(const edm::ParameterSet& pset)
       cscGeometryToken_{esConsumes<CSCGeometry, MuonGeometryRecord>()},
       dtGeometryToken_{esConsumes<DTGeometry, MuonGeometryRecord>()},
       magneticFieldToken_{esConsumes<MagneticField, IdealMagneticFieldRecord>()},
-      minMomentum_{pset.getParameter<double>("minPL1Tk")},
-      maxMomentum_{pset.getParameter<double>("maxPL1Tk")},
+      minL1pT_{pset.getParameter<double>("minL1pT")},
       matchingPhiWindow_{pset.getParameter<double>("stubMatchDPhi")},
       matchingThetaWindow_{pset.getParameter<double>("stubMatchDTheta")},
       extrapolationDeltaPhiClose_{pset.getParameter<double>("extrapolationWindowClose")},
@@ -66,8 +65,7 @@ void Phase2L2MuonSeedCreator::fillDescriptions(edm::ConfigurationDescriptions& d
   desc.add<edm::InputTag>("inputObjects", edm::InputTag("l1tTkMuonsGmt"));
   desc.add<edm::InputTag>("cscRecSegmentLabel", edm::InputTag("hltCscSegments"));
   desc.add<edm::InputTag>("dtRecSegmentLabel", edm::InputTag("hltDt4DSegments"));
-  desc.add<double>("minPL1Tk", 3.5);
-  desc.add<double>("maxPL1Tk", 200);
+  desc.add<double>("minL1pT", 0.0);
   desc.add<double>("stubMatchDPhi", 0.05);
   desc.add<double>("stubMatchDTheta", 0.1);
   desc.add<double>("extrapolationWindowClose", 0.1);
@@ -111,7 +109,7 @@ void Phase2L2MuonSeedCreator::produce(edm::Event& iEvent, const edm::EventSetup&
 
     // Physical info of L1TkMu
     const float pt = l1TkMuRef->phPt();
-    if (pt < minMomentum_) {
+    if (pt < minL1pT_) {
       continue;
     }
     const float eta = l1TkMuRef->phEta();
