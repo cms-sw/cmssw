@@ -33,11 +33,6 @@
   <use name="PhysicsTools/Utilities"/>
 </bin>
 
-<bin file="testRooFitFunction.cpp" name="testRooFitFunction">
-  <use name="PhysicsTools/Utilities"/>
-  <use name="roofitcore"/>
-</bin>
-
 <bin file="testIntegralTiming.cpp" name="testIntegralTiming">
   <use name="rootminuit"/>
   <use name="PhysicsTools/Utilities"/>
