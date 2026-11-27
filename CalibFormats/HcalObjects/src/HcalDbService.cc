@@ -28,7 +28,6 @@ HcalDbService::HcalDbService()
       mL1TriggerObjects(nullptr),
       mTimeCorrs(nullptr),
       mLUTCorrs(nullptr),
-      mPFCorrs(nullptr),
       mLutMetadata(nullptr),
       mSiPMParameters(nullptr),
       mSiPMCharacteristics(nullptr),
@@ -366,13 +365,6 @@ const HcalTimeCorr* HcalDbService::getHcalTimeCorr(const HcalGenericDetId& fId) 
 const HcalLUTCorr* HcalDbService::getHcalLUTCorr(const HcalGenericDetId& fId) const {
   if (mLUTCorrs) {
     return mLUTCorrs->getValues(fId);
-  }
-  return nullptr;
-}
-
-const HcalPFCorr* HcalDbService::getHcalPFCorr(const HcalGenericDetId& fId) const {
-  if (mPFCorrs) {
-    return mPFCorrs->getValues(fId);
   }
   return nullptr;
 }

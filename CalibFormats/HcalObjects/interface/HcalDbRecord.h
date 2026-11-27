@@ -43,7 +43,6 @@ class HcalDbRecord : public edm::eventsetup::DependentRecordImplementation<HcalD
                                                                                             HcalElectronicsMapRcd,
                                                                                             HcalTimeCorrsRcd,
                                                                                             HcalLUTCorrsRcd,
-                                                                                            HcalPFCorrsRcd,
                                                                                             HcalFrontEndMapRcd,
                                                                                             HcalSiPMCharacteristicsRcd,
                                                                                             HcalSiPMParametersRcd,

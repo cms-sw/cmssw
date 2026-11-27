@@ -49,7 +49,6 @@ public:
   const HcalChannelStatus* getHcalChannelStatus(const HcalGenericDetId& fId) const;
   const HcalZSThreshold* getHcalZSThreshold(const HcalGenericDetId& fId) const;
   const HcalLUTCorr* getHcalLUTCorr(const HcalGenericDetId& fId) const;
-  const HcalPFCorr* getHcalPFCorr(const HcalGenericDetId& fId) const;
   const HcalLutMetadata* getHcalLutMetadata() const;
   const HcalQIEType* getHcalQIEType(const HcalGenericDetId& fId) const;
   const HcalSiPMParameter* getHcalSiPMParameter(const HcalGenericDetId& fId) const;
@@ -107,7 +106,6 @@ public:
     mLUTCorrs = fItem;
     mCalibSet = nullptr;
   }
-  void setData(const HcalPFCorrs* fItem) { mPFCorrs = fItem; }
   void setData(const HcalLutMetadata* fItem) { mLutMetadata = fItem; }
   void setData(const HcalSiPMParameters* fItem) {
     mSiPMParameters = fItem;
@@ -155,7 +153,6 @@ private:
   const HcalL1TriggerObjects* mL1TriggerObjects;
   const HcalTimeCorrs* mTimeCorrs;
   const HcalLUTCorrs* mLUTCorrs;
-  const HcalPFCorrs* mPFCorrs;
   const HcalLutMetadata* mLutMetadata;
   const HcalSiPMParameters* mSiPMParameters;
   const HcalSiPMCharacteristics* mSiPMCharacteristics;
