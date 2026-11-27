@@ -37,6 +37,8 @@ equivDict = \
                            f'reco::{io_v}Track.+TrackingParticle',
                            f'TrackingParticle.+reco::{io_v}Track',
                            'MtdSimLayerCluster.+TrackingParticle',
+                           'MtdSimMergedCluster.+TrackingParticle',
+                           'TrackingParticle.+MtdSimMergedCluster',
                            'TrackingParticle.+MtdSimLayerCluster',
                            '(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',
                            '(TTStub|TTCluster|TTTrack).*Phase2TrackerDigi.*TrackingParticle',
