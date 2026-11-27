@@ -87,7 +87,7 @@ public:
     uint32_t modid = denseIndexingFor(fedid, econtIdx);
     return getIndexForModuleTrLink(fedid, modid, trLinkidx);
   }
-
+  
   uint32_t getIndexForModuleData(uint32_t fedid, uint32_t modid, uint32_t trLinkidx, uint32_t TCidx) const {
     uint32_t denseTCidx = getDenseTCIndex(fedid, modid, trLinkidx, TCidx);
     return getIndexForModuleData(fedid, modid, denseTCidx);

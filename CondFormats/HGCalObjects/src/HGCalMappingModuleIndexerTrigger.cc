@@ -15,6 +15,7 @@ void HGCalMappingModuleIndexerTrigger::processNewModule(uint32_t fedid,
                                                         uint32_t nTrLinks,
                                                         uint32_t nTCs,
                                                         std::string const& typecode) {
+  
   // add fed if needed
   if (fedid >= fedReadoutSequences_.size()) {
     fedReadoutSequences_.resize(fedid + 1);
@@ -44,11 +45,11 @@ void HGCalMappingModuleIndexerTrigger::processNewModule(uint32_t fedid,
   if (!typecode.empty()) {
     if (typecodeMap_.find(typecode) != typecodeMap_.end()) {     // found key
       const auto& [fedid_, modid_] = typecodeMap_.at(typecode);  // (fedId,modId)
-      edm::LogWarning("HGCalMappingModuleIndexerTrigger")
+      edm::LogWarning("HGCalMappingModuleIndexerTrigger") 
           << "Found typecode " << typecode << " already in map (fedid,modid)=(" << fedid_ << "," << modid_
           << ")! Overwriting with (" << fedid << "," << idx << ")...";
     }
-    LogDebug("HGCalMappingModuleIndexerTrigger")
+    LogDebug("HGCalMappingModuleIndexerTrigger") 
         << "HGCalMappingModuleIndexerTrigger::processNewModule: Adding typecode=\"" << typecode
         << "\" with fedid=" << fedid << ", idx=" << idx << " (will be re-indexed after finalize)";
     typecodeMap_[typecode] = std::make_pair(fedid, idx);

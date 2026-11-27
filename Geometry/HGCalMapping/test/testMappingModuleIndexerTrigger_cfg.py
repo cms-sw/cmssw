@@ -1,23 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("TEST")
 
-import argparse as ap
-parser = ap.ArgumentParser()
-parser.add_argument('-modules','--modules',type=str,
-                    default='Geometry/HGCalMapping/data/ModuleMaps/modulelocator_trigger_test.txt',
-                    help='Path to module mapper. Absolute, or relative to CMSSW src directory.'
-                    )
 
-parser.add_argument('-sicells','--sicells',type=str,
-                    default='Geometry/HGCalMapping/data/CellMaps/WaferCellMapTraces.txt',
-                    help='Path to Si cell mapper. Absolute, or relative to CMSSW src directory.'
-                    )
-
-parser.add_argument('-sipmcells','--sipmcells',type=str,
-                    default='Geometry/HGCalMapping/data/CellMaps/channels_sipmontile.hgcal.txt',
-                    help='Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory.'
-                    )
-options = parser.parse_args()
+from FWCore.ParameterSet.VarParsing import VarParsing
+options = VarParsing('python')
+options.register('modules','Geometry/HGCalMapping/data/ModuleMaps/modulelocator_trigger_test.txt',mytype=VarParsing.varType.string,
+                 info="Path to module mapper. Absolute, or relative to CMSSW src directory")
+options.register('sicells','Geometry/HGCalMapping/data/CellMaps/WaferCellMapTraces.txt',mytype=VarParsing.varType.string,
+                 info="Path to Si cell mapper. Absolute, or relative to CMSSW src directory")
+options.register('sipmcells','Geometry/HGCalMapping/data/CellMaps/channels_sipmontile.hgcal.txt',mytype=VarParsing.varType.string,
+                 info="Path to SiPM-on-tile cell mapper. Absolute, or relative to CMSSW src directory")
+options.parseArguments()
 
 process.source = cms.Source('EmptySource')
 

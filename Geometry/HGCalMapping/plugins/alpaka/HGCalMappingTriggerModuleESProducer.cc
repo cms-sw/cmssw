@@ -61,7 +61,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           int cassette = pmap.hasColumn("cassette") ? pmap.getIntAttr("cassette", row) : 1;
           int fedid = pmap.getIntAttr("trig_fedid", row);
           int econtidx = pmap.getIntAttr("econtidx", row);
-          int idx = modIndexer.getIndexForModule(fedid, static_cast<uint16_t>(econtidx));
+          if (fedid < 0 || econtidx < 0)
+            continue;
+
+	  int idx = modIndexer.getIndexForModule(fedid, static_cast<uint16_t>(econtidx));
           int typeidx = modIndexer.getTypeForModule(fedid, static_cast<uint16_t>(econtidx));
           const std::string& typecode = pmap.getAttr("typecode", row);
 
@@ -98,6 +101,24 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
           module.muxid() = muxid;
           module.trigdetid() = trigdetid;
           module.cassette() = cassette;
+	  if (isSiPM) {
+            auto module = moduleParams.view()[idx + 1];
+            module.valid() = true;
+            module.zside() = (zside > 0);
+            module.isSiPM() = isSiPM;
+            module.plane() = plane;
+            module.i1() = i1;
+            module.i2() = i2;
+            module.irot() = irot;
+            module.celltype() = celltype;
+            module.typeidx() = typeidx;
+            module.fedid() = fedid;
+            module.slinkidx() = pmap.getIntAttr("slinkidx", row);
+            module.econtidx() = econtidx+1;
+            module.muxid() = muxid;
+            module.trigdetid() = trigdetid;
+            module.cassette() = cassette;
+          }
         }
 
         return moduleParams;

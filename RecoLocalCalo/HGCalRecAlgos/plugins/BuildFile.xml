@@ -12,6 +12,11 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<!-- HGCal Trigger configuration plugin -->
+<library file="HGCalTriggerConfigurationESProducer.cc">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <!-- alpaka-based portable plugins -->
 <library file="alpaka/*.cc" name="RecoLocalCaloHGCalRecAlgosPluginsPortable">
   <use name="alpaka"/>

@@ -53,6 +53,29 @@
     <field name="feds" mapping="blob"/>
   </class>
 
+  <!-- HGCal Trigger configuration -->
+  <class name="HGCalTriggerConfiguration" class_version="0">
+    <field name="feds" mapping="blob"/>
+  </class>
+  <class name="HGCalTriggerFedConfig" class_version="0">
+    <field name="tdaqs" mapping="blob"/>
+    <field name="econtSwapOffset" mapping="blob"/>
+  </class>
+  <class name="HGCalTDAQConfig" class_version="0">
+    <field name="tdaqBlockHeaderMarker" mapping="blob"/>
+    <field name="tdaqFlag" mapping="blob"/>
+    <field name="econts" mapping="blob"/>
+  </class>
+  <class name="HGCalECONTConfig" class_version="0">
+    <field name="density" mapping="blob"/>
+    <field name="dropLSB" mapping="blob"/>
+    <field name="select" mapping="blob"/>
+    <field name="stcType" mapping="blob"/>
+    <field name="eportTxNumen" mapping="blob"/>
+    <field name="calv" mapping="blob"/>
+    <field name="tcMux" mapping="blob"/>
+    <field name="offset" mapping="blob"/>
+  </class>
   <class name="HGCalFedConfig" class_version="0">
     <field name="passthroughMode" mapping="blob"/>
     <field name="cbHeaderMarker" mapping="blob"/>

@@ -4,3 +4,4 @@
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexer.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingCellIndexerTrigger.h"
 #include "CondFormats/HGCalObjects/interface/HGCalMappingModuleIndexerTrigger.h"
+#include "CondFormats/HGCalObjects/interface/HGCalTriggerConfiguration.h"

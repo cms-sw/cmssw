@@ -25,7 +25,7 @@
 #include <sstream>
 
 namespace ALPAKA_ACCELERATOR_NAMESPACE {
-
+  
   namespace hgcal {
 
     class HGCalDenseIndexTriggerInfoESProducer : public ESProducer {
@@ -48,13 +48,13 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
         desc.add<edm::ESInputTag>("cellinfo", edm::ESInputTag(""))->setComment("Cell info table");
         descriptions.addWithDefaultLabel(desc);
       }
-
+      
       //
       std::optional<HGCalDenseIndexTriggerInfoHost> produce(const HGCalDenseIndexInfoRcd& iRecord) {
         //get cell and module indexer
         auto const& modIndexer = iRecord.get(moduleIndexTkn_);
         auto const& cellIndexer = iRecord.get(cellIndexTkn_);
-
+	
         //get cell and module info
         auto const& moduleInfo = iRecord.get(moduleInfoTkn_);
         auto const& cellInfo = iRecord.get(cellInfoTkn_);
@@ -70,7 +70,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             int modTypeIdx = fedRS.readoutTypes_[imod];
             uint32_t nch = modIndexer.globalTypesNTCs()[modTypeIdx];
             int off = fedRS.TCOffsets_[imod];
-
+	    
             //get additional necessary module info
             int modIdx = modIndexer.getIndexForModule(fedId, static_cast<uint32_t>(imod));
             const auto& module_row = moduleInfo.view()[modIdx];
@@ -79,8 +79,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
             uint32_t muxid = module_row.muxid();
 
             //get the offset to start reading the cell info from sequential
-            uint32_t cellInfoOffset = cellIndexer.offsets_[typeidx];
-
+            uint32_t cellInfoOffset = cellIndexer.offsets_[typeidx];	  
             //now fill the information sequentially on the cells of this module
             for (uint32_t ich = 0; ich < nch; ich++) {
               //finalize assigning the dense index
