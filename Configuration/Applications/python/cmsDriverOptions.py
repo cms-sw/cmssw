@@ -145,12 +145,10 @@ def OptionsFromItems(items):
             print("This is a deprecated way of selecting lhe files from article number. Please use lhe:article argument to --filein")
             options.filein=options.filein.replace('mcdb:','lhe:')
             options.filetype="LHE"
-        elif options.filein.lower().endswith(".rntpl"):
-            options.filetype="EDM_RNTUPLE"
         else:
             options.filetype="EDM"
 
-    filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": "", "DQM":"root", "EDM_RNTUPLE":"rntpl"}[options.filetype]
+    filesuffix = {"LHE": "lhe", "EDM": "root", "MCDB": "", "DQM":"root", "EDM_RNTUPLE":"root"}[options.filetype]
 
     if options.filein=="" and not (first_step in ("ALL","GEN","LHE","SIM_CHAIN")):
         options.dirin="file:"+options.dirin.replace('file:','')
@@ -292,4 +290,3 @@ def OptionsFromItems(items):
         raise Exception("ERROR: the --option fast is incompatible with HLT (HLT is no longer available in FastSim)")
 
     return options
-
