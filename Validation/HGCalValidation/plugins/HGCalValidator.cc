@@ -305,20 +305,20 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
       // CP Linking by Hits
       ibook.setCurrentFolder(dirName + "/" + label_TSbyHitsCP_);
       histoProducerAlgo_->bookTracksterSTSHistos(
-          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::validationType::byHits_CP);
+          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::TracksterAssociationType::byHits_CP, www);
       // CP Linking by LCs
       ibook.setCurrentFolder(dirName + "/" + label_TSbyLCsCP_);
 
       histoProducerAlgo_->bookTracksterSTSHistos(
-          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::validationType::byLCs_CP);
+          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::TracksterAssociationType::byLCs_CP, www);
       // SimTracksters Linking by Hits
       ibook.setCurrentFolder(dirName + "/" + label_TSbyHits_);
       histoProducerAlgo_->bookTracksterSTSHistos(
-          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::validationType::byHits);
+          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::TracksterAssociationType::byHits, www);
       // SimTracksters Linking by LCs
       ibook.setCurrentFolder(dirName + "/" + label_TSbyLCs_);
       histoProducerAlgo_->bookTracksterSTSHistos(
-          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::validationType::byLCs);
+          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::TracksterAssociationType::byLCs, www);
     }
   }  //end of booking Tracksters loop
 
