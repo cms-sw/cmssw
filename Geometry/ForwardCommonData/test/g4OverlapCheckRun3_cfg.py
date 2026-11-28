@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheckRun3_cfg.py type=2021 tol=0.01 resol=10000
 #
-#   Options for type  2021, 2023, 2025
+#   Options for type  2021, 2023, 2025, 2026
 #               tol   1.0, 0.1, 0.01, 0.0
 #               resol 10000, 100000, 1000000
 #
@@ -18,7 +18,7 @@ options.register('type',
                  "2021",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: 2021, 2023, 2025")
+                  "type of operations: 2021, 2023, 2025, 2026")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
