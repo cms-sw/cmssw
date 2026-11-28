@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun g4OverlapCheck_cfg.py type=D120 tol=0.01 resol=10000
 #
-#   Options for type  D120, D122, D123, D124
+#   Options for type  D120, D122, D124
 #               tol   1.0, 0.1, 0.01, 0.0
 #               resol 10000, 100000, 1000000
 #
@@ -18,7 +18,7 @@ options.register('type',
                  "D120",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "type of operations: D120, D122, D123, D124")
+                  "type of operations: D120, D122, D124")
 options.register('tol',
                  0.01,
                  VarParsing.VarParsing.multiplicity.singleton,
