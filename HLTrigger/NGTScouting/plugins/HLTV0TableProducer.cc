@@ -19,6 +19,7 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -88,6 +89,9 @@ void HLTV0TableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   std::vector<float> v_posPt(nV0s, kNaN), v_posEta(nV0s, kNaN), v_posPhi(nV0s, kNaN);
   std::vector<float> v_negPt(nV0s, kNaN), v_negEta(nV0s, kNaN), v_negPhi(nV0s, kNaN);
   std::vector<int16_t> v_posTrkIdx(nV0s, -1), v_negTrkIdx(nV0s, -1);
+  std::vector<uint8_t> v_posNPixelHits(nV0s, 0), v_negNPixelHits(nV0s, 0);
+  std::vector<uint8_t> v_posNStripHits(nV0s, 0), v_negNStripHits(nV0s, 0);
+  std::vector<float> v_posIPSigXY(nV0s, kNaN), v_negIPSigXY(nV0s, kNaN);
 
   VertexDistanceXY vdistXY;
   VertexDistance3D vdist3D;
@@ -145,18 +149,33 @@ void HLTV0TableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       if (dau == nullptr || dau->charge() == 0)
         continue;
       int16_t trkIdx = -1;
-      if (const auto* rcc = dynamic_cast<const reco::RecoChargedCandidate*>(dau); rcc && rcc->track().isNonnull())
-        trkIdx = static_cast<int16_t>(rcc->track().key());
+      uint8_t nPixelHits = 0, nStripHits = 0;
+      float ipSigXY = kNaN;
+      if (const auto* rcc = dynamic_cast<const reco::RecoChargedCandidate*>(dau); rcc && rcc->track().isNonnull()) {
+        const auto& trk = rcc->track();
+        trkIdx = static_cast<int16_t>(trk.key());
+        // in phase-2 the Outer Tracker hits are counted as strip hits
+        nPixelHits = static_cast<uint8_t>(trk->hitPattern().numberOfValidPixelHits());
+        nStripHits = static_cast<uint8_t>(trk->hitPattern().numberOfValidStripHits());
+        if (bs != nullptr && trk->dxyError() > 0.)
+          ipSigXY = std::abs(trk->dxy(bs->position(trk->vz()))) / trk->dxyError();
+      }
       if (dau->charge() > 0) {
         v_posPt[i] = dau->pt();
         v_posEta[i] = dau->eta();
         v_posPhi[i] = dau->phi();
         v_posTrkIdx[i] = trkIdx;
+        v_posNPixelHits[i] = nPixelHits;
+        v_posNStripHits[i] = nStripHits;
+        v_posIPSigXY[i] = ipSigXY;
       } else {
         v_negPt[i] = dau->pt();
         v_negEta[i] = dau->eta();
         v_negPhi[i] = dau->phi();
         v_negTrkIdx[i] = trkIdx;
+        v_negNPixelHits[i] = nPixelHits;
+        v_negNStripHits[i] = nStripHits;
+        v_negIPSigXY[i] = ipSigXY;
       }
     }
   }
@@ -186,11 +205,29 @@ void HLTV0TableProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   table->addColumn<float>("posPhi", v_posPhi, "positive daughter #phi (rad)", 12);
   table->addColumn<int16_t>(
       "posTrkIdx", v_posTrkIdx, "index of the positive daughter in the input track collection (-1 if unavailable)");
+  table->addColumn<uint8_t>(
+      "posNPixelHits", v_posNPixelHits, "number of valid pixel hits of the positive daughter track");
+  table->addColumn<uint8_t>("posNStripHits",
+                            v_posNStripHits,
+                            "number of valid strip (phase-2: Outer Tracker) hits of the positive daughter track");
+  table->addColumn<float>("posIPSigXY",
+                          v_posIPSigXY,
+                          "transverse impact parameter significance of the positive daughter track w.r.t. the beamspot",
+                          10);
   table->addColumn<float>("negPt", v_negPt, "negative daughter p_T (GeV)", 10);
   table->addColumn<float>("negEta", v_negEta, "negative daughter #eta", 12);
   table->addColumn<float>("negPhi", v_negPhi, "negative daughter #phi (rad)", 12);
   table->addColumn<int16_t>(
       "negTrkIdx", v_negTrkIdx, "index of the negative daughter in the input track collection (-1 if unavailable)");
+  table->addColumn<uint8_t>(
+      "negNPixelHits", v_negNPixelHits, "number of valid pixel hits of the negative daughter track");
+  table->addColumn<uint8_t>("negNStripHits",
+                            v_negNStripHits,
+                            "number of valid strip (phase-2: Outer Tracker) hits of the negative daughter track");
+  table->addColumn<float>("negIPSigXY",
+                          v_negIPSigXY,
+                          "transverse impact parameter significance of the negative daughter track w.r.t. the beamspot",
+                          10);
 
   iEvent.put(std::move(table));
 }
