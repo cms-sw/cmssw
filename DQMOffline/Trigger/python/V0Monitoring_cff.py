@@ -4,13 +4,17 @@ import FWCore.ParameterSet.Config as cms
 # reconstructed online by hltGeneralV0Candidates (V0Producer run on hltGeneralTracks)
 import DQM.TrackingMonitor.V0Monitor_cff as _v0Monitor_cff
 
+# the number of primary vertices at phase-2 pileup (up to 200) is well beyond the default 0-100 axis
+_phase2PUPSet = dict(nbins = 300, xmin = -0.5, xmax = 299.5)
+
 hltKshortMonitoring = _v0Monitor_cff.KshortMonitoring.clone(
     FolderName    = 'HLT/Tracking/V0Monitoring/Ks',
     v0            = 'hltGeneralV0Candidates:Kshort',
     beamSpot      = 'hltOnlineBeamSpot',
     primaryVertex = 'hltPhase2PixelVertices',
     forceSCAL     = False,
-    pvNDOF        = 1
+    pvNDOF        = 1,
+    histoPSet     = dict(puPSet = _phase2PUPSet)
 )
 
 hltLambdaMonitoring = _v0Monitor_cff.LambdaMonitoring.clone(
@@ -19,7 +23,8 @@ hltLambdaMonitoring = _v0Monitor_cff.LambdaMonitoring.clone(
     beamSpot      = 'hltOnlineBeamSpot',
     primaryVertex = 'hltPhase2PixelVertices',
     forceSCAL     = False,
-    pvNDOF        = 1
+    pvNDOF        = 1,
+    histoPSet     = dict(puPSet = _phase2PUPSet)
 )
 
 # hltGeneralV0Candidates is only produced by the phase-2 NGT scouting menu:
