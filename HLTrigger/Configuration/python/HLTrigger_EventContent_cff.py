@@ -355,6 +355,7 @@ HLTDebugFEVT = cms.PSet(
         'keep *_hltFixedGridRhoFastjetAll_*_*',
         'keep *_hltFullSiStripRawToClustersFacility_*_*',
         'keep *_hltGeneralTracks_*_*',
+        'keep *_hltGeneralV0Candidates_*_*',
         'keep *_hltGlbTrkMuonCandsNoVtx_*_*',
         'keep *_hltGtStage2Digis_*_*',
         'keep *_hltHITrackingSiStripRawToClustersFacilityFullZeroSuppression_*_*',

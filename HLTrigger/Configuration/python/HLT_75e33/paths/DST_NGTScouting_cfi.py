@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from ..modules.hltL1GTAcceptFilter_cfi import *
 from ..modules.hltFixedGridRhoFastjetAllCaloForEGamma_cfi import *
+from ..modules.hltGeneralV0Candidates_cfi import *
 from ..modules.hltPFPuppiHT_cfi import *
 from ..modules.hltPFPuppiMETTypeOneCorrector_cfi import *
 from ..modules.hltPFPuppiMETTypeOne_cfi import *
@@ -45,6 +46,7 @@ DST_NGTScouting = cms.Path(
     + HLTTrackingSequence
     + HLTMuonsSequence
     + HLTParticleFlowSequence
+    + hltGeneralV0Candidates
     + hltParticleFlowRecHitECALUnseeded
     + hltParticleFlowClusterECALUncorrectedUnseeded
     + hltParticleFlowClusterECALUnseeded

@@ -50,6 +50,7 @@ from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
 from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
 from DQMOffline.Trigger.TrackToTrackMonitoring_cff import *
+from DQMOffline.Trigger.V0Monitoring_cff import *
 
 # hcal
 from DQMOffline.Trigger.HCALMonitoring_cff import *
@@ -215,7 +216,8 @@ _offlineHLTSource4HLTMonitorPDPh2 = cms.Sequence(
     trackingMonitorHLT *                  # tracking
     egmTrackingMonitorHLT *               # EGM tracking
     hltToOfflineTrackValidatorSequence *  # Relative Online to Offline performace
-    vertexingMonitorHLT                   # vertexing
+    vertexingMonitorHLT *                 # vertexing
+    v0MonitoringHLT                       # K0s and Lambda from hltGeneralV0Candidates
 )
 
 # remove Strip HLT monitoring in the phase-2 sequence

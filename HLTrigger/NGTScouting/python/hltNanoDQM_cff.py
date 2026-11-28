@@ -81,6 +81,40 @@ hltNanoDQM = DQMEDAnalyzer("NanoAODDQM",
                 Plot1D('isGood', 'isGood', 2, 0, 2, 'vertex isGood')
             )
         ),
+        hltKshort = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('mass', 'mass', 100, 0.40, 0.60, 'K0s mass'),
+                Plot1D('pt', 'pt', 50, 0, 50, 'K0s pt'),
+                Plot1D('eta', 'eta', 20, -4., 4., 'K0s eta'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'K0s phi'),
+                Plot1D('chi2', 'chi2', 30, 0, 7, 'K0s vertex reduced chi2'),
+                Plot1D('lxy', 'lxy', 70, 0, 70, 'K0s transverse decay length wrt beamspot'),
+                Plot1D('lxySig', 'lxySig', 50, 0, 500, 'K0s transverse decay length significance wrt beamspot'),
+                Plot1D('cosThetaXY', 'cosThetaXY', 50, 0.998, 1.0, 'K0s cos(transverse pointing angle)'),
+                Plot1D('l3d', 'l3d', 70, 0, 70, 'K0s 3D decay length wrt leading PV'),
+                Plot1D('cosTheta3D', 'cosTheta3D', 50, -1., 1., 'K0s cos(3D pointing angle)'),
+                Plot1D('posPt', 'posPt', 50, 0, 25, 'K0s positive daughter pt'),
+                Plot1D('negPt', 'negPt', 50, 0, 25, 'K0s negative daughter pt'),
+            )
+        ),
+        hltLambda = cms.PSet(
+            sels = cms.PSet(),
+            plots = cms.VPSet(
+                Plot1D('mass', 'mass', 100, 1.05, 1.25, 'Lambda mass'),
+                Plot1D('pt', 'pt', 50, 0, 50, 'Lambda pt'),
+                Plot1D('eta', 'eta', 20, -4., 4., 'Lambda eta'),
+                Plot1D('phi', 'phi', 20, -3.14159, 3.14159, 'Lambda phi'),
+                Plot1D('chi2', 'chi2', 30, 0, 7, 'Lambda vertex reduced chi2'),
+                Plot1D('lxy', 'lxy', 70, 0, 70, 'Lambda transverse decay length wrt beamspot'),
+                Plot1D('lxySig', 'lxySig', 50, 0, 500, 'Lambda transverse decay length significance wrt beamspot'),
+                Plot1D('cosThetaXY', 'cosThetaXY', 50, 0.998, 1.0, 'Lambda cos(transverse pointing angle)'),
+                Plot1D('l3d', 'l3d', 70, 0, 70, 'Lambda 3D decay length wrt leading PV'),
+                Plot1D('cosTheta3D', 'cosTheta3D', 50, -1., 1., 'Lambda cos(3D pointing angle)'),
+                Plot1D('posPt', 'posPt', 50, 0, 25, 'Lambda positive daughter pt'),
+                Plot1D('negPt', 'negPt', 50, 0, 25, 'Lambda negative daughter pt'),
+            )
+        ),
         hltPrimaryVertex = cms.PSet(
             sels = cms.PSet(),
             plots = cms.VPSet(
