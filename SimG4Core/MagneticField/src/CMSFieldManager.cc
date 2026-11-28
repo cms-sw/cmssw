@@ -59,7 +59,7 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
 
   // double
   m_dChord = p.getParameter<double>("DeltaChord") * CLHEP::mm;
-  m_dChordTracker = p.getParameter<double>("DeltaChord") * CLHEP::mm;
+  m_dChordTracker = p.getParameter<double>("DeltaChordTracker") * CLHEP::mm;
   m_dOneStep = p.getParameter<double>("DeltaOneStep") * CLHEP::mm;
   m_dOneStepTracker = p.getParameter<double>("DeltaOneStepTracker") * CLHEP::mm;
   m_dIntersection = p.getParameter<double>("DeltaIntersection") * CLHEP::mm;
@@ -89,6 +89,7 @@ void CMSFieldManager::InitialiseForVolume(const edm::ParameterSet &p,
       << "               MinStep                     " << minstep << " mm\n"
       << "               MaxStep                     " << m_stepMax / CLHEP::cm << " cm\n"
       << "               DeltaChord                  " << m_dChord << " mm\n"
+      << "               DeltaChordTracker           " << m_dChordTracker << " mm\n"
       << "               DeltaOneStep                " << m_dOneStep << " mm\n"
       << "               DeltaIntersection           " << m_dIntersection << " mm\n"
       << "               DeltaInterTracker           " << m_dInterTracker << " mm\n"
