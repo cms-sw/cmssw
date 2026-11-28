@@ -2,6 +2,8 @@
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/Candidate"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="DataFormats/Math"/>
 <use name="DataFormats/NanoAOD"/>
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="DataFormats/PatCandidates"/>
@@ -9,6 +11,7 @@
 <use name="DataFormats/Scouting"/>
 <use name="DataFormats/TrackSoA"/>
 <use name="DataFormats/StdDictionaries"/>
+<use name="DataFormats/TrackReco"/>
 <use name="DataFormats/VertexReco"/>
 <use name="FWCore/Common"/>
 <use name="FWCore/Framework"/>
@@ -19,5 +22,7 @@
 <use name="PhysicsTools/NanoAOD"/>
 <use name="RecoVertex/VertexPrimitives"/>
 <use name="RecoVertex/VertexTools"/>
+<use name="SimDataFormats/Associations"/>
 <use name="SimDataFormats/CaloAnalysis"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
 <use name="boost"/>
